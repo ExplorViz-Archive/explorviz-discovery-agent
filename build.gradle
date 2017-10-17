@@ -12,6 +12,16 @@ buildscript {
 }
 
 
+// Add gRPC generated files to build path
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/grpc'            
+        }
+    }
+ }
+
+
 repositories {
     jcenter()
     maven { url 'https://jitpack.io' }
