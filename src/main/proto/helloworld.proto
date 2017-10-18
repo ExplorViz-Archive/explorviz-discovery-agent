@@ -2,6 +2,30 @@ syntax = "proto3";
 
 option java_package = "net.explorviz.extension.discoveryagent.grpc";
 
+import "google/protobuf/empty.proto";
+
+message ProcessCollection {
+	repeated Process processes = 1;
+}
+
+message Process {
+	string applicationName = 1;
+	int64 pid = 2;
+	string executionCommand = 3;
+	string shutdownCommand = 4;
+}
+
+service DiscoveryNotifier {
+	rpc SendProcesses (ProcessCollection) returns (google.protobuf.Empty) {}
+}
+
+
+
+
+
+// hello world example
+
+
 // The greeting service definition.
 service Greeter {
   // Sends a greeting

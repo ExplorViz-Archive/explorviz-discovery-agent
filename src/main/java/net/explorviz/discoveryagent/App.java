@@ -13,7 +13,7 @@ public class App {
 		// -Dkieker.monitoring.skipDefaultAOPConfiguration=true
 		// -cp lib/*
 
-		List<de.jprocessutil.process.Process> runningProcs;
+		List<de.jprocessutil.process.Process> runningProcs = null;
 
 		try {
 
@@ -21,7 +21,7 @@ public class App {
 
 			runningProcs.forEach((i) -> System.out.println(i));
 
-			runningProcs.forEach((i) -> {
+			/*runningProcs.forEach((i) -> {
 				if (i.getPid() == 17551) {
 					try {
 						i.kill();
@@ -31,7 +31,7 @@ public class App {
 						e.printStackTrace();
 					}
 				}
-			});
+			});*/
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -40,7 +40,7 @@ public class App {
 		// Testing network transfer via gRPC
 		GRPCClient client = new GRPCClient("127.0.0.1", 8085);
 		try {
-			client.greet("Alex");
+			client.sendProcesses(runningProcs);
 		} finally {
 			try {
 				client.shutdown();

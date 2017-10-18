@@ -14,6 +14,1620 @@ public final class Helloworld {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
+  public interface ProcessCollectionOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ProcessCollection)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> 
+        getProcessesList();
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getProcesses(int index);
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    int getProcessesCount();
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    java.util.List<? extends net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder> 
+        getProcessesOrBuilderList();
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder getProcessesOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code ProcessCollection}
+   */
+  public  static final class ProcessCollection extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:ProcessCollection)
+      ProcessCollectionOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use ProcessCollection.newBuilder() to construct.
+    private ProcessCollection(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ProcessCollection() {
+      processes_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ProcessCollection(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                processes_ = new java.util.ArrayList<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              processes_.add(
+                  input.readMessage(net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.parser(), extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          processes_ = java.util.Collections.unmodifiableList(processes_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_ProcessCollection_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_ProcessCollection_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.class, net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.Builder.class);
+    }
+
+    public static final int PROCESSES_FIELD_NUMBER = 1;
+    private java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> processes_;
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    public java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> getProcessesList() {
+      return processes_;
+    }
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    public java.util.List<? extends net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder> 
+        getProcessesOrBuilderList() {
+      return processes_;
+    }
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    public int getProcessesCount() {
+      return processes_.size();
+    }
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getProcesses(int index) {
+      return processes_.get(index);
+    }
+    /**
+     * <code>repeated .Process processes = 1;</code>
+     */
+    public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder getProcessesOrBuilder(
+        int index) {
+      return processes_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < processes_.size(); i++) {
+        output.writeMessage(1, processes_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < processes_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, processes_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection)) {
+        return super.equals(obj);
+      }
+      net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection other = (net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection) obj;
+
+      boolean result = true;
+      result = result && getProcessesList()
+          .equals(other.getProcessesList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getProcessesCount() > 0) {
+        hash = (37 * hash) + PROCESSES_FIELD_NUMBER;
+        hash = (53 * hash) + getProcessesList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code ProcessCollection}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:ProcessCollection)
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollectionOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_ProcessCollection_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_ProcessCollection_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.class, net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.Builder.class);
+      }
+
+      // Construct using net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getProcessesFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (processesBuilder_ == null) {
+          processes_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          processesBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_ProcessCollection_descriptor;
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection getDefaultInstanceForType() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.getDefaultInstance();
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection build() {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection buildPartial() {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection result = new net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection(this);
+        int from_bitField0_ = bitField0_;
+        if (processesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            processes_ = java.util.Collections.unmodifiableList(processes_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.processes_ = processes_;
+        } else {
+          result.processes_ = processesBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection) {
+          return mergeFrom((net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection other) {
+        if (other == net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection.getDefaultInstance()) return this;
+        if (processesBuilder_ == null) {
+          if (!other.processes_.isEmpty()) {
+            if (processes_.isEmpty()) {
+              processes_ = other.processes_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureProcessesIsMutable();
+              processes_.addAll(other.processes_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.processes_.isEmpty()) {
+            if (processesBuilder_.isEmpty()) {
+              processesBuilder_.dispose();
+              processesBuilder_ = null;
+              processes_ = other.processes_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              processesBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getProcessesFieldBuilder() : null;
+            } else {
+              processesBuilder_.addAllMessages(other.processes_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> processes_ =
+        java.util.Collections.emptyList();
+      private void ensureProcessesIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          processes_ = new java.util.ArrayList<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process>(processes_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          net.explorviz.extension.discoveryagent.grpc.Helloworld.Process, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder, net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder> processesBuilder_;
+
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> getProcessesList() {
+        if (processesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(processes_);
+        } else {
+          return processesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public int getProcessesCount() {
+        if (processesBuilder_ == null) {
+          return processes_.size();
+        } else {
+          return processesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getProcesses(int index) {
+        if (processesBuilder_ == null) {
+          return processes_.get(index);
+        } else {
+          return processesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder setProcesses(
+          int index, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process value) {
+        if (processesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureProcessesIsMutable();
+          processes_.set(index, value);
+          onChanged();
+        } else {
+          processesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder setProcesses(
+          int index, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder builderForValue) {
+        if (processesBuilder_ == null) {
+          ensureProcessesIsMutable();
+          processes_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          processesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder addProcesses(net.explorviz.extension.discoveryagent.grpc.Helloworld.Process value) {
+        if (processesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureProcessesIsMutable();
+          processes_.add(value);
+          onChanged();
+        } else {
+          processesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder addProcesses(
+          int index, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process value) {
+        if (processesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureProcessesIsMutable();
+          processes_.add(index, value);
+          onChanged();
+        } else {
+          processesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder addProcesses(
+          net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder builderForValue) {
+        if (processesBuilder_ == null) {
+          ensureProcessesIsMutable();
+          processes_.add(builderForValue.build());
+          onChanged();
+        } else {
+          processesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder addProcesses(
+          int index, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder builderForValue) {
+        if (processesBuilder_ == null) {
+          ensureProcessesIsMutable();
+          processes_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          processesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder addAllProcesses(
+          java.lang.Iterable<? extends net.explorviz.extension.discoveryagent.grpc.Helloworld.Process> values) {
+        if (processesBuilder_ == null) {
+          ensureProcessesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, processes_);
+          onChanged();
+        } else {
+          processesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder clearProcesses() {
+        if (processesBuilder_ == null) {
+          processes_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          processesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public Builder removeProcesses(int index) {
+        if (processesBuilder_ == null) {
+          ensureProcessesIsMutable();
+          processes_.remove(index);
+          onChanged();
+        } else {
+          processesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder getProcessesBuilder(
+          int index) {
+        return getProcessesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder getProcessesOrBuilder(
+          int index) {
+        if (processesBuilder_ == null) {
+          return processes_.get(index);  } else {
+          return processesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public java.util.List<? extends net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder> 
+           getProcessesOrBuilderList() {
+        if (processesBuilder_ != null) {
+          return processesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(processes_);
+        }
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder addProcessesBuilder() {
+        return getProcessesFieldBuilder().addBuilder(
+            net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder addProcessesBuilder(
+          int index) {
+        return getProcessesFieldBuilder().addBuilder(
+            index, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .Process processes = 1;</code>
+       */
+      public java.util.List<net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder> 
+           getProcessesBuilderList() {
+        return getProcessesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          net.explorviz.extension.discoveryagent.grpc.Helloworld.Process, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder, net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder> 
+          getProcessesFieldBuilder() {
+        if (processesBuilder_ == null) {
+          processesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              net.explorviz.extension.discoveryagent.grpc.Helloworld.Process, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder, net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder>(
+                  processes_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          processes_ = null;
+        }
+        return processesBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:ProcessCollection)
+    }
+
+    // @@protoc_insertion_point(class_scope:ProcessCollection)
+    private static final net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection();
+    }
+
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ProcessCollection>
+        PARSER = new com.google.protobuf.AbstractParser<ProcessCollection>() {
+      public ProcessCollection parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new ProcessCollection(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ProcessCollection> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ProcessCollection> getParserForType() {
+      return PARSER;
+    }
+
+    public net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessCollection getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface ProcessOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Process)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>string applicationName = 1;</code>
+     */
+    java.lang.String getApplicationName();
+    /**
+     * <code>string applicationName = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getApplicationNameBytes();
+
+    /**
+     * <code>int64 pid = 2;</code>
+     */
+    long getPid();
+
+    /**
+     * <code>string executionCommand = 3;</code>
+     */
+    java.lang.String getExecutionCommand();
+    /**
+     * <code>string executionCommand = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getExecutionCommandBytes();
+
+    /**
+     * <code>string shutdownCommand = 4;</code>
+     */
+    java.lang.String getShutdownCommand();
+    /**
+     * <code>string shutdownCommand = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getShutdownCommandBytes();
+  }
+  /**
+   * Protobuf type {@code Process}
+   */
+  public  static final class Process extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:Process)
+      ProcessOrBuilder {
+  private static final long serialVersionUID = 0L;
+    // Use Process.newBuilder() to construct.
+    private Process(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private Process() {
+      applicationName_ = "";
+      pid_ = 0L;
+      executionCommand_ = "";
+      shutdownCommand_ = "";
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Process(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownFieldProto3(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              applicationName_ = s;
+              break;
+            }
+            case 16: {
+
+              pid_ = input.readInt64();
+              break;
+            }
+            case 26: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              executionCommand_ = s;
+              break;
+            }
+            case 34: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              shutdownCommand_ = s;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_Process_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_Process_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.class, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder.class);
+    }
+
+    public static final int APPLICATIONNAME_FIELD_NUMBER = 1;
+    private volatile java.lang.Object applicationName_;
+    /**
+     * <code>string applicationName = 1;</code>
+     */
+    public java.lang.String getApplicationName() {
+      java.lang.Object ref = applicationName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        applicationName_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string applicationName = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getApplicationNameBytes() {
+      java.lang.Object ref = applicationName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        applicationName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PID_FIELD_NUMBER = 2;
+    private long pid_;
+    /**
+     * <code>int64 pid = 2;</code>
+     */
+    public long getPid() {
+      return pid_;
+    }
+
+    public static final int EXECUTIONCOMMAND_FIELD_NUMBER = 3;
+    private volatile java.lang.Object executionCommand_;
+    /**
+     * <code>string executionCommand = 3;</code>
+     */
+    public java.lang.String getExecutionCommand() {
+      java.lang.Object ref = executionCommand_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        executionCommand_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string executionCommand = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getExecutionCommandBytes() {
+      java.lang.Object ref = executionCommand_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        executionCommand_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SHUTDOWNCOMMAND_FIELD_NUMBER = 4;
+    private volatile java.lang.Object shutdownCommand_;
+    /**
+     * <code>string shutdownCommand = 4;</code>
+     */
+    public java.lang.String getShutdownCommand() {
+      java.lang.Object ref = shutdownCommand_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        shutdownCommand_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>string shutdownCommand = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getShutdownCommandBytes() {
+      java.lang.Object ref = shutdownCommand_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        shutdownCommand_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!getApplicationNameBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, applicationName_);
+      }
+      if (pid_ != 0L) {
+        output.writeInt64(2, pid_);
+      }
+      if (!getExecutionCommandBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, executionCommand_);
+      }
+      if (!getShutdownCommandBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, shutdownCommand_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!getApplicationNameBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, applicationName_);
+      }
+      if (pid_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, pid_);
+      }
+      if (!getExecutionCommandBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, executionCommand_);
+      }
+      if (!getShutdownCommandBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, shutdownCommand_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof net.explorviz.extension.discoveryagent.grpc.Helloworld.Process)) {
+        return super.equals(obj);
+      }
+      net.explorviz.extension.discoveryagent.grpc.Helloworld.Process other = (net.explorviz.extension.discoveryagent.grpc.Helloworld.Process) obj;
+
+      boolean result = true;
+      result = result && getApplicationName()
+          .equals(other.getApplicationName());
+      result = result && (getPid()
+          == other.getPid());
+      result = result && getExecutionCommand()
+          .equals(other.getExecutionCommand());
+      result = result && getShutdownCommand()
+          .equals(other.getShutdownCommand());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + APPLICATIONNAME_FIELD_NUMBER;
+      hash = (53 * hash) + getApplicationName().hashCode();
+      hash = (37 * hash) + PID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getPid());
+      hash = (37 * hash) + EXECUTIONCOMMAND_FIELD_NUMBER;
+      hash = (53 * hash) + getExecutionCommand().hashCode();
+      hash = (37 * hash) + SHUTDOWNCOMMAND_FIELD_NUMBER;
+      hash = (53 * hash) + getShutdownCommand().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(net.explorviz.extension.discoveryagent.grpc.Helloworld.Process prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code Process}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:Process)
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.ProcessOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_Process_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_Process_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.class, net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.Builder.class);
+      }
+
+      // Construct using net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        applicationName_ = "";
+
+        pid_ = 0L;
+
+        executionCommand_ = "";
+
+        shutdownCommand_ = "";
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.internal_static_Process_descriptor;
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getDefaultInstanceForType() {
+        return net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.getDefaultInstance();
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process build() {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.Process result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process buildPartial() {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.Process result = new net.explorviz.extension.discoveryagent.grpc.Helloworld.Process(this);
+        result.applicationName_ = applicationName_;
+        result.pid_ = pid_;
+        result.executionCommand_ = executionCommand_;
+        result.shutdownCommand_ = shutdownCommand_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof net.explorviz.extension.discoveryagent.grpc.Helloworld.Process) {
+          return mergeFrom((net.explorviz.extension.discoveryagent.grpc.Helloworld.Process)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(net.explorviz.extension.discoveryagent.grpc.Helloworld.Process other) {
+        if (other == net.explorviz.extension.discoveryagent.grpc.Helloworld.Process.getDefaultInstance()) return this;
+        if (!other.getApplicationName().isEmpty()) {
+          applicationName_ = other.applicationName_;
+          onChanged();
+        }
+        if (other.getPid() != 0L) {
+          setPid(other.getPid());
+        }
+        if (!other.getExecutionCommand().isEmpty()) {
+          executionCommand_ = other.executionCommand_;
+          onChanged();
+        }
+        if (!other.getShutdownCommand().isEmpty()) {
+          shutdownCommand_ = other.shutdownCommand_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        net.explorviz.extension.discoveryagent.grpc.Helloworld.Process parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (net.explorviz.extension.discoveryagent.grpc.Helloworld.Process) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private java.lang.Object applicationName_ = "";
+      /**
+       * <code>string applicationName = 1;</code>
+       */
+      public java.lang.String getApplicationName() {
+        java.lang.Object ref = applicationName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          applicationName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string applicationName = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getApplicationNameBytes() {
+        java.lang.Object ref = applicationName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          applicationName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string applicationName = 1;</code>
+       */
+      public Builder setApplicationName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        applicationName_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string applicationName = 1;</code>
+       */
+      public Builder clearApplicationName() {
+        
+        applicationName_ = getDefaultInstance().getApplicationName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string applicationName = 1;</code>
+       */
+      public Builder setApplicationNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        applicationName_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long pid_ ;
+      /**
+       * <code>int64 pid = 2;</code>
+       */
+      public long getPid() {
+        return pid_;
+      }
+      /**
+       * <code>int64 pid = 2;</code>
+       */
+      public Builder setPid(long value) {
+        
+        pid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int64 pid = 2;</code>
+       */
+      public Builder clearPid() {
+        
+        pid_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object executionCommand_ = "";
+      /**
+       * <code>string executionCommand = 3;</code>
+       */
+      public java.lang.String getExecutionCommand() {
+        java.lang.Object ref = executionCommand_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          executionCommand_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string executionCommand = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getExecutionCommandBytes() {
+        java.lang.Object ref = executionCommand_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          executionCommand_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string executionCommand = 3;</code>
+       */
+      public Builder setExecutionCommand(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        executionCommand_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string executionCommand = 3;</code>
+       */
+      public Builder clearExecutionCommand() {
+        
+        executionCommand_ = getDefaultInstance().getExecutionCommand();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string executionCommand = 3;</code>
+       */
+      public Builder setExecutionCommandBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        executionCommand_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object shutdownCommand_ = "";
+      /**
+       * <code>string shutdownCommand = 4;</code>
+       */
+      public java.lang.String getShutdownCommand() {
+        java.lang.Object ref = shutdownCommand_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          shutdownCommand_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>string shutdownCommand = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getShutdownCommandBytes() {
+        java.lang.Object ref = shutdownCommand_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          shutdownCommand_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>string shutdownCommand = 4;</code>
+       */
+      public Builder setShutdownCommand(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        shutdownCommand_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string shutdownCommand = 4;</code>
+       */
+      public Builder clearShutdownCommand() {
+        
+        shutdownCommand_ = getDefaultInstance().getShutdownCommand();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>string shutdownCommand = 4;</code>
+       */
+      public Builder setShutdownCommandBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        shutdownCommand_ = value;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFieldsProto3(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:Process)
+    }
+
+    // @@protoc_insertion_point(class_scope:Process)
+    private static final net.explorviz.extension.discoveryagent.grpc.Helloworld.Process DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new net.explorviz.extension.discoveryagent.grpc.Helloworld.Process();
+    }
+
+    public static net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<Process>
+        PARSER = new com.google.protobuf.AbstractParser<Process>() {
+      public Process parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Process(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Process> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Process> getParserForType() {
+      return PARSER;
+    }
+
+    public net.explorviz.extension.discoveryagent.grpc.Helloworld.Process getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface HelloRequestOrBuilder extends
       // @@protoc_insertion_point(interface_extends:HelloRequest)
       com.google.protobuf.MessageOrBuilder {
@@ -1075,6 +2689,16 @@ public final class Helloworld {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_ProcessCollection_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_ProcessCollection_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_Process_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_Process_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_HelloRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -1093,11 +2717,18 @@ public final class Helloworld {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\020helloworld.proto\"\034\n\014HelloRequest\022\014\n\004na" +
-      "me\030\001 \001(\t\"\035\n\nHelloReply\022\017\n\007message\030\001 \001(\t2" +
-      "3\n\007Greeter\022(\n\010SayHello\022\r.HelloRequest\032\013." +
-      "HelloReply\"\000B-\n+net.explorviz.extension." +
-      "discoveryagent.grpcb\006proto3"
+      "\n\020helloworld.proto\032\033google/protobuf/empt" +
+      "y.proto\"0\n\021ProcessCollection\022\033\n\tprocesse" +
+      "s\030\001 \003(\0132\010.Process\"b\n\007Process\022\027\n\017applicat" +
+      "ionName\030\001 \001(\t\022\013\n\003pid\030\002 \001(\003\022\030\n\020executionC" +
+      "ommand\030\003 \001(\t\022\027\n\017shutdownCommand\030\004 \001(\t\"\034\n" +
+      "\014HelloRequest\022\014\n\004name\030\001 \001(\t\"\035\n\nHelloRepl" +
+      "y\022\017\n\007message\030\001 \001(\t2R\n\021DiscoveryNotifier\022" +
+      "=\n\rSendProcesses\022\022.ProcessCollection\032\026.g" +
+      "oogle.protobuf.Empty\"\00023\n\007Greeter\022(\n\010Say" +
+      "Hello\022\r.HelloRequest\032\013.HelloReply\"\000B-\n+n",
+      "et.explorviz.extension.discoveryagent.gr" +
+      "pcb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1110,19 +2741,33 @@ public final class Helloworld {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.google.protobuf.EmptyProto.getDescriptor(),
         }, assigner);
-    internal_static_HelloRequest_descriptor =
+    internal_static_ProcessCollection_descriptor =
       getDescriptor().getMessageTypes().get(0);
+    internal_static_ProcessCollection_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_ProcessCollection_descriptor,
+        new java.lang.String[] { "Processes", });
+    internal_static_Process_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_Process_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_Process_descriptor,
+        new java.lang.String[] { "ApplicationName", "Pid", "ExecutionCommand", "ShutdownCommand", });
+    internal_static_HelloRequest_descriptor =
+      getDescriptor().getMessageTypes().get(2);
     internal_static_HelloRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_HelloRequest_descriptor,
         new java.lang.String[] { "Name", });
     internal_static_HelloReply_descriptor =
-      getDescriptor().getMessageTypes().get(1);
+      getDescriptor().getMessageTypes().get(3);
     internal_static_HelloReply_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_HelloReply_descriptor,
         new java.lang.String[] { "Message", });
+    com.google.protobuf.EmptyProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
