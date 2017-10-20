@@ -22,16 +22,15 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-@SuppressWarnings("hiding")
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class JSONAPIProvider<Process> implements MessageBodyReader<Process>, MessageBodyWriter<Process> {
+public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyWriter<Process> {
 
 	final ResourceConverter converter;
 
 	@Inject
-	public JSONAPIProvider(ResourceConverter converter) {
+	public ProcessProvider(ResourceConverter converter) {
 		this.converter = converter;
 	}
 
@@ -45,7 +44,7 @@ public class JSONAPIProvider<Process> implements MessageBodyReader<Process>, Mes
 	public void writeTo(Process t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
 			throws IOException, WebApplicationException {
-		
+
 		System.out.println("Writing 1");
 
 		JSONAPIDocument<Process> document = new JSONAPIDocument<Process>(t);
