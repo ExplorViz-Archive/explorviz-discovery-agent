@@ -1,25 +1,4 @@
 apply plugin: 'java-library'
-apply plugin: 'com.google.protobuf'
-
-
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
-  }
-}
-
-
-// Add gRPC generated files to build path
-sourceSets {
-    main {
-        java {
-            srcDirs 'src/main/grpc'            
-        }
-    }
- }
 
 
 repositories {
@@ -32,31 +11,6 @@ dependencies {
 
 	// Process abstraction & orchestration
 	compile 'com.github.Alexander-Krause:jProcessUtil:40bbb59'
-	
-	// Network communication via gRPC
-	compile 'io.grpc:grpc-netty:1.7.0'
-	compile 'io.grpc:grpc-protobuf:1.7.0'
-	compile 'io.grpc:grpc-stub:1.7.0'
 
     testCompile 'junit:junit:4.12'
-}
-
-
-protobuf {
-
-	generatedFilesBaseDir = "$projectDir/src"
-
-	protoc {
-		artifact = "com.google.protobuf:protoc:3.4.0"
-	}
-	plugins {
-		grpc {
-			artifact = 'io.grpc:protoc-gen-grpc-java:1.7.0'
-		}
-	}
-	generateProtoTasks {
-		all()*.plugins {
-			grpc {}
-		}
-	}
 }
