@@ -4,11 +4,12 @@ import java.io.IOException;
 
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Type;
+import com.github.jasminb.jsonapi.LongIdHandler;
 
 @Type("process")
 public class Process {
 	
-	@Id
+	@Id(LongIdHandler.class)
 	private long pid;
 
 	private String applicationName;

@@ -12,13 +12,13 @@ import net.explorviz.discoveryagent.process.ProcessFactory;
 
 public class NotifyService {
 
-	public void testConnection() {
+	public static void testConnection() {
 
 		try {
 
 			Client client = Client.create();
 
-			WebResource webResource = client.resource("http://localhost:8081/extension/discovery/update-process");
+			WebResource webResource = client.resource("http://localhost:8081/extension/discovery/process/notify");
 
 			ResourceConverterFactory converterFactory = new ResourceConverterFactory();
 			ResourceConverter converter = converterFactory.provide();
@@ -28,6 +28,8 @@ public class NotifyService {
 
 			ClientResponse response = webResource.type("application/json").post(ClientResponse.class,
 					converter.writeDocument(document));
+			
+			//ClientResponse response = webResource.type("application/json").post(ClientResponse.class, "test");
 
 			if (response.getStatus() != 201) {
 				throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());

@@ -4,6 +4,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import net.explorviz.discoveryagent.services.NotifyService;
+
 @WebListener
 public class SetupListener implements ServletContextListener {
 
@@ -13,6 +15,8 @@ public class SetupListener implements ServletContextListener {
 		System.out.println("* * * * * * * * * * * * * * * * * * *\n");
 		System.out.println("Server started.");
 		System.out.println("* * * * * * * * * * * * * * * * * * *");
+		
+		NotifyService.testConnection();
 
 	}
 
