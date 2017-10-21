@@ -15,8 +15,11 @@ public class Process {
 	private String applicationName;
 	private String executionCommand;
 	private String shutdownCommand;
+	
+	// For JSON deserialization
+	public Process() {}
 
-	Process(long newPID, String newCommand) {
+	public Process(long newPID, String newCommand) {
 		this.pid = newPID;
 		this.executionCommand = newCommand;
 	}

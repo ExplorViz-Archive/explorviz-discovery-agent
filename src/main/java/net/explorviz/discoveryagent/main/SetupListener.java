@@ -16,7 +16,7 @@ public class SetupListener implements ServletContextListener {
 		System.out.println("Server started.");
 		System.out.println("* * * * * * * * * * * * * * * * * * *");
 		
-		NotifyService.testConnection();
+		NotifyService.testProcessList();
 
 	}
 

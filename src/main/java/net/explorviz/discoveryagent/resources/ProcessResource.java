@@ -1,6 +1,7 @@
 package net.explorviz.discoveryagent.resources;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,7 +14,13 @@ public class ProcessResource {
 
 	@GET
 	@Path("/get")
-	public Process getProcess() throws IOException {
+	public Process giveProcess() throws IOException {
 		return ProcessFactory.getJavaProcessesList().get(0);
+	}
+	
+	@GET
+	@Path("/list")
+	public List<Process> giveProcessList() throws IOException {
+		return ProcessFactory.getJavaProcessesList();
 	}
 }

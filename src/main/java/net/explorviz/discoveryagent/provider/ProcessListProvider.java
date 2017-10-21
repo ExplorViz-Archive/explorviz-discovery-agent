@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -25,12 +26,12 @@ import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyWriter<Process> {
+public class ProcessListProvider implements MessageBodyReader<List<Process>>, MessageBodyWriter<List<Process>> {
 
 	final ResourceConverter converter;
 
 	@Inject
-	public ProcessProvider(ResourceConverter converter) {
+	public ProcessListProvider(ResourceConverter converter) {
 		this.converter = converter;
 	}
 
@@ -41,16 +42,16 @@ public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyW
 	}
 
 	@Override
-	public void writeTo(Process t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+	public void writeTo(List<Process> t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
 			throws IOException, WebApplicationException {
 
-		JSONAPIDocument<Process> document = new JSONAPIDocument<Process>(t);
+		JSONAPIDocument<List<Process>> document = new JSONAPIDocument<List<Process>>(t);
 
 		try {
-			entityStream.write(this.converter.writeDocument(document));
+			entityStream.write(this.converter.writeDocumentCollection(document));
 		} catch (DocumentSerializationException e) {
-			System.err.println("Error when serializing Process: " + e);
+			System.err.println("Error when serializing Process List: " + e);
 		} finally {
 			entityStream.flush();
 			entityStream.close();
@@ -65,10 +66,10 @@ public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyW
 	}
 
 	@Override
-	public Process readFrom(Class<Process> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+	public List<Process> readFrom(Class<List<Process>> type, Type genericType, Annotation[] annotations,
+			MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {
-		return this.converter.readDocument(entityStream, type).get();
+		return this.converter.readDocumentCollection(entityStream, Process.class).get();
 	}
 
 }
