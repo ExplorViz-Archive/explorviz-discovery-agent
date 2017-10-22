@@ -15,7 +15,7 @@ public class ClientService {
 	public static boolean postProcessList(byte[] processListPayload) {
 		return doPost(processListPayload, "http://localhost:8081/extension/discovery/process/notify-list");
 	}
-	
+
 	public static boolean postProcess(byte[] processPayload) {
 		return doPost(processPayload, "http://localhost:8081/extension/discovery/process/notify");
 	}
@@ -27,7 +27,8 @@ public class ClientService {
 		ClientResponse response;
 
 		try {
-			response = webResource.type("application/json").post(ClientResponse.class, payload);
+			response = webResource.type("application/json").header("X-Forwarded-For", "127.0.0.1")
+					.header("X-Forwarded-Port", "8082").post(ClientResponse.class, payload);
 		} catch (UniformInterfaceException | ClientHandlerException e) {
 			logger.severe("Connection to backend failed, probably not online or wrong IP: " + e);
 			return false;
