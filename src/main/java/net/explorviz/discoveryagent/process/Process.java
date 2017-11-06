@@ -5,18 +5,14 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.jasminb.jsonapi.LongIdHandler;
-import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("process")
-public class Process {
+public class Process extends BaseModel {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
-	@Id(LongIdHandler.class)
 	private long pid;
-
 	private String applicationName;
 	private String executionCommand;
 	private String shutdownCommand;

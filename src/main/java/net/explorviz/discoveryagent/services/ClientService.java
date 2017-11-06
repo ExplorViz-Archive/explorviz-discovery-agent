@@ -25,9 +25,9 @@ public final class ClientService {
 
 	static {
 		try {
-			PROP.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("foo.properties"));
+			PROP.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("explorviz.properties"));
 		} catch (final IOException e) {
-			LOGGER.error("Couldn't load properties file: ", e);
+			LOGGER.error("Couldn't load properties file. Is WEB-INF/classes/explorviz.properties a valid file? ");
 		}
 	}
 
@@ -48,14 +48,13 @@ public final class ClientService {
 		final String ip = (String) PROP.get("agentIP");
 		final String port = (String) PROP.get("agentPort");
 
-		LOGGER.info("ip und port", ip, port);
-
 		try {
 			response = webResource.type("application/json").header("X-Forwarded-For", ip)
 					.header("X-Forwarded-Port", port).post(ClientResponse.class, payload);
 		} catch (UniformInterfaceException | ClientHandlerException e) {
 			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Connection to backend failed, probably not online or wrong IP: ", e);
+				LOGGER.warn(
+						"Connection to backend failed, probably not online or wrong IP. Check IP in WEB-INF/classes/explorviz.properties.");
 			}
 			return false;
 		}
