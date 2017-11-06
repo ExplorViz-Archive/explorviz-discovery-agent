@@ -16,41 +16,47 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import net.explorviz.discoveryagent.process.Process;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
+
+import net.explorviz.discoveryagent.process.Process;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyWriter<Process> {
 
-	final ResourceConverter converter;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessProvider.class);
+
+	private final ResourceConverter converter;
 
 	@Inject
-	public ProcessProvider(ResourceConverter converter) {
+	public ProcessProvider(final ResourceConverter converter) {
 		this.converter = converter;
 	}
 
 	@Override
-	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+	public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	public void writeTo(Process t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-			throws IOException, WebApplicationException {
+	public void writeTo(final Process t, final Class<?> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType, final MultivaluedMap<String, Object> httpHeaders,
+			final OutputStream entityStream) throws IOException, WebApplicationException {
 
-		JSONAPIDocument<Process> document = new JSONAPIDocument<Process>(t);
+		final JSONAPIDocument<Process> document = new JSONAPIDocument<Process>(t);
 
 		try {
 			entityStream.write(this.converter.writeDocument(document));
-		} catch (DocumentSerializationException e) {
-			System.err.println("Error when serializing Process: " + e);
+		} catch (final DocumentSerializationException e) {
+			LOGGER.error("Error when serializing Process: ", e);
 		} finally {
 			entityStream.flush();
 			entityStream.close();
@@ -59,14 +65,15 @@ public class ProcessProvider implements MessageBodyReader<Process>, MessageBodyW
 	}
 
 	@Override
-	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+	public boolean isReadable(final Class<?> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
-	public Process readFrom(Class<Process> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+	public Process readFrom(final Class<Process> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType, final MultivaluedMap<String, String> httpHeaders, final InputStream entityStream)
 			throws IOException, WebApplicationException {
 		return this.converter.readDocument(entityStream, type).get();
 	}

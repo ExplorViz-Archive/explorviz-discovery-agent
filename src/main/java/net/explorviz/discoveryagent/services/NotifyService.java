@@ -1,34 +1,44 @@
 package net.explorviz.discoveryagent.services;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.explorviz.discoveryagent.process.Process;
 import net.explorviz.discoveryagent.process.ProcessFactory;
 
-public class NotifyService {
+public final class NotifyService {
 
-	private static Logger logger = Logger.getLogger(NotifyService.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(JSONAPIService.class);
 
-	private static boolean initDone = false;
+	private static boolean initDone;
+
+	private NotifyService() {
+		// don't instantiate
+	}
 
 	public static void sendInitialProcesses() {
 		// send once on startup and then only when requested by backend
 		while (!initDone) {
 			initDone = ClientService.postProcessList(
 					JSONAPIService.getProcessesAsByteArray(ProcessFactory.getJavaProcessesListOrEmpty()));
-			if (initDone == false) {
-				logger.info("Couldn't post initial list of processes. Will retry in one minute.");
+			if (!initDone) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("Couldn't post initial list of processes. Will retry in one minute.");
+				}
 				try {
 					TimeUnit.MINUTES.sleep(1);
-				} catch (InterruptedException e) {
-					logger.severe("Error when waiting: " + e);
+				} catch (final InterruptedException e) {
+					if (LOGGER.isErrorEnabled()) {
+						LOGGER.error("Error when waiting: " + e);
+					}
 				}
 			}
 		}
 	}
 
-	public static void sendProcess(Process p) {
+	public static void sendProcess(final Process p) {
 		ClientService.postProcess(JSONAPIService.getProcessAsByteArray(p));
 	}
 }

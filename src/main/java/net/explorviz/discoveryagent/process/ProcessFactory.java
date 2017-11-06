@@ -6,7 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProcessFactory {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class ProcessFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessFactory.class);
+
+	private ProcessFactory() {
+		// don't instantiate
+	}
 
 	public static List<Process> getJavaProcessesList() throws IOException {
 		final List<Process> processList = new ArrayList<Process>();
@@ -18,8 +27,8 @@ public class ProcessFactory {
 		final List<Process> processList = new ArrayList<Process>();
 		try {
 			CLIAbstraction.findProcesses().forEach((k, v) -> processList.add(new Process(k, v)));
-		} catch (IOException e) {
-			System.err.println("Error when finding processes: " + e);
+		} catch (final IOException e) {
+			LOGGER.error("Error when finding processes: ", e);
 			return new ArrayList<Process>();
 		}
 		return processList;

@@ -1,6 +1,10 @@
 package net.explorviz.discoveryagent.services;
 
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -8,34 +12,58 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
-public class ClientService {
+public final class ClientService {
 
-	private static Logger logger = Logger.getLogger(ClientService.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClientService.class);
+	private static final int HTTP_STATUS_CREATED = 201;
 
-	public static boolean postProcessList(byte[] processListPayload) {
+	private static final Properties PROP = new Properties();
+
+	private ClientService() {
+		// no need to instantiate
+	}
+
+	static {
+		try {
+			PROP.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("foo.properties"));
+		} catch (final IOException e) {
+			LOGGER.error("Couldn't load properties file: ", e);
+		}
+	}
+
+	public static boolean postProcessList(final byte[] processListPayload) {
 		return doPost(processListPayload, "http://localhost:8081/extension/discovery/process/notify-list");
 	}
 
-	public static boolean postProcess(byte[] processPayload) {
+	public static boolean postProcess(final byte[] processPayload) {
 		return doPost(processPayload, "http://localhost:8081/extension/discovery/process/notify");
 	}
 
-	private static boolean doPost(byte[] payload, String url) {
-		Client client = Client.create();
-		WebResource webResource = client.resource(url);
+	private static boolean doPost(final byte[] payload, final String url) {
+		final Client client = Client.create();
+		final WebResource webResource = client.resource(url);
 
 		ClientResponse response;
 
+		final String ip = (String) PROP.get("agentIP");
+		final String port = (String) PROP.get("agentPort");
+
+		LOGGER.info("ip und port", ip, port);
+
 		try {
-			response = webResource.type("application/json").header("X-Forwarded-For", "127.0.0.1")
-					.header("X-Forwarded-Port", "8082").post(ClientResponse.class, payload);
+			response = webResource.type("application/json").header("X-Forwarded-For", ip)
+					.header("X-Forwarded-Port", port).post(ClientResponse.class, payload);
 		} catch (UniformInterfaceException | ClientHandlerException e) {
-			logger.severe("Connection to backend failed, probably not online or wrong IP: " + e);
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Connection to backend failed, probably not online or wrong IP: ", e);
+			}
 			return false;
 		}
 
-		if (response.getStatus() != 201) {
-			logger.severe("Failed : HTTP error code : " + response.getStatus());
+		if (response.getStatus() != HTTP_STATUS_CREATED) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Failed : HTTP error code : " + response.getStatus());
+			}
 			return false;
 		}
 

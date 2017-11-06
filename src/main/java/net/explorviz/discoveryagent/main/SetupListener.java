@@ -4,17 +4,22 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.explorviz.discoveryagent.services.NotifyService;
 
 @WebListener
 public class SetupListener implements ServletContextListener {
 
-	@Override
-	public void contextInitialized(ServletContextEvent servletContextEvent) {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SetupListener.class);
 
-		System.out.println("* * * * * * * * * * * * * * * * * * *\n");
-		System.out.println("Server started.\n");
-		System.out.println("* * * * * * * * * * * * * * * * * * *");
+	@Override
+	public void contextInitialized(final ServletContextEvent servletContextEvent) {
+
+		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
+		LOGGER.info("Server started.\n");
+		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 
 		new Thread(() -> {
 			NotifyService.sendInitialProcesses();
@@ -23,7 +28,8 @@ public class SetupListener implements ServletContextListener {
 	}
 
 	@Override
-	public void contextDestroyed(ServletContextEvent servletContextEvent) {
+	public void contextDestroyed(final ServletContextEvent servletContextEvent) {
+		// Nothing to destroy
 	}
 
 }

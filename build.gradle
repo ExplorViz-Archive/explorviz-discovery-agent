@@ -2,6 +2,16 @@ apply plugin: 'war'
 apply plugin: 'org.akhikhl.gretty'
 apply plugin: 'java-library'
 
+
+def loadProperties = {
+    def properties = new Properties()
+    file('src/main/webapp/WEB-INF/classes/explorviz.properties').withInputStream {
+        properties.load(it)
+    }
+    return properties
+}
+
+
 buildscript {
   	repositories {
 		jcenter()
@@ -33,7 +43,10 @@ dependencies {
 	compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version:'2.23'
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.7.1'
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.7.1'
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.7.1'	
+	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.7.1'
+	
+	// Simple Logging Facade for Java 
+	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
     testCompile 'junit:junit:4.12'
 }
@@ -47,7 +60,11 @@ war {
 
 // Embedded Webserver
 gretty {
-	httpPort = 8082
-	servletContainer = 'jetty9'
-	contextPath = '/'
+	httpPort = loadProperties().httpPort.toInteger()
+	servletContainer = loadProperties().servletContainer
+	contextPath = loadProperties().contextPath
+	recompileOnSourceChange = false
+  	reloadOnClassChange = false
+  	reloadOnConfigChange = false
+  	reloadOnLibChange = false
 }
