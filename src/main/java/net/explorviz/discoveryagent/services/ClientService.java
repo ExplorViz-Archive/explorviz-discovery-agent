@@ -32,11 +32,11 @@ public final class ClientService {
 	}
 
 	public static boolean postProcessList(final byte[] processListPayload) {
-		return doPost(processListPayload, "http://localhost:8081/extension/discovery/process/notify-list");
+		return doPost(processListPayload, "http://localhost:8081/extension/discovery/processes");
 	}
 
 	public static boolean postProcess(final byte[] processPayload) {
-		return doPost(processPayload, "http://localhost:8081/extension/discovery/process/notify");
+		return doPost(processPayload, "http://localhost:8081/extension/discovery/process");
 	}
 
 	private static boolean doPost(final byte[] payload, final String url) {
