@@ -3,7 +3,6 @@ package net.explorviz.discoveryagent.process;
 import java.io.IOException;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("process")
@@ -14,8 +13,8 @@ public class Process extends BaseModel {
 	private String executionCommand;
 	private String shutdownCommand;
 
-	@JsonProperty("isWebServerFlag")
-	private boolean isWebServerFlag;
+	private boolean monitoredFlag;
+	private boolean webserverFlag;
 
 	private String agentIP;
 	private String agentPort;
@@ -42,31 +41,6 @@ public class Process extends BaseModel {
 
 	public void start() throws IOException {
 		// Start respective service (POST to agent)
-	}
-
-	@Override
-	public String toString() {
-		return this.pid + " " + this.executionCommand;
-	}
-
-	@Override
-	public boolean equals(final Object o) {
-
-		if (o == this) {
-			return true;
-		}
-		if (!(o instanceof Process)) {
-			return false;
-		}
-
-		final Process process = (Process) o;
-
-		return process.agentIP.equals(agentIP) && process.agentPort.equals(agentPort) && process.pid == pid;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(agentIP, agentPort, pid);
 	}
 
 	public String getShutdownCommand() {
@@ -101,14 +75,6 @@ public class Process extends BaseModel {
 		this.executionCommand = executionCommand;
 	}
 
-	public boolean isWebServer() {
-		return isWebServerFlag;
-	}
-
-	public void setWebServer(final boolean isWebServer) {
-		this.isWebServerFlag = isWebServer;
-	}
-
 	public String getAgentIP() {
 		return agentIP;
 	}
@@ -123,6 +89,48 @@ public class Process extends BaseModel {
 
 	public void setAgentPort(final String remotePort) {
 		this.agentPort = remotePort;
+	}
+
+	public boolean isMonitoredFlag() {
+		return monitoredFlag;
+	}
+
+	public void setMonitoredFlag(final boolean monitoredFlag) {
+		this.monitoredFlag = monitoredFlag;
+	}
+
+	public boolean isWebserverFlag() {
+		return webserverFlag;
+	}
+
+	public void setWebserverFlag(final boolean webserverFlag) {
+		this.webserverFlag = webserverFlag;
+	}
+
+	@Override
+	public String toString() {
+		return "\n" + this.pid + "\n" + this.executionCommand + "\n" + this.applicationName + "\n" + this.monitoredFlag
+				+ "\n" + this.webserverFlag;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Process)) {
+			return false;
+		}
+
+		final Process process = (Process) o;
+
+		return process.agentIP.equals(agentIP) && process.agentPort.equals(agentPort) && process.pid == pid;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(agentIP, agentPort, pid);
 	}
 
 }
