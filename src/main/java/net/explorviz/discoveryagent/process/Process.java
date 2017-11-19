@@ -3,6 +3,7 @@ package net.explorviz.discoveryagent.process;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("process")
@@ -13,6 +14,7 @@ public class Process extends BaseModel {
 	private String executionCommand;
 	private String shutdownCommand;
 
+	@JsonProperty("isWebServerFlag")
 	private boolean isWebServerFlag;
 
 	private String agentIP;
