@@ -22,7 +22,7 @@ public class SetupListener implements ServletContextListener {
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 
 		new Thread(() -> {
-			NotifyService.sendInitialProcesses();
+			NotifyService.registerAgent();
 		}).start();
 
 	}

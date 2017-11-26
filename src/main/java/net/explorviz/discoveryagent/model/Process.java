@@ -1,8 +1,9 @@
-package net.explorviz.discoveryagent.process;
+package net.explorviz.discoveryagent.model;
 
 import java.io.IOException;
 import java.util.Objects;
 
+import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
 
 @Type("process")
@@ -16,8 +17,8 @@ public class Process extends BaseModel {
 	private boolean monitoredFlag;
 	private boolean webserverFlag;
 
-	private String agentIP;
-	private String agentPort;
+	@Relationship(value = "responsible-agent")
+	private Agent responsibleAgent;
 
 	public Process() {
 		// For JSON deserialization
@@ -26,13 +27,6 @@ public class Process extends BaseModel {
 	public Process(final long newPID, final String newCommand) {
 		this.pid = newPID;
 		this.executionCommand = newCommand;
-	}
-
-	public Process(final long newPID, final String newCommand, final String agentIP, final String agentPort) {
-		this.pid = newPID;
-		this.executionCommand = newCommand;
-		this.agentIP = agentIP;
-		this.agentPort = agentPort;
 	}
 
 	public void kill() throws IOException {
@@ -75,22 +69,6 @@ public class Process extends BaseModel {
 		this.executionCommand = executionCommand;
 	}
 
-	public String getAgentIP() {
-		return agentIP;
-	}
-
-	public void setAgentIP(final String remoteAddr) {
-		this.agentIP = remoteAddr;
-	}
-
-	public String getAgentPort() {
-		return agentPort;
-	}
-
-	public void setAgentPort(final String remotePort) {
-		this.agentPort = remotePort;
-	}
-
 	public boolean isMonitoredFlag() {
 		return monitoredFlag;
 	}
@@ -105,6 +83,14 @@ public class Process extends BaseModel {
 
 	public void setWebserverFlag(final boolean webserverFlag) {
 		this.webserverFlag = webserverFlag;
+	}
+
+	public Agent getResponsibleAgent() {
+		return responsibleAgent;
+	}
+
+	public void setResponsibleAgent(final Agent responsibleAgent) {
+		this.responsibleAgent = responsibleAgent;
 	}
 
 	@Override
@@ -125,12 +111,12 @@ public class Process extends BaseModel {
 
 		final Process process = (Process) o;
 
-		return process.agentIP.equals(agentIP) && process.agentPort.equals(agentPort) && process.pid == pid;
+		return process.responsibleAgent.equals(responsibleAgent) && process.pid == pid;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(agentIP, agentPort, pid);
+		return Objects.hash(responsibleAgent, pid);
 	}
 
 }

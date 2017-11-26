@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discoveryagent.process.Process;
+import net.explorviz.discoveryagent.model.Process;
 import net.explorviz.discoveryagent.process.ProcessFactory;
 
 @Path("")
@@ -50,4 +50,5 @@ public class ProcessResource {
 	public List<Process> giveProcessList() throws IOException {
 		return ProcessFactory.getJavaProcessesList();
 	}
+
 }

@@ -24,7 +24,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-import net.explorviz.discoveryagent.process.Process;
+import net.explorviz.discoveryagent.model.Process;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)

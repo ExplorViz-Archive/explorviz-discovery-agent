@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.process;
+package net.explorviz.discoveryagent.model;
 
 import java.util.concurrent.atomic.AtomicLong;
 

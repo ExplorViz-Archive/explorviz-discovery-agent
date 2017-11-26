@@ -26,6 +26,10 @@ public final class ClientService {
 		return doPost(processPayload, "http://localhost:8081/extension/discovery/process");
 	}
 
+	public static boolean registerAgent(final byte[] agentPayload) {
+		return doPost(agentPayload, "http://localhost:8081/extension/discovery/agent/register");
+	}
+
 	private static boolean doPost(final byte[] payload, final String url) {
 		final Client client = Client.create();
 		final WebResource webResource = client.resource(url);
