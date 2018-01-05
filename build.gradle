@@ -28,6 +28,10 @@ repositories {
 }
 
 
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
 
 	// Jersey and Servlet
@@ -47,6 +51,9 @@ dependencies {
 	
 	// Simple Logging Facade for Java 
 	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+	
+	// Common discovery files (e.g. model classes)
+  	compile 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
 
     testCompile 'junit:junit:4.12'
 }
@@ -54,7 +61,7 @@ dependencies {
 
 // Instructions to build .war file
 war {
-    archiveName 'explorviz-discoveryagent.war'
+    archiveName 'explorviz-discovery-agent.war'
 }
 
 

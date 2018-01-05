@@ -9,7 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discoveryagent.model.Process;
+import net.explorviz.discovery.model.Process;
 
 public final class ProcessFactory {
 

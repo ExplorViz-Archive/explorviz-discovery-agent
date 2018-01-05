@@ -17,9 +17,10 @@ public class SetupListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(final ServletContextEvent servletContextEvent) {
 
+		LOGGER.info("\n");
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 		LOGGER.info("Server started.");
-		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
+		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
 
 		new Thread(() -> {
 			NotifyService.registerAgent();

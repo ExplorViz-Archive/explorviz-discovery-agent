@@ -5,7 +5,12 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discoveryagent.model.Agent;
+import com.github.jasminb.jsonapi.ResourceConverter;
+
+import net.explorviz.discovery.model.Agent;
+import net.explorviz.discovery.services.ClientService;
+import net.explorviz.discovery.services.JSONAPIService;
+import net.explorviz.discoveryagent.injection.ResourceConverterFactory;
 import net.explorviz.discoveryagent.process.ProcessFactory;
 
 public final class NotifyService {
@@ -19,10 +24,16 @@ public final class NotifyService {
 	}
 
 	public static void sendInitialProcesses() {
+
+		final ResourceConverter cvFactory = new ResourceConverterFactory().provide();
+
+		final ClientService clientService = new ClientService();
+		final JSONAPIService jsonAPIService = new JSONAPIService(cvFactory);
+
 		// send once on startup and then only when requested by backend
 		while (!initDone) {
-			initDone = ClientService
-					.postProcessList(JSONAPIService.listToByteArray(ProcessFactory.getJavaProcessesListOrEmpty()));
+			initDone = clientService
+					.postProcessList(jsonAPIService.listToByteArray(ProcessFactory.getJavaProcessesListOrEmpty()));
 			if (!initDone) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("Couldn't post initial list of processes. Will retry in one minute.");
@@ -39,13 +50,21 @@ public final class NotifyService {
 	}
 
 	public static void registerAgent() {
-		// send once on startup
+
+		final ResourceConverter cvFactory = new ResourceConverterFactory().provide();
+
+		final ClientService clientService = new ClientService();
+		final JSONAPIService jsonAPIService = new JSONAPIService(cvFactory);
+
 		final String ip = PropertyService.getStringProperty("agentIP");
 		final String port = PropertyService.getStringProperty("agentPort");
 		final Agent agent = new Agent(ip, port);
+		agent.setProcessList(ProcessFactory.getJavaProcessesListOrEmpty());
 
+		// send once on startup
 		while (!initDone) {
-			initDone = ClientService.registerAgent(JSONAPIService.objectToByteArray(agent));
+			initDone = clientService.doPost(jsonAPIService.objectToByteArray(agent),
+					"http://localhost:8081/extension/discovery/agent/register");
 			if (!initDone) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("Couldn't register agent. Will retry in one minute.");
@@ -62,6 +81,12 @@ public final class NotifyService {
 	}
 
 	public static void sendProcess(final Process p) {
-		ClientService.postProcess(JSONAPIService.objectToByteArray(p));
+
+		final ResourceConverter cvFactory = new ResourceConverterFactory().provide();
+
+		final ClientService clientService = new ClientService();
+		final JSONAPIService jsonAPIService = new JSONAPIService(cvFactory);
+
+		clientService.postProcess(jsonAPIService.objectToByteArray(p));
 	}
 }
