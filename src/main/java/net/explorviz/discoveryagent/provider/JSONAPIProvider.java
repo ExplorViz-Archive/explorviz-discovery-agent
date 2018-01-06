@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.List;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -24,19 +23,17 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-import net.explorviz.discovery.model.Process;
-
 @Provider
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-public class ProcessListProvider implements MessageBodyReader<List<Process>>, MessageBodyWriter<List<Process>> {
+@Produces("application/vnd.api+json")
+@Consumes("application/vnd.api+json")
+public class JSONAPIProvider<T> implements MessageBodyReader<T>, MessageBodyWriter<T> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessListProvider.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JSONAPIProvider.class);
 
 	private final ResourceConverter converter;
 
 	@Inject
-	public ProcessListProvider(final ResourceConverter converter) {
+	public JSONAPIProvider(final ResourceConverter converter) {
 		this.converter = converter;
 	}
 
@@ -48,16 +45,24 @@ public class ProcessListProvider implements MessageBodyReader<List<Process>>, Me
 	}
 
 	@Override
-	public void writeTo(final List<Process> t, final Class<?> type, final Type genericType,
-			final Annotation[] annotations, final MediaType mediaType, final MultivaluedMap<String, Object> httpHeaders,
-			final OutputStream entityStream) throws IOException, WebApplicationException {
+	public long getSize(final T t, final Class<?> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-		final JSONAPIDocument<List<Process>> document = new JSONAPIDocument<List<Process>>(t);
+	@Override
+	public void writeTo(final T t, final Class<?> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType, final MultivaluedMap<String, Object> httpHeaders,
+			final OutputStream entityStream) throws IOException, WebApplicationException {
+		final JSONAPIDocument<T> document = new JSONAPIDocument<>(t);
 
 		try {
-			entityStream.write(this.converter.writeDocumentCollection(document));
+			entityStream.write(this.converter.writeDocument(document));
 		} catch (final DocumentSerializationException e) {
-			LOGGER.error("Error when serializing Process List: ", e);
+			if (LOGGER.isErrorEnabled()) {
+				LOGGER.error("Error when serializing object of type" + t.getClass() + ": ", e);
+			}
 		} finally {
 			entityStream.flush();
 			entityStream.close();
@@ -73,10 +78,10 @@ public class ProcessListProvider implements MessageBodyReader<List<Process>>, Me
 	}
 
 	@Override
-	public List<Process> readFrom(final Class<List<Process>> type, final Type genericType,
-			final Annotation[] annotations, final MediaType mediaType, final MultivaluedMap<String, String> httpHeaders,
-			final InputStream entityStream) throws IOException, WebApplicationException {
-		return this.converter.readDocumentCollection(entityStream, Process.class).get();
+	public T readFrom(final Class<T> type, final Type genericType, final Annotation[] annotations,
+			final MediaType mediaType, final MultivaluedMap<String, String> httpHeaders, final InputStream entityStream)
+			throws IOException, WebApplicationException {
+		return this.converter.readDocument(entityStream, type).get();
 	}
 
 }

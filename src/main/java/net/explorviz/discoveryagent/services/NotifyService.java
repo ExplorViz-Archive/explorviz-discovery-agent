@@ -12,6 +12,7 @@ import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discovery.services.JSONAPIService;
 import net.explorviz.discoveryagent.injection.ResourceConverterFactory;
 import net.explorviz.discoveryagent.process.ProcessFactory;
+import net.explorviz.discoveryagent.util.ModelUtility;
 
 public final class NotifyService {
 
@@ -56,10 +57,7 @@ public final class NotifyService {
 		final ClientService clientService = new ClientService();
 		final JSONAPIService jsonAPIService = new JSONAPIService(cvFactory);
 
-		final String ip = PropertyService.getStringProperty("agentIP");
-		final String port = PropertyService.getStringProperty("agentPort");
-		final Agent agent = new Agent(ip, port);
-		agent.setProcessList(ProcessFactory.getJavaProcessesListOrEmpty());
+		final Agent agent = new ModelUtility().createAgentWithProcesses();
 
 		// send once on startup
 		while (!initDone) {
