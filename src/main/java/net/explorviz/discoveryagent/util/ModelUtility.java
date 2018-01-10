@@ -17,7 +17,7 @@ public class ModelUtility {
 		final List<Process> processList = ProcessFactory.getJavaProcessesListOrEmpty();
 
 		final Agent agent = new Agent(ip, port);
-		agent.setProcessList(processList);
+		agent.setProcesses(processList);
 
 		processList.forEach((process) -> {
 			process.setResponsibleAgent(agent);
