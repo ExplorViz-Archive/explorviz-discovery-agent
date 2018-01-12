@@ -20,7 +20,7 @@ public class ModelUtility {
 		agent.setProcesses(processList);
 
 		processList.forEach((process) -> {
-			process.setResponsibleAgent(agent);
+			process.setAgent(agent);
 		});
 
 		return agent;
