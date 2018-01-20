@@ -63,10 +63,10 @@ public class ProcessResource {
 	}
 
 	@GET
-	@Path("process/list")
+	@Path("processes")
 	@Produces(MEDIA_TYPE)
 	public List<Process> giveProcessList() throws IOException {
-		return ProcessFactory.getJavaProcessesList();
+		return this.modelUtil.createAgentWithProcessList().getProcesses();
 	}
 
 }

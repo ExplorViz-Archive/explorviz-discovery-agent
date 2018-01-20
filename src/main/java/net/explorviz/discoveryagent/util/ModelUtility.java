@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Process;
 import net.explorviz.discoveryagent.process.CLIAbstraction;
-import net.explorviz.discoveryagent.process.ProcessFactory;
+import net.explorviz.discoveryagent.process.ProcessRepository;
 import net.explorviz.discoveryagent.services.PropertyService;
 
 public class ModelUtility {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelUtility.class);
 
-	public Agent createAgentWithProcesses() {
+	public Agent createAgentWithProcessList() {
 
 		final String ip = PropertyService.getStringProperty("agentIP");
 		final String userDefinedPort = PropertyService.getStringProperty("agentPort");
@@ -25,7 +25,7 @@ public class ModelUtility {
 
 		final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
 
-		final List<Process> processList = ProcessFactory.getJavaProcessesListOrEmpty();
+		final List<Process> processList = ProcessRepository.getProcessList();
 
 		final Agent agent = new Agent(ip, port);
 		agent.setProcesses(processList);

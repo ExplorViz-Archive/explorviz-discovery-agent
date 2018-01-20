@@ -28,7 +28,11 @@ public final class ProcessFactory {
 	public static List<Process> getJavaProcessesListOrEmpty() {
 		final List<Process> processList = new ArrayList<Process>();
 		try {
-			CLIAbstraction.findProcesses().forEach((k, v) -> processList.add(new Process(k, v)));
+			CLIAbstraction.findProcesses().forEach((k, v) -> {
+				if (!"/bin/sh -c ps -e -o pid,command | grep java".equals(v) && !"grep java".equals(v)) {
+					processList.add(new Process(k, v));
+				}
+			});
 		} catch (final IOException e) {
 			LOGGER.error("Error when finding processes: ", e);
 			return new ArrayList<Process>();
