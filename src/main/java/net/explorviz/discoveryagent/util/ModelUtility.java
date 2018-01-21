@@ -17,6 +17,16 @@ public class ModelUtility {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelUtility.class);
 
+	private final String javaagentPart;
+
+	public ModelUtility() {
+		final String kiekerJarPath = Thread.currentThread().getContextClassLoader()
+				.getResource("kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
+
+		// inject javaagent
+		this.javaagentPart = " -javaagent:" + kiekerJarPath;
+	}
+
 	public Agent createAgentWithProcessList() {
 
 		final String ip = PropertyService.getStringProperty("agentIP");
@@ -43,14 +53,14 @@ public class ModelUtility {
 		final String execPath = process.getExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
-		final String kiekerJarPath = Thread.currentThread().getContextClassLoader()
-				.getResource("kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
-
-		// inject javaagent
-		final String javaagentPart = " -javaagent:" + kiekerJarPath;
-		final String newExecCommand = execPathFragments[0] + javaagentPart + execPathFragments[1];
+		final String newExecCommand = execPathFragments[0] + this.javaagentPart + execPathFragments[1];
 
 		process.setExecutionCommand(newExecCommand);
+	}
+
+	public void removeKiekerAgentInProcess(final Process process) {
+		final String execPath = process.getExecutionCommand();
+		process.setExecutionCommand(execPath.replace(this.javaagentPart, ""));
 	}
 
 	public void killProcess(final Process process) throws IOException {
