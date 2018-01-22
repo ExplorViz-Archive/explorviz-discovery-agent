@@ -18,19 +18,36 @@ public final class CLIAbstraction {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CLIAbstraction.class);
 
+	private static final String BASH_PREFIX = "/bin/sh";
+	private static final String BASH_SUFFIX = "&";
+	private static final String BASH_FLAG = "-c";
+
 	private CLIAbstraction() {
+		// do not instantiate
 	}
 
 	public static Map<Long, String> findProcesses() throws IOException {
-		return createPIDAndProcList(executeShellCommand("/bin/sh", "-c", "ps -e -o pid,command | grep java"));
+		return createPIDAndProcList(executeShellCommand(BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
 	}
 
 	public static List<String> killProcessByPID(final long pid) throws IOException {
-		return executeShellCommand("/bin/sh", "-c", "kill -9 " + pid);
+		return executeShellCommand(BASH_PREFIX, BASH_FLAG, "kill -9", String.valueOf(pid), BASH_SUFFIX);
 	}
 
 	public static List<String> startProcessByCMD(final String fullCMD) throws IOException {
-		return executeShellCommand("/bin/sh", "-c", fullCMD + " &");
+		return executeShellCommand(BASH_PREFIX, BASH_FLAG, fullCMD, BASH_SUFFIX);
+	}
+
+	public static String findWorkingDirectoryForPID(final long pid) throws IOException {
+		final List<String> pwdxOutput = executeShellCommand(BASH_PREFIX, BASH_FLAG, "pwdx", String.valueOf(pid),
+				BASH_SUFFIX);
+
+		if (pwdxOutput.isEmpty()) {
+			return "";
+		}
+
+		// return working directory string
+		return pwdxOutput.get(0);
 	}
 
 	public static List<String> executeShellCommand(final String... cmd) throws IOException {

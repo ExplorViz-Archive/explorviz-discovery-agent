@@ -50,17 +50,16 @@ public class ModelUtility {
 
 	public void injectKiekerAgentInProcess(final Process process) {
 
-		final String execPath = process.getExecutionCommand();
+		final String execPath = process.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + this.javaagentPart + execPathFragments[1];
 
-		process.setExecutionCommand(newExecCommand);
+		process.setUserExecutionCommand(newExecCommand);
 	}
 
 	public void removeKiekerAgentInProcess(final Process process) {
-		final String execPath = process.getExecutionCommand();
-		process.setExecutionCommand(execPath.replace(this.javaagentPart, ""));
+		process.setUserExecutionCommand("");
 	}
 
 	public void killProcess(final Process process) throws IOException {
@@ -73,7 +72,12 @@ public class ModelUtility {
 	}
 
 	public void startProcess(final Process process) throws IOException {
-		CLIAbstraction.startProcessByCMD(process.getExecutionCommand());
+		if (process.getUserExecutionCommand().isEmpty()) {
+			CLIAbstraction.startProcessByCMD(process.getOSExecutionCommand());
+		} else {
+			CLIAbstraction.startProcessByCMD(process.getUserExecutionCommand());
+		}
+
 	}
 
 }

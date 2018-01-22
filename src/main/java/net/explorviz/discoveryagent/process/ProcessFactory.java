@@ -28,13 +28,27 @@ public final class ProcessFactory {
 	public static List<Process> getJavaProcessesListOrEmpty() {
 		final List<Process> processList = new ArrayList<Process>();
 		try {
-			CLIAbstraction.findProcesses().forEach((k, v) -> {
-				if (!"/bin/sh -c ps -e -o pid,command | grep java".equals(v) && !"grep java".equals(v)) {
-					processList.add(new Process(k, v));
+			CLIAbstraction.findProcesses().forEach((pid, execCMD) -> {
+				if (!"/bin/sh -c ps -e -o pid,command | grep java".equals(execCMD) && !"grep java".equals(execCMD)) {
+					final Process p = new Process(pid, execCMD);
+
+					// add pwdx (working directory) output to process object
+
+					String workingDir = "";
+
+					try {
+						workingDir = CLIAbstraction.findWorkingDirectoryForPID(pid);
+					} catch (final IOException e) {
+						LOGGER.error("Error when finding working directory for process with PID {}: {}", pid, e);
+					}
+
+					p.setWorkingDirectory(workingDir);
+
+					processList.add(p);
 				}
 			});
 		} catch (final IOException e) {
-			LOGGER.error("Error when finding processes: ", e);
+			LOGGER.error("Error when finding processes: {}", e);
 			return new ArrayList<Process>();
 		}
 		return processList;
