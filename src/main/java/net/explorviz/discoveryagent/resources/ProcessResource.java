@@ -38,20 +38,10 @@ public class ProcessResource {
 	public Response update(final Process process) {
 		LOGGER.info("restart process", process);
 
-		try {
-			this.modelUtil.killProcess(process);
-		} catch (final IOException e) {
-			LOGGER.error("Error when restarting process", e);
-		}
+		final Process statusDescription = this.modelUtil.handleRestart(process);
 
-		this.modelUtil.injectKiekerAgentInProcess(process);
-
-		try {
-			this.modelUtil.startProcess(process);
-		} catch (final IOException e) {
-			LOGGER.error("Error when restarting process", e);
-		}
-
+		// set entity if everything works, maybe return process and update PID in
+		// backend?
 		return Response.status(201).build();
 	}
 

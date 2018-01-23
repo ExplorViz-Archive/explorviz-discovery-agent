@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Agent;
+import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Process;
 import net.explorviz.discoveryagent.process.CLIAbstraction;
 import net.explorviz.discoveryagent.process.ProcessRepository;
@@ -50,7 +51,11 @@ public class ModelUtility {
 
 	public void injectKiekerAgentInProcess(final Process process) {
 
-		final String execPath = process.getOSExecutionCommand();
+		final String userExecCMD = process.getUserExecutionCommand();
+
+		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
+
+		final String execPath = useUserExecCMD ? process.getUserExecutionCommand() : process.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + this.javaagentPart + execPathFragments[1];
@@ -71,11 +76,39 @@ public class ModelUtility {
 		}
 	}
 
-	public void startProcess(final Process process) throws IOException {
+	public Process startProcess(final Process process) throws IOException {
+		String newPID;
 		if (process.getUserExecutionCommand().isEmpty()) {
-			CLIAbstraction.startProcessByCMD(process.getOSExecutionCommand());
+			newPID = CLIAbstraction.startProcessByCMD(process.getOSExecutionCommand());
 		} else {
-			CLIAbstraction.startProcessByCMD(process.getUserExecutionCommand());
+			newPID = CLIAbstraction.startProcessByCMD(process.getUserExecutionCommand());
+		}
+
+		process.setPid(Long.valueOf(newPID));
+
+		return process;
+	}
+
+	public Process handleRestart(final Process process) {
+
+		try {
+			this.killProcess(process);
+		} catch (final IOException e) {
+			LOGGER.error("Error when killing process: {}", e);
+			process.setErrorObject(new ErrorObject(process, "Error when killing process: " + e.toString()));
+			return process;
+		}
+
+		if (process.isMonitoredFlag()) {
+			this.injectKiekerAgentInProcess(process);
+		}
+
+		try {
+			return this.startProcess(process);
+		} catch (final IOException e) {
+			LOGGER.error("Error when starting process: {}", e);
+			process.setErrorObject(new ErrorObject(process, "Error when starting process: " + e.toString()));
+			return process;
 		}
 
 	}

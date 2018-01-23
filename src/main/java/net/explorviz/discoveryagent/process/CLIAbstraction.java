@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,10 @@ public final class CLIAbstraction {
 	private static final String BASH_SUFFIX = "&";
 	private static final String BASH_FLAG = "-c";
 
+	private static final int SINGLE_COMMAND_LENGTH = 1;
+	private static final int LENGTH_PWDX_ARRAY = 2;
+	private static final int LENGTH_START_CMD_ARRAY = 2;
+
 	private CLIAbstraction() {
 		// do not instantiate
 	}
@@ -31,27 +36,59 @@ public final class CLIAbstraction {
 	}
 
 	public static List<String> killProcessByPID(final long pid) throws IOException {
-		return executeShellCommand(BASH_PREFIX, BASH_FLAG, "kill -9", String.valueOf(pid), BASH_SUFFIX);
+		return executeShellCommand("kill -9 " + pid);
 	}
 
-	public static List<String> startProcessByCMD(final String fullCMD) throws IOException {
-		return executeShellCommand(BASH_PREFIX, BASH_FLAG, fullCMD, BASH_SUFFIX);
+	public static String startProcessByCMD(final String fullCMD) throws IOException {
+		List<String> startOutput = executeShellCommand(fullCMD + BASH_SUFFIX);
+
+		if (startOutput.isEmpty()) {
+			return null;
+		}
+
+		// return new PID
+		startOutput = Arrays.asList(startOutput.get(0).split(" "));
+
+		if (startOutput.size() == LENGTH_START_CMD_ARRAY) {
+			return startOutput.get(1);
+		}
+
+		return null;
 	}
 
 	public static String findWorkingDirectoryForPID(final long pid) throws IOException {
-		final List<String> pwdxOutput = executeShellCommand(BASH_PREFIX, BASH_FLAG, "pwdx", String.valueOf(pid),
-				BASH_SUFFIX);
+		List<String> pwdxOutput = executeShellCommand("pwdx " + pid);
 
 		if (pwdxOutput.isEmpty()) {
 			return "";
 		}
 
 		// return working directory string
-		return pwdxOutput.get(0);
+		// pdwx output pattern: "PID: WorkingDir"
+		pwdxOutput = Arrays.asList(pwdxOutput.get(0).split(" "));
+
+		if (pwdxOutput.size() == LENGTH_PWDX_ARRAY) {
+			return pwdxOutput.get(1);
+		}
+
+		return "";
 	}
 
 	public static List<String> executeShellCommand(final String... cmd) throws IOException {
-		final InputStream rawInputDataStream = Runtime.getRuntime().exec(cmd).getInputStream();
+
+		InputStream rawInputDataStream;
+
+		// Some command line tools don't work as parameter for /bin/sh
+		// Alternatively, we can execute them with a different exec command
+		// as self-contained command line tools. Therefore, we need the
+		// following check
+
+		if (cmd.length == SINGLE_COMMAND_LENGTH) {
+			rawInputDataStream = Runtime.getRuntime().exec(cmd[0]).getInputStream();
+		} else {
+			rawInputDataStream = Runtime.getRuntime().exec(cmd).getInputStream();
+		}
+
 		final BufferedReader reader = new BufferedReader(
 				new InputStreamReader(rawInputDataStream, Charset.forName(StandardCharsets.UTF_8.name())));
 

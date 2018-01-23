@@ -6,13 +6,15 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.SerializationFeature;
 
 import net.explorviz.discovery.model.Agent;
+import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Process;
 
 public class ResourceConverterFactory implements Factory<ResourceConverter> {
 	private final ResourceConverter converter;
 
 	public ResourceConverterFactory() {
-		final ResourceConverter resourceConverter = new ResourceConverter(Process.class, Agent.class);
+		final ResourceConverter resourceConverter = new ResourceConverter(Process.class, Agent.class,
+				ErrorObject.class);
 		this.converter = resourceConverter;
 		this.converter.enableSerializationOption(SerializationFeature.INCLUDE_RELATIONSHIP_ATTRIBUTES);
 	}
