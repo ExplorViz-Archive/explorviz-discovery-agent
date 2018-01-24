@@ -18,14 +18,29 @@ public class ModelUtility {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelUtility.class);
 
+	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
+	private static final String SPACE_SYMBOL = " ";
+
 	private final String javaagentPart;
+	private final String kiekerConfigPart;
+	private final String aopPart;
+
+	private final String completeKiekerCommand;
 
 	public ModelUtility() {
 		final String kiekerJarPath = Thread.currentThread().getContextClassLoader()
-				.getResource("kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
+				.getResource("kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
+		this.javaagentPart = "-javaagent:" + kiekerJarPath;
 
-		// inject javaagent
-		this.javaagentPart = " -javaagent:" + kiekerJarPath;
+		final String configPath = Thread.currentThread().getContextClassLoader()
+				.getResource("kieker/kieker.monitoring.properties").getPath();
+		this.kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
+
+		final String aopPath = Thread.currentThread().getContextClassLoader().getResource("kieker/aop.xml").getPath();
+		this.aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
+
+		this.completeKiekerCommand = this.javaagentPart + SPACE_SYMBOL + this.kiekerConfigPart + SPACE_SYMBOL
+				+ this.aopPart + SPACE_SYMBOL + SKIP_DEFAULT_AOP;
 	}
 
 	public Agent createAgentWithProcessList() {
@@ -58,7 +73,8 @@ public class ModelUtility {
 		final String execPath = useUserExecCMD ? process.getUserExecutionCommand() : process.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
-		final String newExecCommand = execPathFragments[0] + this.javaagentPart + execPathFragments[1];
+		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + SPACE_SYMBOL
+				+ execPathFragments[1];
 
 		process.setUserExecutionCommand(newExecCommand);
 	}
