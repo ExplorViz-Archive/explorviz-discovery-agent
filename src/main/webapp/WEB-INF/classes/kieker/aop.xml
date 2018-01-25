@@ -1,7 +1,7 @@
 <!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.aspectj.org/dtd/aspectj_1_5_0.dtd">
 
 <aspectj>
-	<weaver options="-verbose -showWeaveInfo"> <!-- options="-verbose -showWeaveInfo -Xjoinpoints:synchronization" -->
+	<weaver options="-verbose"> <!-- options="-verbose -showWeaveInfo -Xjoinpoints:synchronization" -->
 
 		<!--
 			 Use the exclude/include directives to specify which classes are (not) to be considered for weaving.
@@ -12,7 +12,7 @@
 		<!-- 
 			Use * to consider all classes in all packages. In this case, you typically need some additional excludes. 
 		-->
-		<include within="org.mybatis.jpetstore..*"/>
+		<include within="net.explorviz.sampleApplication..*"/>
 
 		<!--
 			Include/exclude examples for specific libraries:
@@ -20,10 +20,9 @@
 
 		<!-- 
 		     Important: The logger library that is configured to be used by Kieker must always be excluded!
-		     (Particularly important when using the include-all directive from above.) 
+		     (Particularly important when using the include-all directive from above.)
+		--> 
 		
-		<exclude within="org.mybatis.jpetstore.web.actions.*" /> 
-		<exclude within="org.mybatis.jpetstore.service.*" />--> 
 		<exclude within="org.apache.commons.logging..*" /> 
 		<exclude within="org.slf4j..*" /> 
 		<exclude within="java.util.logging..*" /> 
@@ -44,16 +43,16 @@
 		<!-- Method executions and method calls: -->
 		<!-- <aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentation" /> -->
 		
-		 <aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentationNoGetterAndSetter" />
+		 <!--<aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentationNoGetterAndSetter" /> -->
 		
 	 	<!-- <aspect name="kieker.monitoring.probe.aspectj.database.Fullinstrumentation" /> -->
 		<!--
 			Definition of additional targeted aspects (example for a single additional getter). 
 			Use these directives to create additional aspects without the need to actually implement them. -->
 		<!-- Verifying specific pointcuts -->	
-		<!--<concrete-aspect name="kieker.monitoring.probe.aspectj.database.TargetedAspect" extends="kieker.monitoring.probe.aspectj.beforeafter.onlycallee.AbstractAspect">
+		<concrete-aspect name="kieker.monitoring.probe.aspectj.database.TargetedAspect" extends="kieker.monitoring.probe.aspectj.beforeafter.onlycallee.AbstractAspect">
 			<pointcut name="monitoredOperation" expression="call(* *(..)) &amp;&amp; noGetterAndSetter()" />
-		</concrete-aspect>		-->	
+		</concrete-aspect>
 	
 	</aspects>
 </aspectj>

@@ -94,13 +94,17 @@ public class ModelUtility {
 
 	public Process startProcess(final Process process) throws IOException {
 		String newPID;
-		if (process.getUserExecutionCommand().isEmpty()) {
+		if (process.getUserExecutionCommand() != null && process.getUserExecutionCommand().isEmpty()) {
 			newPID = CLIAbstraction.startProcessByCMD(process.getOSExecutionCommand());
 		} else {
+			System.out.println("before Cli");
 			newPID = CLIAbstraction.startProcessByCMD(process.getUserExecutionCommand());
+			System.out.println("after Cli");
 		}
 
-		process.setPid(Long.valueOf(newPID));
+		// throw error object if NumberException
+		System.out.println("set PID");
+		// process.setPid(Long.valueOf(newPID));
 
 		return process;
 	}
@@ -120,6 +124,7 @@ public class ModelUtility {
 		}
 
 		try {
+			System.out.println("before start");
 			return this.startProcess(process);
 		} catch (final IOException e) {
 			LOGGER.error("Error when starting process: {}", e);

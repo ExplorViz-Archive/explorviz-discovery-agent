@@ -38,10 +38,8 @@ public class ProcessResource {
 	public Response update(final Process process) {
 		LOGGER.info("restart process", process);
 
-		final Process statusDescription = this.modelUtil.handleRestart(process);
+		this.modelUtil.handleRestart(process);
 
-		// set entity if everything works, maybe return process and update PID in
-		// backend?
 		return Response.status(201).build();
 	}
 

@@ -32,24 +32,34 @@ public final class CLIAbstraction {
 	}
 
 	public static Map<Long, String> findProcesses() throws IOException {
-		return createPIDAndProcList(executeShellCommand(BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
+		return createPIDAndProcList(
+				executeShellCommand(false, BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
 	}
 
 	public static List<String> killProcessByPID(final long pid) throws IOException {
-		return executeShellCommand("kill -9 " + pid);
+		return executeShellCommand(true, "kill", "-9", String.valueOf(pid));
 	}
 
 	public static String startProcessByCMD(final String fullCMD) throws IOException {
-		List<String> startOutput = executeShellCommand(fullCMD + BASH_SUFFIX);
+
+		System.out.println("before cli start");
+
+		final String[] splittedCMD = fullCMD.split("\\s+");
+
+		List<String> startOutput = executeShellCommand(true, splittedCMD);
+
+		System.out.println("after cli start");
 
 		if (startOutput.isEmpty()) {
 			return null;
 		}
 
+		System.out.println("split");
 		// return new PID
 		startOutput = Arrays.asList(startOutput.get(0).split(" "));
 
 		if (startOutput.size() == LENGTH_START_CMD_ARRAY) {
+			System.out.println("return pid");
 			return startOutput.get(1);
 		}
 
@@ -57,7 +67,7 @@ public final class CLIAbstraction {
 	}
 
 	public static String findWorkingDirectoryForPID(final long pid) throws IOException {
-		List<String> pwdxOutput = executeShellCommand("pwdx " + pid);
+		List<String> pwdxOutput = executeShellCommand(true, "pwdx", String.valueOf(pid));
 
 		if (pwdxOutput.isEmpty()) {
 			return "";
@@ -74,7 +84,8 @@ public final class CLIAbstraction {
 		return "";
 	}
 
-	public static List<String> executeShellCommand(final String... cmd) throws IOException {
+	public static List<String> executeShellCommand(final boolean readOnlyFirstLine, final String... cmd)
+			throws IOException {
 
 		InputStream rawInputDataStream;
 
@@ -83,21 +94,72 @@ public final class CLIAbstraction {
 		// as self-contained command line tools. Therefore, we need the
 		// following check
 
+		Process javaProcess;
+
 		if (cmd.length == SINGLE_COMMAND_LENGTH) {
-			rawInputDataStream = Runtime.getRuntime().exec(cmd[0]).getInputStream();
+			// javaProcess = Runtime.getRuntime().exec(cmd[0]);
+			javaProcess = new ProcessBuilder(cmd[0]).start();
 		} else {
-			rawInputDataStream = Runtime.getRuntime().exec(cmd).getInputStream();
+			javaProcess = new ProcessBuilder(cmd).start();
 		}
 
-		final BufferedReader reader = new BufferedReader(
-				new InputStreamReader(rawInputDataStream, Charset.forName(StandardCharsets.UTF_8.name())));
+		rawInputDataStream = javaProcess.getInputStream();
+
+		System.out.println("before read");
+
+		final InputStreamReader inputReader = new InputStreamReader(rawInputDataStream,
+				Charset.forName(StandardCharsets.UTF_8.name()));
+
+		final BufferedReader reader = new BufferedReader(inputReader);
 
 		final List<String> cliLines = new ArrayList<String>();
 
-		reader.lines().forEach((line) -> cliLines.add(line));
+		System.out.println("after read");
+
+		if (readOnlyFirstLine) {
+			System.out.println("before first line");
+			// cliLines.add(reader.readLine());
+
+			final StringBuilder firstCharacters = new StringBuilder();
+
+			System.out.println("before read");
+			int ch = inputReader.read();
+			System.out.println("after read");
+
+			while (ch != -1 && firstCharacters.length() < 1000) {
+				System.out.println("in read: " + (char) ch);
+				firstCharacters.append((char) ch);
+				ch = inputReader.read();
+			}
+
+			cliLines.add(firstCharacters.toString());
+
+			System.out.println("after first line");
+		} else {
+			reader.lines().forEach((line) -> cliLines.add(line));
+		}
+
+		///
+		// rawInputDataStream.close();
+
+		// TODO if lines in errorstream, create errorobject
+
+		/*
+		 * rawInputDataStream = javaProcess.getErrorStream();
+		 *
+		 * final BufferedReader reader2 = new BufferedReader( new
+		 * InputStreamReader(rawInputDataStream,
+		 * Charset.forName(StandardCharsets.UTF_8.name())));
+		 *
+		 * reader2.lines().forEach((line) -> System.out.println(line));
+		 */
+		///
 
 		reader.close();
+		inputReader.close();
 		rawInputDataStream.close();
+
+		System.out.println("return cli");
 
 		return cliLines;
 	}
