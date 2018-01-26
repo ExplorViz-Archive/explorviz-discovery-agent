@@ -1,5 +1,8 @@
 package net.explorviz.discoveryagent.services;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -12,9 +15,9 @@ import net.explorviz.discovery.model.Process;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discovery.services.JSONAPIService;
 import net.explorviz.discoveryagent.injection.ResourceConverterFactory;
+import net.explorviz.discoveryagent.process.InternalRepository;
 import net.explorviz.discoveryagent.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.provider.JSONAPIProvider;
-import net.explorviz.discoveryagent.util.ModelUtility;
 
 public final class NotifyService {
 
@@ -55,11 +58,35 @@ public final class NotifyService {
 		clientService.registerProvider(new JSONAPIListProvider(converter));
 		clientService.registerProviderWriter(new JSONAPIListProvider(converter));
 
-		final Agent agent = new ModelUtility().createAgentWithProcessList();
+		Agent agent;
+
+		final Map<String, Object> queryParameters = new HashMap<String, Object>();
+
+		final String ip = PropertyService.getStringProperty("agentIP");
+		final String userDefinedPort = PropertyService.getStringProperty("agentPort");
+		final String embeddedGrettyPort = PropertyService.getStringProperty("httpPort");
+
+		final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
+
+		queryParameters.put("ip", ip);
+		queryParameters.put("port", port);
+
+		final UpdateProcessListService updateService = new UpdateProcessListService();
+		final Timer timer = new Timer(true);
 
 		// send once on startup
 		while (!initDone) {
-			initDone = clientService.doPost(agent, "http://localhost:8081/extension/discovery/agent/register");
+			// initDone = clientService.doPost(agent,
+			// "http://localhost:8081/extension/discovery/agent/register");
+			agent = clientService.doGETRequest(Agent.class, "http://localhost:8081/extension/discovery/agent/register",
+					queryParameters);
+			if (agent != null) {
+				initDone = true;
+				InternalRepository.agentObject = agent;
+
+				// refresh internal ProcessList every minute
+				timer.scheduleAtFixedRate(updateService, 0, 60000);
+			}
 			if (!initDone) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("Couldn't register agent. Will retry in one minute.");

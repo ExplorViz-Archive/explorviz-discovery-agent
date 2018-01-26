@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Process;
+import net.explorviz.discoveryagent.process.InternalRepository;
 import net.explorviz.discoveryagent.process.ProcessFactory;
 import net.explorviz.discoveryagent.util.ModelUtility;
 
@@ -54,7 +55,7 @@ public class ProcessResource {
 	@Path("processes")
 	@Produces(MEDIA_TYPE)
 	public List<Process> giveProcessList() throws IOException {
-		return this.modelUtil.createAgentWithProcessList().getProcesses();
+		return InternalRepository.getProcessList();
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discoveryagent.process.ProcessRepository;
+import net.explorviz.discoveryagent.process.InternalRepository;
 
 public class UpdateProcessListService extends TimerTask {
 
@@ -17,7 +17,7 @@ public class UpdateProcessListService extends TimerTask {
 
 		LOGGER.info("Updating processList at: {}", new Date());
 
-		ProcessRepository.getNewProcessesFromOS();
+		InternalRepository.mergeProcessListsWithInternal(InternalRepository.getNewProcessesFromOS());
 
 	}
 

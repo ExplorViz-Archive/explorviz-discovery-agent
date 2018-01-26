@@ -42,24 +42,24 @@ public final class CLIAbstraction {
 
 	public static String startProcessByCMD(final String fullCMD) throws IOException {
 
-		System.out.println("before cli start");
+		// System.out.println("before cli start");
 
 		final String[] splittedCMD = fullCMD.split("\\s+");
 
 		List<String> startOutput = executeShellCommand(true, splittedCMD);
 
-		System.out.println("after cli start");
+		// System.out.println("after cli start");
 
 		if (startOutput.isEmpty()) {
 			return null;
 		}
 
-		System.out.println("split");
+		// System.out.println("split");
 		// return new PID
 		startOutput = Arrays.asList(startOutput.get(0).split(" "));
 
 		if (startOutput.size() == LENGTH_START_CMD_ARRAY) {
-			System.out.println("return pid");
+			// System.out.println("return pid");
 			return startOutput.get(1);
 		}
 
@@ -105,7 +105,7 @@ public final class CLIAbstraction {
 
 		rawInputDataStream = javaProcess.getInputStream();
 
-		System.out.println("before read");
+		// System.out.println("before read");
 
 		final InputStreamReader inputReader = new InputStreamReader(rawInputDataStream,
 				Charset.forName(StandardCharsets.UTF_8.name()));
@@ -114,27 +114,27 @@ public final class CLIAbstraction {
 
 		final List<String> cliLines = new ArrayList<String>();
 
-		System.out.println("after read");
+		// System.out.println("after read");
 
 		if (readOnlyFirstLine) {
-			System.out.println("before first line");
+			// System.out.println("before first line");
 			// cliLines.add(reader.readLine());
 
 			final StringBuilder firstCharacters = new StringBuilder();
 
-			System.out.println("before read");
+			// System.out.println("before read");
 			int ch = inputReader.read();
-			System.out.println("after read");
+			// System.out.println("after read");
 
 			while (ch != -1 && firstCharacters.length() < 1000) {
-				System.out.println("in read: " + (char) ch);
+				// System.out.println("in read: " + (char) ch);
 				firstCharacters.append((char) ch);
 				ch = inputReader.read();
 			}
 
 			cliLines.add(firstCharacters.toString());
 
-			System.out.println("after first line");
+			// System.out.println("after first line");
 		} else {
 			reader.lines().forEach((line) -> cliLines.add(line));
 		}
@@ -151,7 +151,7 @@ public final class CLIAbstraction {
 		 * InputStreamReader(rawInputDataStream,
 		 * Charset.forName(StandardCharsets.UTF_8.name())));
 		 *
-		 * reader2.lines().forEach((line) -> System.out.println(line));
+		 * reader2.lines().forEach((line) -> //System.out.println(line));
 		 */
 		///
 
@@ -159,7 +159,7 @@ public final class CLIAbstraction {
 		inputReader.close();
 		rawInputDataStream.close();
 
-		System.out.println("return cli");
+		// System.out.println("return cli");
 
 		return cliLines;
 	}

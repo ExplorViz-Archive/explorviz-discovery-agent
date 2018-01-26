@@ -1,18 +1,14 @@
 package net.explorviz.discoveryagent.util;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Process;
 import net.explorviz.discoveryagent.process.CLIAbstraction;
-import net.explorviz.discoveryagent.process.ProcessRepository;
-import net.explorviz.discoveryagent.services.PropertyService;
 
 public class ModelUtility {
 
@@ -41,27 +37,6 @@ public class ModelUtility {
 
 		this.completeKiekerCommand = this.javaagentPart + SPACE_SYMBOL + this.kiekerConfigPart + SPACE_SYMBOL
 				+ this.aopPart + SPACE_SYMBOL + SKIP_DEFAULT_AOP;
-	}
-
-	public Agent createAgentWithProcessList() {
-
-		final String ip = PropertyService.getStringProperty("agentIP");
-		final String userDefinedPort = PropertyService.getStringProperty("agentPort");
-		final String embeddedGrettyPort = PropertyService.getStringProperty("httpPort");
-
-		final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
-
-		final List<Process> processList = ProcessRepository.getProcessList();
-
-		final Agent agent = new Agent(ip, port);
-		agent.setProcesses(processList);
-
-		processList.forEach((process) -> {
-			process.setAgent(agent);
-		});
-
-		return agent;
-
 	}
 
 	public void injectKiekerAgentInProcess(final Process process) {
