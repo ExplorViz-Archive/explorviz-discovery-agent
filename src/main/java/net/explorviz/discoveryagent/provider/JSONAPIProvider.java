@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -23,6 +22,8 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
+import net.explorviz.discovery.factories.ResourceConverterFactory;
+
 @Provider
 @Produces("application/vnd.api+json")
 @Consumes("application/vnd.api+json")
@@ -32,9 +33,8 @@ public class JSONAPIProvider<T> implements MessageBodyReader<T>, MessageBodyWrit
 
 	private final ResourceConverter converter;
 
-	@Inject
-	public JSONAPIProvider(final ResourceConverter converter) {
-		this.converter = converter;
+	public JSONAPIProvider() {
+		this.converter = new ResourceConverterFactory().provide();
 	}
 
 	@Override

@@ -7,6 +7,10 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.model.Agent;
+import net.explorviz.discovery.model.ErrorObject;
+import net.explorviz.discovery.model.Process;
+import net.explorviz.discovery.services.TypeService;
 import net.explorviz.discoveryagent.services.NotifyService;
 
 @WebListener
@@ -21,6 +25,10 @@ public class SetupListener implements ServletContextListener {
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 		LOGGER.info("Server started.");
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
+
+		TypeService.typeMap.put("Agent", Agent.class);
+		TypeService.typeMap.put("Process", Process.class);
+		TypeService.typeMap.put("ErrorObject", ErrorObject.class);
 
 		// register at backend
 		new Thread(() -> {
