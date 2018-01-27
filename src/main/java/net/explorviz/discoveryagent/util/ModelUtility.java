@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.ErrorObject;
-import net.explorviz.discovery.model.Process;
-import net.explorviz.discoveryagent.process.CLIAbstraction;
+import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.procezz.CLIAbstraction;
 
 public class ModelUtility {
 
@@ -39,27 +39,27 @@ public class ModelUtility {
 				+ this.aopPart + SPACE_SYMBOL + SKIP_DEFAULT_AOP;
 	}
 
-	public void injectKiekerAgentInProcess(final Process process) {
+	public void injectKiekerAgentInProcess(final Procezz procezz) {
 
-		final String userExecCMD = process.getUserExecutionCommand();
+		final String userExecCMD = procezz.getUserExecutionCommand();
 
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-		final String execPath = useUserExecCMD ? process.getUserExecutionCommand() : process.getOSExecutionCommand();
+		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + SPACE_SYMBOL
 				+ execPathFragments[1];
 
-		process.setUserExecutionCommand(newExecCommand);
+		procezz.setUserExecutionCommand(newExecCommand);
 	}
 
-	public void removeKiekerAgentInProcess(final Process process) {
-		process.setUserExecutionCommand("");
+	public void removeKiekerAgentInProcess(final Procezz procezz) {
+		procezz.setUserExecutionCommand("");
 	}
 
-	public void killProcess(final Process process) throws IOException {
-		CLIAbstraction.killProcessByPID(process.getPid());
+	public void killProcess(final Procezz procezz) throws IOException {
+		CLIAbstraction.killProcessByPID(procezz.getPid());
 		try {
 			TimeUnit.SECONDS.sleep(10);
 		} catch (final InterruptedException e) {
@@ -67,13 +67,13 @@ public class ModelUtility {
 		}
 	}
 
-	public Process startProcess(final Process process) throws IOException {
+	public Procezz startProcess(final Procezz procezz) throws IOException {
 		String newPID;
-		if (process.getUserExecutionCommand() != null && process.getUserExecutionCommand().isEmpty()) {
-			newPID = CLIAbstraction.startProcessByCMD(process.getOSExecutionCommand());
+		if (procezz.getUserExecutionCommand() != null && procezz.getUserExecutionCommand().isEmpty()) {
+			newPID = CLIAbstraction.startProcessByCMD(procezz.getOSExecutionCommand());
 		} else {
 			System.out.println("before Cli");
-			newPID = CLIAbstraction.startProcessByCMD(process.getUserExecutionCommand());
+			newPID = CLIAbstraction.startProcessByCMD(procezz.getUserExecutionCommand());
 			System.out.println("after Cli");
 		}
 
@@ -81,30 +81,30 @@ public class ModelUtility {
 		System.out.println("set PID");
 		// process.setPid(Long.valueOf(newPID));
 
-		return process;
+		return procezz;
 	}
 
-	public Process handleRestart(final Process process) {
+	public Procezz handleRestart(final Procezz procezz) {
 
 		try {
-			this.killProcess(process);
+			this.killProcess(procezz);
 		} catch (final IOException e) {
 			LOGGER.error("Error when killing process: {}", e);
-			process.setErrorObject(new ErrorObject(process, "Error when killing process: " + e.toString()));
-			return process;
+			procezz.setErrorObject(new ErrorObject(procezz, "Error when killing process: " + e.toString()));
+			return procezz;
 		}
 
-		if (process.isMonitoredFlag()) {
-			this.injectKiekerAgentInProcess(process);
+		if (procezz.isMonitoredFlag()) {
+			this.injectKiekerAgentInProcess(procezz);
 		}
 
 		try {
 			System.out.println("before start");
-			return this.startProcess(process);
+			return this.startProcess(procezz);
 		} catch (final IOException e) {
 			LOGGER.error("Error when starting process: {}", e);
-			process.setErrorObject(new ErrorObject(process, "Error when starting process: " + e.toString()));
-			return process;
+			procezz.setErrorObject(new ErrorObject(procezz, "Error when starting process: " + e.toString()));
+			return procezz;
 		}
 
 	}

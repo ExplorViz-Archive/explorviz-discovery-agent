@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.process;
+package net.explorviz.discoveryagent.procezz;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public final class CLIAbstraction {
 		// do not instantiate
 	}
 
-	public static Map<Long, String> findProcesses() throws IOException {
+	public static Map<Long, String> findProzzeses() throws IOException {
 		return createPIDAndProcList(
 				executeShellCommand(false, BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
 	}

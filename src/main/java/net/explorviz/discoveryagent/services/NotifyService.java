@@ -3,6 +3,7 @@ package net.explorviz.discoveryagent.services;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
@@ -11,10 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Agent;
+import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discovery.services.JSONAPIService;
-import net.explorviz.discovery.services.TypeService;
-import net.explorviz.discoveryagent.process.InternalRepository;
+import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public final class NotifyService {
 
@@ -29,8 +30,6 @@ public final class NotifyService {
 	public static void registerAgent() {
 
 		final ClientService clientService = new ClientService();
-
-		System.out.println(TypeService.typeMap.containsKey("Process"));
 
 		final Map<String, Object> queryParameters = new HashMap<String, Object>();
 
@@ -52,7 +51,7 @@ public final class NotifyService {
 			// "http://localhost:8081/extension/discovery/agent/register");
 			final String agentPayload = clientService
 					.doGETRequest("http://localhost:8081/extension/discovery/agent/register", queryParameters);
-			if (!agentPayload.isEmpty()) {
+			if (agentPayload != null && !agentPayload.isEmpty()) {
 				initDone = true;
 				try {
 					InternalRepository.agentObject = (Agent) JSONAPIService.byteArrayToObject("Agent",
@@ -78,5 +77,13 @@ public final class NotifyService {
 				}
 			}
 		}
+	}
+
+	public static void sendProcezzList(final List<Procezz> procezzList) {
+		final ClientService clientService = new ClientService();
+
+		clientService.doPost(JSONAPIService.listToByteArray(procezzList),
+				"http://localhost:8081/extension/discovery/procezzes");
+
 	}
 }

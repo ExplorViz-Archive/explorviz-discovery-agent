@@ -3,59 +3,51 @@ package net.explorviz.discoveryagent.resources;
 import java.io.IOException;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.explorviz.discovery.model.Process;
-import net.explorviz.discoveryagent.process.InternalRepository;
-import net.explorviz.discoveryagent.process.ProcessFactory;
-import net.explorviz.discoveryagent.util.ModelUtility;
+import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.discoveryagent.procezz.ProcezzFactory;
 
 @Path("")
 public class ProcessResource {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProcessResource.class);
+	// private static final Logger LOGGER =
+	// LoggerFactory.getLogger(ProcessResource.class);
 
 	private static final String MEDIA_TYPE = "application/vnd.api+json";
 
-	private final ModelUtility modelUtil;
-
-	@Inject
-	public ProcessResource(final ModelUtility modelUtil) {
-		this.modelUtil = modelUtil;
-	}
-
-	@POST
-	@Path("/process")
+	@PATCH
+	@Path("/procezz")
 	@Consumes(MEDIA_TYPE)
-	public Response update(final Process process) {
-		LOGGER.info("restart process", process);
+	public Response update(final Procezz procezz) {
+		final Procezz possibleProcess = InternalRepository.updateProcezzByID(procezz);
 
-		this.modelUtil.handleRestart(process);
+		// See RFC5789 page 4 for appropriate status codes
+		if (possibleProcess == null) {
+			return Response.status(422).build();
+		}
 
-		return Response.status(201).build();
+		return Response.status(200).entity(procezz).build();
 	}
 
 	@GET
-	@Path("process/get")
+	@Path("procezz/get")
 	@Produces(MEDIA_TYPE)
-	public Process giveProcess() throws IOException {
-		return ProcessFactory.getJavaProcessesList().get(0);
+	public Procezz giveProcess() throws IOException {
+		return ProcezzFactory.getJavaProcezzesList().get(0);
 	}
 
 	@GET
-	@Path("processes")
+	@Path("procezzes")
 	@Produces(MEDIA_TYPE)
-	public List<Process> giveProcessList() throws IOException {
-		return InternalRepository.getProcessList();
+	public List<Procezz> giveProcezzList() throws IOException {
+		return InternalRepository.getProcezzList();
 	}
 
 }

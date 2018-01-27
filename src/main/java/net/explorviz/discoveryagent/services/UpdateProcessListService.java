@@ -1,12 +1,11 @@
 package net.explorviz.discoveryagent.services;
 
-import java.util.Date;
 import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.explorviz.discoveryagent.process.InternalRepository;
+import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public class UpdateProcessListService extends TimerTask {
 
@@ -15,9 +14,12 @@ public class UpdateProcessListService extends TimerTask {
 	@Override
 	public void run() {
 
-		LOGGER.info("Updating processList at: {}", new Date());
+		final boolean notifyBackend = InternalRepository
+				.mergeProcezzListsWithInternal(InternalRepository.getNewProcezzesFromOS());
 
-		InternalRepository.mergeProcessListsWithInternal(InternalRepository.getNewProcessesFromOS());
+		if (notifyBackend) {
+			NotifyService.sendProcezzList(InternalRepository.getProcezzList());
+		}
 
 	}
 
