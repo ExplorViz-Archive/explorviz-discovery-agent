@@ -9,34 +9,35 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.CLIAbstraction;
+import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public class ModelUtility {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ModelUtility.class);
 
-	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
 	private static final String SPACE_SYMBOL = " ";
+	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
 
-	private final String javaagentPart;
-	private final String kiekerConfigPart;
-	private final String aopPart;
+	private static final String BASH_SUFFIX = "&";
+
+	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
 	private final String completeKiekerCommand;
 
 	public ModelUtility() {
 		final String kiekerJarPath = Thread.currentThread().getContextClassLoader()
 				.getResource("kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
-		this.javaagentPart = "-javaagent:" + kiekerJarPath;
+		final String javaagentPart = "-javaagent:" + kiekerJarPath;
 
 		final String configPath = Thread.currentThread().getContextClassLoader()
 				.getResource("kieker/kieker.monitoring.properties").getPath();
-		this.kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
+		final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
 
 		final String aopPath = Thread.currentThread().getContextClassLoader().getResource("kieker/aop.xml").getPath();
-		this.aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
+		final String aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
 
-		this.completeKiekerCommand = this.javaagentPart + SPACE_SYMBOL + this.kiekerConfigPart + SPACE_SYMBOL
-				+ this.aopPart + SPACE_SYMBOL + SKIP_DEFAULT_AOP;
+		this.completeKiekerCommand = javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart
+				+ SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
 	}
 
 	public void injectKiekerAgentInProcess(final Procezz procezz) {
@@ -48,13 +49,14 @@ public class ModelUtility {
 		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
-		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + SPACE_SYMBOL
-				+ execPathFragments[1];
+		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + procezz.getId()
+				+ SPACE_SYMBOL + execPathFragments[1] + SPACE_SYMBOL + BASH_SUFFIX;
 
 		procezz.setUserExecutionCommand(newExecCommand);
 	}
 
 	public void removeKiekerAgentInProcess(final Procezz procezz) {
+		// TODO
 		procezz.setUserExecutionCommand("");
 	}
 
@@ -68,20 +70,21 @@ public class ModelUtility {
 	}
 
 	public Procezz startProcess(final Procezz procezz) throws IOException {
-		String newPID;
+
 		if (procezz.getUserExecutionCommand() != null && procezz.getUserExecutionCommand().isEmpty()) {
-			newPID = CLIAbstraction.startProcessByCMD(procezz.getOSExecutionCommand());
+			CLIAbstraction.startProcessByCMD(procezz.getOSExecutionCommand());
 		} else {
-			System.out.println("before Cli");
-			newPID = CLIAbstraction.startProcessByCMD(procezz.getUserExecutionCommand());
-			System.out.println("after Cli");
+			CLIAbstraction.startProcessByCMD(procezz.getUserExecutionCommand());
 		}
 
-		// throw error object if NumberException
-		System.out.println("set PID");
-		// process.setPid(Long.valueOf(newPID));
+		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezz(procezz);
 
-		return procezz;
+		if (updatedProcezz == null) {
+			// TODO with error model
+			return procezz;
+		}
+
+		return updatedProcezz;
 	}
 
 	public Procezz handleRestart(final Procezz procezz) {
@@ -99,7 +102,6 @@ public class ModelUtility {
 		}
 
 		try {
-			System.out.println("before start");
 			return this.startProcess(procezz);
 		} catch (final IOException e) {
 			LOGGER.error("Error when starting process: {}", e);

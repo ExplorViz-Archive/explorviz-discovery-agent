@@ -25,7 +25,6 @@ public final class CLIAbstraction {
 
 	private static final int SINGLE_COMMAND_LENGTH = 1;
 	private static final int LENGTH_PWDX_ARRAY = 2;
-	private static final int LENGTH_START_CMD_ARRAY = 2;
 
 	private CLIAbstraction() {
 		// do not instantiate
@@ -33,41 +32,20 @@ public final class CLIAbstraction {
 
 	public static Map<Long, String> findProzzeses() throws IOException {
 		return createPIDAndProcList(
-				executeShellCommand(false, BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
+				executeAndReadShellCommand(false, BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
 	}
 
-	public static List<String> killProcessByPID(final long pid) throws IOException {
-		return executeShellCommand(true, "kill", "-9", String.valueOf(pid));
+	public static void killProcessByPID(final long pid) throws IOException {
+		executeShellCommand("kill", "-9", String.valueOf(pid), BASH_SUFFIX);
 	}
 
-	public static String startProcessByCMD(final String fullCMD) throws IOException {
-
-		// System.out.println("before cli start");
-
+	public static void startProcessByCMD(final String fullCMD) throws IOException {
 		final String[] splittedCMD = fullCMD.split("\\s+");
-
-		List<String> startOutput = executeShellCommand(true, splittedCMD);
-
-		// System.out.println("after cli start");
-
-		if (startOutput.isEmpty()) {
-			return null;
-		}
-
-		// System.out.println("split");
-		// return new PID
-		startOutput = Arrays.asList(startOutput.get(0).split(" "));
-
-		if (startOutput.size() == LENGTH_START_CMD_ARRAY) {
-			// System.out.println("return pid");
-			return startOutput.get(1);
-		}
-
-		return null;
+		executeShellCommand(splittedCMD);
 	}
 
 	public static String findWorkingDirectoryForPID(final long pid) throws IOException {
-		List<String> pwdxOutput = executeShellCommand(true, "pwdx", String.valueOf(pid));
+		List<String> pwdxOutput = executeAndReadShellCommand(true, "pwdx", String.valueOf(pid));
 
 		if (pwdxOutput.isEmpty()) {
 			return "";
@@ -84,7 +62,21 @@ public final class CLIAbstraction {
 		return "";
 	}
 
-	public static List<String> executeShellCommand(final boolean readOnlyFirstLine, final String... cmd)
+	public static void executeShellCommand(final String... cmd) throws IOException {
+
+		// Some command line tools don't work as parameter for /bin/sh
+		// Alternatively, we can execute them with a different exec command
+		// as self-contained command line tools. Therefore, we need the
+		// following check
+
+		if (cmd.length == SINGLE_COMMAND_LENGTH) {
+			new ProcessBuilder(cmd[0]).start();
+		} else {
+			new ProcessBuilder(cmd).start();
+		}
+	}
+
+	public static List<String> executeAndReadShellCommand(final boolean readOnlyFirstLine, final String... cmd)
 			throws IOException {
 
 		InputStream rawInputDataStream;

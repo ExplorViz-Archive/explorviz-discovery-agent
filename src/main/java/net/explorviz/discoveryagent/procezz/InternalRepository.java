@@ -34,6 +34,31 @@ public final class InternalRepository {
 		return internalProcezzList;
 	}
 
+	public static boolean updateInternalProcezzList() {
+		synchronized (internalProcezzList) {
+			return mergeProcezzListWithInternalList(getNewProcezzesFromOS());
+		}
+	}
+
+	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) {
+		synchronized (internalProcezzList) {
+			final Procezz possibleRestartedProcezz = findProcezzInListByExecCMD(oldProcezz.getUserExecutionCommand(),
+					getNewProcezzesFromOS());
+
+			final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
+
+			if (possibleRestartedProcezz == null || internalProcezz == null) {
+				return null;
+			}
+
+			// update pid and osExecCMD
+			internalProcezz.setPid(possibleRestartedProcezz.getPid());
+			internalProcezz.setUserExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
+
+			return internalProcezz;
+		}
+	}
+
 	public static List<Procezz> getNewProcezzesFromOS() {
 
 		if (agentObject == null) {
@@ -49,7 +74,7 @@ public final class InternalRepository {
 		return newOSProcezzList;
 	}
 
-	public static boolean mergeProcezzListsWithInternal(final List<Procezz> newProcezzListFromOS) {
+	public static boolean mergeProcezzListWithInternalList(final List<Procezz> newProcezzListFromOS) {
 
 		boolean notifyBackend = false;
 
@@ -57,24 +82,48 @@ public final class InternalRepository {
 			return notifyBackend;
 		}
 
+		final List<Procezz> stoppedProcezzes = new ArrayList<Procezz>();
+
 		synchronized (internalProcezzList) {
 
 			LOGGER.info("Updating procezzList at: {}", new Date());
 
+			// Check if already obtained PID is still in the new obtained procezzList
 			for (final Procezz procezz : internalProcezzList) {
 
-				// Check if already obtained PID is still in the new obtained procezzList
-				final Procezz possibleProcezz = findProcezzInList(procezz, newProcezzListFromOS);
+				final Procezz possibleProcezz = findProcezzInListByPID(procezz.getPid(), newProcezzListFromOS);
 
 				if (possibleProcezz == null) {
-					// Procezz not found in latest OS list
-					procezz.setStopped(true);
+					// Procezz not found in latest OS list = Old process, maybe restarted
+					stoppedProcezzes.add(procezz);
 				} else {
 					// Procezz is still running
 					newProcezzListFromOS.remove(possibleProcezz);
 				}
 
 				procezz.setAgent(agentObject);
+			}
+
+			// Check if a running procezz was restarted by agent
+			// and update an old procezz entity
+			for (final Procezz procezz : stoppedProcezzes) {
+
+				// Any execCMD of a restarted process has a unique explorviz flag
+				final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
+						newProcezzListFromOS);
+
+				if (possibleProcezz == null) {
+					// Restarting failed, send error object
+					procezz.setStopped(true);
+				} else {
+					// Procezz has been restarted correctly
+
+					procezz.setPid(possibleProcezz.getPid());
+					procezz.setUserExecutionCommand(possibleProcezz.getOSExecutionCommand());
+					procezz.setMonitoredFlag(true);
+
+					newProcezzListFromOS.remove(possibleProcezz);
+				}
 			}
 
 			// finally, add new-found (= remaining) procezzes to the internal storage
@@ -116,6 +165,21 @@ public final class InternalRepository {
 
 	}
 
+	private static Procezz findProcezzInListByExecCMD(final String userExecutionCommand,
+			final List<Procezz> procezzList) {
+		for (final Procezz possibleProcezz : procezzList) {
+
+			final String osExecCMD = possibleProcezz.getOSExecutionCommand();
+
+			if (userExecutionCommand.equals(osExecCMD)) {
+				return possibleProcezz;
+			}
+
+		}
+
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	private static List<Procezz> convertToProcezzList(final String jsonPayload) {
 
@@ -132,32 +196,18 @@ public final class InternalRepository {
 		return procezzList;
 	}
 
-	private static Procezz findProcezzInList(final Procezz p, final List<Procezz> procezzList) {
+	private static Procezz findProcezzInListByPID(final long PID, final List<Procezz> procezzList) {
 
-		final long PID = p.getPid();
-		final String workingDir = p.getWorkingDirectory();
-		final String userExecCMD = p.getUserExecutionCommand();
+		synchronized (internalProcezzList) {
 
-		for (final Procezz possibleProcezz : procezzList) {
+			for (final Procezz possibleProcezz : procezzList) {
 
-			final long tempPID = possibleProcezz.getPid();
-			final String tempWorkingDir = possibleProcezz.getWorkingDirectory();
-			final String tempOSExecCMD = possibleProcezz.getOSExecutionCommand();
+				final long tempPID = possibleProcezz.getPid();
 
-			final boolean equalPID = PID == tempPID;
-			final boolean equalWorkingDir = workingDir.equals(tempWorkingDir);
-			boolean equalUserExec;
+				if (PID == tempPID) {
+					return possibleProcezz;
+				}
 
-			if (userExecCMD == null) {
-				equalUserExec = false;
-			} else {
-				equalUserExec = userExecCMD.equals(tempOSExecCMD);
-			}
-
-			// TODO this will break if two instances of the same application will be
-			// monitored
-			if (equalPID || equalUserExec && equalWorkingDir) {
-				return possibleProcezz;
 			}
 
 		}
@@ -165,10 +215,10 @@ public final class InternalRepository {
 		return null;
 	}
 
-	public static Procezz findProcezzByID(final Procezz procezz) {
+	public static Procezz findProcezzByID(final long id) {
 		synchronized (internalProcezzList) {
 			final Procezz procezzInCache = internalProcezzList.stream().filter(Objects::nonNull)
-					.filter(p -> p.getId() == procezz.getId()).findFirst().orElse(null);
+					.filter(p -> p.getId() == id).findFirst().orElse(null);
 
 			if (procezzInCache == null) {
 				return null;
@@ -182,7 +232,7 @@ public final class InternalRepository {
 
 		synchronized (internalProcezzList) {
 
-			final Procezz procezzInCache = findProcezzByID(procezz);
+			final Procezz procezzInCache = findProcezzByID(procezz.getId());
 
 			if (procezzInCache == null) {
 				return null;
@@ -194,23 +244,26 @@ public final class InternalRepository {
 			procezzInCache.setShutdownCommand(procezz.getShutdownCommand());
 			procezzInCache.setWebserverFlag(procezz.isWebserverFlag());
 
-			final boolean monitoredFlag = procezz.isMonitoredFlag();
-			procezzInCache.setMonitoredFlag(monitoredFlag);
+			boolean monitoringStateChanged = false;
 
-			boolean userCommandSet = false;
+			if (procezz.isMonitoredFlag() != procezzInCache.isMonitoredFlag()) {
+				procezzInCache.setMonitoredFlag(procezz.isMonitoredFlag());
+				monitoringStateChanged = true;
+			}
+
+			boolean newUserCommandSet = false;
 
 			final String userExecutionCommand = procezz.getUserExecutionCommand();
-			if (userExecutionCommand != null && userExecutionCommand.length() > 0) {
+			if (userExecutionCommand != null && userExecutionCommand.length() > 0
+					&& !userExecutionCommand.equals(procezzInCache.getUserExecutionCommand())) {
 				procezzInCache.setUserExecutionCommand(userExecutionCommand);
-				userCommandSet = true;
+				newUserCommandSet = true;
 			}
 
 			// monitoring status or user command changed?
-			if (monitoredFlag || userCommandSet) {
+			if (monitoringStateChanged || newUserCommandSet) {
 
-				new ModelUtility().handleRestart(procezzInCache);
-
-				System.out.println("after handleRestart");
+				return new ModelUtility().handleRestart(procezzInCache);
 
 			}
 

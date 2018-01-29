@@ -24,8 +24,6 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
 import net.explorviz.discovery.factories.ResourceConverterFactory;
-import net.explorviz.discovery.model.Agent;
-import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.TypeService;
 
 @Provider
@@ -76,9 +74,9 @@ public class JSONAPIListProvider implements MessageBodyReader<List<?>>, MessageB
 	public List<?> readFrom(final Class<List<?>> type, final Type genericType, final Annotation[] annotations,
 			final MediaType mediaType, final MultivaluedMap<String, String> httpHeaders, final InputStream entityStream)
 			throws IOException, WebApplicationException {
-		System.out.println("is registered in List: " + TypeService.typeMap.containsKey("Process"));
-		final ResourceConverter converter = new ResourceConverter(Procezz.class, Agent.class);
-		return converter.readDocumentCollection(entityStream, type).get();
+		final Class<?> javaType = TypeService.giveClassForString(genericType.getTypeName());
+
+		return this.converter.readDocumentCollection(entityStream, javaType).get();
 	}
 
 	@Override

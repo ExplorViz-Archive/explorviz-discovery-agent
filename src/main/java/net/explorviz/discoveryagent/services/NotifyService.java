@@ -62,7 +62,7 @@ public final class NotifyService {
 				}
 
 				// refresh internal ProcessList every minute
-				timer.scheduleAtFixedRate(updateService, 0, 60000);
+				timer.scheduleAtFixedRate(updateService, 0, 30000);
 			}
 			if (!initDone) {
 				if (LOGGER.isInfoEnabled()) {
