@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.provider;
+package net.explorviz.discoveryagent.server.provider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -23,8 +24,7 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
-import net.explorviz.discovery.factories.ResourceConverterFactory;
-import net.explorviz.discovery.services.TypeService;
+import net.explorviz.discoveryagent.util.TypeService;
 
 @Provider
 @Produces("application/vnd.api+json")
@@ -35,8 +35,9 @@ public class JSONAPIListProvider implements MessageBodyReader<List<?>>, MessageB
 
 	private final ResourceConverter converter;
 
-	public JSONAPIListProvider() {
-		this.converter = new ResourceConverterFactory().provide();
+	@Inject
+	public JSONAPIListProvider(final ResourceConverter converter) {
+		this.converter = converter;
 	}
 
 	@Override

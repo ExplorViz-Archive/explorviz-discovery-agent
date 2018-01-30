@@ -1,7 +1,5 @@
 package net.explorviz.discoveryagent.services;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,15 +9,19 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jasminb.jsonapi.ResourceConverter;
+
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
-import net.explorviz.discovery.services.JSONAPIService;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
+import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
+import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class NotifyService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JSONAPIService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NotifyService.class);
 
 	private static boolean initDone;
 
@@ -30,6 +32,11 @@ public final class NotifyService {
 	public static void registerAgent() {
 
 		final ClientService clientService = new ClientService();
+
+		final ResourceConverter converter = new ResourceConverterFactory().provide();
+
+		clientService.registerProviderReader(new JSONAPIProvider<>(converter));
+		clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
 		final Map<String, Object> queryParameters = new HashMap<String, Object>();
 
@@ -42,27 +49,19 @@ public final class NotifyService {
 		queryParameters.put("ip", ip);
 		queryParameters.put("port", port);
 
-		final UpdateProcessListService updateService = new UpdateProcessListService();
-		final Timer timer = new Timer(true);
+		Agent agentScaffold = null;
 
 		// send once on startup
 		while (!initDone) {
 			// initDone = clientService.doPost(agent,
 			// "http://localhost:8081/extension/discovery/agent/register");
-			final String agentPayload = clientService
-					.doGETRequest("http://localhost:8081/extension/discovery/agent/register", queryParameters);
-			if (agentPayload != null && !agentPayload.isEmpty()) {
+			agentScaffold = clientService.doGETRequest(Agent.class,
+					"http://localhost:8081/extension/discovery/agent/register", queryParameters);
+			if (agentScaffold != null) {
 				initDone = true;
-				try {
-					InternalRepository.agentObject = (Agent) JSONAPIService.byteArrayToObject("Agent",
-							agentPayload.getBytes(StandardCharsets.UTF_8.name()));
-				} catch (final UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				InternalRepository.agentObject = agentScaffold;
 
-				// refresh internal ProcessList every minute
-				timer.scheduleAtFixedRate(updateService, 0, 30000);
+				startUpdateService();
 			}
 			if (!initDone) {
 				if (LOGGER.isInfoEnabled()) {
@@ -79,11 +78,25 @@ public final class NotifyService {
 		}
 	}
 
+	private static void startUpdateService() {
+		final UpdateProcezzListService updateService = new UpdateProcezzListService();
+		final Timer timer = new Timer(true);
+
+		// refresh internal ProcessList every minute
+		timer.scheduleAtFixedRate(updateService, 0, 30000);
+	}
+
 	public static void sendProcezzList(final List<Procezz> procezzList) {
 		final ClientService clientService = new ClientService();
 
-		clientService.doPost(JSONAPIService.listToByteArray(procezzList),
-				"http://localhost:8081/extension/discovery/procezzes");
+		final ResourceConverter converter = new ResourceConverterFactory().provide();
+
+		clientService.registerProviderReader(new JSONAPIProvider<>(converter));
+		clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
+		clientService.registerProviderReader(new JSONAPIListProvider(converter));
+		clientService.registerProviderWriter(new JSONAPIListProvider(converter));
+
+		clientService.doPOSTRequest(procezzList, "http://localhost:8081/extension/discovery/procezzes");
 
 	}
 }

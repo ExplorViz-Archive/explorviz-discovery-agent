@@ -1,7 +1,5 @@
 package net.explorviz.discoveryagent.procezz;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,11 +10,15 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jasminb.jsonapi.ResourceConverter;
+
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
-import net.explorviz.discovery.services.JSONAPIService;
+import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
+import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.util.ModelUtility;
+import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class InternalRepository {
 
@@ -59,6 +61,28 @@ public final class InternalRepository {
 		}
 	}
 
+	public static Procezz updateRestartedProcezzTest(final Procezz oldProcezz) {
+		synchronized (internalProcezzList) {
+
+			final long entityID = oldProcezz.getId();
+
+			final Procezz possibleRestartedProcezz = new ModelUtility().findFlaggedProcezzInList(entityID,
+					getNewProcezzesFromOS());
+
+			final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
+
+			if (possibleRestartedProcezz == null || internalProcezz == null) {
+				return null;
+			}
+
+			// update pid and osExecCMD
+			internalProcezz.setPid(possibleRestartedProcezz.getPid());
+			internalProcezz.setUserExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
+
+			return internalProcezz;
+		}
+	}
+
 	public static List<Procezz> getNewProcezzesFromOS() {
 
 		if (agentObject == null) {
@@ -76,57 +100,42 @@ public final class InternalRepository {
 
 	public static boolean mergeProcezzListWithInternalList(final List<Procezz> newProcezzListFromOS) {
 
-		boolean notifyBackend = false;
+		boolean notifyBackendOfChange = false;
 
 		if (newProcezzListFromOS.isEmpty() || agentObject == null) {
-			return notifyBackend;
+			return notifyBackendOfChange;
 		}
-
-		final List<Procezz> stoppedProcezzes = new ArrayList<Procezz>();
 
 		synchronized (internalProcezzList) {
 
 			LOGGER.info("Updating procezzList at: {}", new Date());
 
-			// Check if already obtained PID is still in the new obtained procezzList
-			for (final Procezz procezz : internalProcezzList) {
-
-				final Procezz possibleProcezz = findProcezzInListByPID(procezz.getPid(), newProcezzListFromOS);
-
-				if (possibleProcezz == null) {
-					// Procezz not found in latest OS list = Old process, maybe restarted
-					stoppedProcezzes.add(procezz);
-				} else {
-					// Procezz is still running
-					newProcezzListFromOS.remove(possibleProcezz);
-				}
-
-				procezz.setAgent(agentObject);
-			}
+			// Check if already obtained PIDs are still in the new obtained procezzList
+			final List<Procezz> stoppedProcezzes = filterListByInternalPIDs(newProcezzListFromOS);
 
 			// Check if a running procezz was restarted by agent
-			// and update an old procezz entity
-			for (final Procezz procezz : stoppedProcezzes) {
-
-				// Any execCMD of a restarted process has a unique explorviz flag
-				final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
-						newProcezzListFromOS);
-
-				if (possibleProcezz == null) {
-					// Restarting failed, send error object
-					procezz.setStopped(true);
-				} else {
-					// Procezz has been restarted correctly
-
-					procezz.setPid(possibleProcezz.getPid());
-					procezz.setUserExecutionCommand(possibleProcezz.getOSExecutionCommand());
-					procezz.setMonitoredFlag(true);
-
-					newProcezzListFromOS.remove(possibleProcezz);
-				}
-			}
+			// and update old procezz entity
+			updateStoppedProcezzes(stoppedProcezzes, newProcezzListFromOS);
 
 			// finally, add new-found (= remaining) procezzes to the internal storage
+			notifyBackendOfChange = getScaffoldsAndUpdateNewProcezzes(newProcezzListFromOS);
+
+		}
+
+		return notifyBackendOfChange;
+
+	}
+
+	private static boolean getScaffoldsAndUpdateNewProcezzes(final List<Procezz> newProcezzListFromOS) {
+
+		// Get scaffolds with unique ID from backend and insert
+		// new data from new procezzes into these scaffolds
+		// Finally, add the new procezzes to the internalProcezzList
+
+		boolean notifyBackend = false;
+
+		synchronized (internalProcezzList) {
+
 			final int necessaryScaffolds = newProcezzListFromOS.size();
 
 			if (necessaryScaffolds == 0) {
@@ -135,13 +144,18 @@ public final class InternalRepository {
 
 			final ClientService clientService = new ClientService();
 
+			final ResourceConverter converter = new ResourceConverterFactory().provide();
+
+			clientService.registerProviderReader(new JSONAPIProvider<>(converter));
+			clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
+			clientService.registerProviderReader(new JSONAPIListProvider(converter));
+			clientService.registerProviderWriter(new JSONAPIListProvider(converter));
+
 			final Map<String, Object> queryParameters = new HashMap<String, Object>();
 			queryParameters.put("necessary-scaffolds", necessaryScaffolds);
 
-			final String jsonPayload = clientService.doGETRequest("http://localhost:8081/extension/discovery/procezzes",
-					queryParameters);
-
-			final List<Procezz> scaffoldedProcezzList = convertToProcezzList(jsonPayload);
+			final List<Procezz> scaffoldedProcezzList = clientService
+					.doGETProcezzListRequest("http://localhost:8081/extension/discovery/procezzes", queryParameters);
 
 			if (scaffoldedProcezzList == null) {
 				return notifyBackend;
@@ -162,6 +176,57 @@ public final class InternalRepository {
 		}
 
 		return notifyBackend;
+	}
+
+	private static void updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
+			final List<Procezz> newProcezzListFromOS) {
+		synchronized (internalProcezzList) {
+			for (final Procezz procezz : stoppedProcezzes) {
+
+				// Any execCMD of a restarted procezz has a unique explorviz flag
+				final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
+						newProcezzListFromOS);
+
+				if (possibleProcezz == null) {
+					// Restarting failed, send error object
+					procezz.setStopped(true);
+				} else {
+					// Procezz has been restarted correctly
+
+					procezz.setPid(possibleProcezz.getPid());
+					procezz.setUserExecutionCommand(possibleProcezz.getOSExecutionCommand());
+					procezz.setMonitoredFlag(true);
+
+					newProcezzListFromOS.remove(possibleProcezz);
+				}
+			}
+		}
+
+	}
+
+	private static List<Procezz> filterListByInternalPIDs(final List<Procezz> newProcezzList) {
+
+		final List<Procezz> stoppedProcezzes = new ArrayList<Procezz>();
+
+		synchronized (internalProcezzList) {
+
+			for (final Procezz procezz : internalProcezzList) {
+
+				final Procezz possibleProcezz = findProcezzInListByPID(procezz.getPid(), newProcezzList);
+
+				if (possibleProcezz == null) {
+					// Procezz not found in latest OS list = Old procezz, maybe restarted
+					stoppedProcezzes.add(procezz);
+				} else {
+					// Procezz is still running
+					newProcezzList.remove(possibleProcezz);
+				}
+
+				procezz.setAgent(agentObject);
+			}
+		}
+
+		return stoppedProcezzes;
 
 	}
 
@@ -180,21 +245,20 @@ public final class InternalRepository {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static List<Procezz> convertToProcezzList(final String jsonPayload) {
-
-		List<Procezz> procezzList = null;
-
-		try {
-			procezzList = (List<Procezz>) JSONAPIService.byteArrayToList("Procezz",
-					jsonPayload.getBytes(StandardCharsets.UTF_8.name()));
-		} catch (final UnsupportedEncodingException e) {
-			LOGGER.error("Exception caught while getting bytes of String: {}", e);
-			return null;
-		}
-
-		return procezzList;
-	}
+	/*
+	 * @SuppressWarnings("unchecked") private static List<Procezz>
+	 * convertToProcezzList(final String jsonPayload) {
+	 *
+	 * List<Procezz> procezzList = null;
+	 *
+	 * try { procezzList = (List<Procezz>) JSONAPIService.byteArrayToList("Procezz",
+	 * jsonPayload.getBytes(StandardCharsets.UTF_8.name())); } catch (final
+	 * UnsupportedEncodingException e) {
+	 * LOGGER.error("Exception caught while getting bytes of String: {}", e); return
+	 * null; }
+	 *
+	 * return procezzList; }
+	 */
 
 	private static Procezz findProcezzInListByPID(final long PID, final List<Procezz> procezzList) {
 
@@ -254,7 +318,7 @@ public final class InternalRepository {
 			boolean newUserCommandSet = false;
 
 			final String userExecutionCommand = procezz.getUserExecutionCommand();
-			if (userExecutionCommand != null && userExecutionCommand.length() > 0
+			if (userExecutionCommand != null
 					&& !userExecutionCommand.equals(procezzInCache.getUserExecutionCommand())) {
 				procezzInCache.setUserExecutionCommand(userExecutionCommand);
 				newUserCommandSet = true;

@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.main;
+package net.explorviz.discoveryagent.server.main;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discovery.services.TypeService;
 import net.explorviz.discoveryagent.services.NotifyService;
+import net.explorviz.discoveryagent.util.TypeService;
 
 @WebListener
 public class SetupListener implements ServletContextListener {

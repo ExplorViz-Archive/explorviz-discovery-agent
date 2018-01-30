@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.resources;
+package net.explorviz.discoveryagent.server.resources;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ProcessResource {
 			return Response.status(422).build();
 		}
 
-		return Response.status(200).entity(procezz).build();
+		return Response.status(200).entity(possibleProcess).build();
 	}
 
 	@GET

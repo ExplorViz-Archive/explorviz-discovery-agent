@@ -1,6 +1,7 @@
 package net.explorviz.discoveryagent.util;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -17,8 +18,6 @@ public class ModelUtility {
 
 	private static final String SPACE_SYMBOL = " ";
 	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
-
-	private static final String BASH_SUFFIX = "&";
 
 	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
@@ -50,9 +49,32 @@ public class ModelUtility {
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + procezz.getId()
-				+ SPACE_SYMBOL + execPathFragments[1] + SPACE_SYMBOL + BASH_SUFFIX;
+				+ SPACE_SYMBOL + execPathFragments[1];
 
 		procezz.setUserExecutionCommand(newExecCommand);
+	}
+
+	private void injectAgentFlag(final Procezz procezz) {
+		final String userExecCMD = procezz.getUserExecutionCommand();
+
+		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
+
+		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOSExecutionCommand();
+		final String[] execPathFragments = execPath.split("\\s+", 2);
+
+		if (execPath.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
+			return;
+		}
+
+		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG + procezz.getId()
+				+ SPACE_SYMBOL + execPathFragments[1];
+
+		if (useUserExecCMD) {
+			procezz.setUserExecutionCommand(newExecCommand);
+		} else {
+			procezz.setOSExecutionCommand(newExecCommand);
+		}
+
 	}
 
 	public void removeKiekerAgentInProcess(final Procezz procezz) {
@@ -77,7 +99,7 @@ public class ModelUtility {
 			CLIAbstraction.startProcessByCMD(procezz.getUserExecutionCommand());
 		}
 
-		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezz(procezz);
+		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezzTest(procezz);
 
 		if (updatedProcezz == null) {
 			// TODO with error model
@@ -99,6 +121,8 @@ public class ModelUtility {
 
 		if (procezz.isMonitoredFlag()) {
 			this.injectKiekerAgentInProcess(procezz);
+		} else {
+			this.injectAgentFlag(procezz);
 		}
 
 		try {
@@ -109,6 +133,19 @@ public class ModelUtility {
 			return procezz;
 		}
 
+	}
+
+	public Procezz findFlaggedProcezzInList(final long entityID, final List<Procezz> procezzList) {
+
+		for (final Procezz p : procezzList) {
+			final boolean containsFlag = p.getOSExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + entityID);
+
+			if (containsFlag) {
+				return p;
+			}
+		}
+
+		return null;
 	}
 
 }
