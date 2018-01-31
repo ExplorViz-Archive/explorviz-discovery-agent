@@ -29,7 +29,7 @@ public final class ProcezzFactory {
 		final List<Procezz> procezzList = new ArrayList<Procezz>();
 		try {
 			CLIAbstraction.findProzzeses().forEach((pid, execCMD) -> {
-				if (!"/bin/sh -c ps -e -o pid,command | grep java".equals(execCMD) && !"grep java".equals(execCMD)) {
+				if (!execCMD.contains(CLIAbstraction.GET_ALL_PROCESSES) && !"grep java".equals(execCMD)) {
 					final Procezz p = new Procezz(pid, execCMD);
 
 					// add pwdx (working directory) output to procezz object

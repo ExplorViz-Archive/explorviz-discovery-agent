@@ -45,13 +45,13 @@ public class ModelUtility {
 
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOSExecutionCommand();
+		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + procezz.getId()
 				+ SPACE_SYMBOL + execPathFragments[1];
 
-		procezz.setUserExecutionCommand(newExecCommand);
+		procezz.setAgentExecutionCommand(newExecCommand);
 	}
 
 	private void injectAgentFlag(final Procezz procezz) {
@@ -60,26 +60,22 @@ public class ModelUtility {
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
 		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOSExecutionCommand();
-		final String[] execPathFragments = execPath.split("\\s+", 2);
 
 		if (execPath.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
 			return;
 		}
 
+		final String[] execPathFragments = execPath.split("\\s+", 2);
+
 		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG + procezz.getId()
 				+ SPACE_SYMBOL + execPathFragments[1];
 
-		if (useUserExecCMD) {
-			procezz.setUserExecutionCommand(newExecCommand);
-		} else {
-			procezz.setOSExecutionCommand(newExecCommand);
-		}
-
+		procezz.setAgentExecutionCommand(newExecCommand);
 	}
 
 	public void removeKiekerAgentInProcess(final Procezz procezz) {
 		// TODO
-		procezz.setUserExecutionCommand("");
+		procezz.setAgentExecutionCommand("");
 	}
 
 	public void killProcess(final Procezz procezz) throws IOException {
@@ -93,11 +89,7 @@ public class ModelUtility {
 
 	public Procezz startProcess(final Procezz procezz) throws IOException {
 
-		if (procezz.getUserExecutionCommand() != null && procezz.getUserExecutionCommand().isEmpty()) {
-			CLIAbstraction.startProcessByCMD(procezz.getOSExecutionCommand());
-		} else {
-			CLIAbstraction.startProcessByCMD(procezz.getUserExecutionCommand());
-		}
+		CLIAbstraction.startProcessByCMD(procezz.getAgentExecutionCommand());
 
 		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezzTest(procezz);
 

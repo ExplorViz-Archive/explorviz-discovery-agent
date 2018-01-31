@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 public final class CLIAbstraction {
 
+	public static final String GET_ALL_PROCESSES = "ps -e -U $(whoami) -o  pid,command | grep java";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CLIAbstraction.class);
 
 	private static final String BASH_PREFIX = "/bin/sh";
@@ -31,8 +33,7 @@ public final class CLIAbstraction {
 	}
 
 	public static Map<Long, String> findProzzeses() throws IOException {
-		return createPIDAndProcList(
-				executeAndReadShellCommand(false, BASH_PREFIX, BASH_FLAG, "ps -e -o pid,command | grep java"));
+		return createPIDAndProcList(executeAndReadShellCommand(false, BASH_PREFIX, BASH_FLAG, GET_ALL_PROCESSES));
 	}
 
 	public static void killProcessByPID(final long pid) throws IOException {
@@ -69,15 +70,24 @@ public final class CLIAbstraction {
 		// as self-contained command line tools. Therefore, we need the
 		// following check
 
-		if (cmd.length == SINGLE_COMMAND_LENGTH) {
-			new ProcessBuilder(cmd[0]).start();
-		} else {
-			new ProcessBuilder(cmd).start();
+		try {
+			if (cmd.length == SINGLE_COMMAND_LENGTH) {
+				// javaProcess = Runtime.getRuntime().exec(cmd[0]);
+				new ProcessBuilder(cmd[0]).start();
+			} else {
+				new ProcessBuilder(cmd).start();
+			}
+		} catch (final IOException e) {
+			LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
+					String.join(" ", cmd), e.toString());
 		}
+
 	}
 
 	public static List<String> executeAndReadShellCommand(final boolean readOnlyFirstLine, final String... cmd)
 			throws IOException {
+
+		final List<String> cliLines = new ArrayList<String>();
 
 		InputStream rawInputDataStream;
 
@@ -86,13 +96,23 @@ public final class CLIAbstraction {
 		// as self-contained command line tools. Therefore, we need the
 		// following check
 
-		Process javaProcess;
+		Process javaProcess = null;
 
-		if (cmd.length == SINGLE_COMMAND_LENGTH) {
-			// javaProcess = Runtime.getRuntime().exec(cmd[0]);
-			javaProcess = new ProcessBuilder(cmd[0]).start();
-		} else {
-			javaProcess = new ProcessBuilder(cmd).start();
+		try {
+			if (cmd.length == SINGLE_COMMAND_LENGTH) {
+				// javaProcess = Runtime.getRuntime().exec(cmd[0]);
+				javaProcess = new ProcessBuilder(cmd[0]).start();
+			} else {
+				javaProcess = new ProcessBuilder(cmd).start();
+			}
+		} catch (final IOException e) {
+			LOGGER.error("Procezz command not found: {}. Maybe not available in this Distro?: {}",
+					String.join(" ", cmd), e.toString());
+			return cliLines;
+		}
+
+		if (javaProcess == null) {
+			return cliLines;
 		}
 
 		rawInputDataStream = javaProcess.getInputStream();
@@ -103,8 +123,6 @@ public final class CLIAbstraction {
 				Charset.forName(StandardCharsets.UTF_8.name()));
 
 		final BufferedReader reader = new BufferedReader(inputReader);
-
-		final List<String> cliLines = new ArrayList<String>();
 
 		// System.out.println("after read");
 

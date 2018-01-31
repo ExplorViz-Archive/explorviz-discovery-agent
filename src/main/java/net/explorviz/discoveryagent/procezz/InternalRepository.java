@@ -55,7 +55,7 @@ public final class InternalRepository {
 
 			// update pid and osExecCMD
 			internalProcezz.setPid(possibleRestartedProcezz.getPid());
-			internalProcezz.setUserExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
+			internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
 
 			return internalProcezz;
 		}
@@ -77,7 +77,7 @@ public final class InternalRepository {
 
 			// update pid and osExecCMD
 			internalProcezz.setPid(possibleRestartedProcezz.getPid());
-			internalProcezz.setUserExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
+			internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
 
 			return internalProcezz;
 		}
@@ -236,7 +236,7 @@ public final class InternalRepository {
 
 			final String osExecCMD = possibleProcezz.getOSExecutionCommand();
 
-			if (userExecutionCommand.equals(osExecCMD)) {
+			if (userExecutionCommand != null && userExecutionCommand.equals(osExecCMD)) {
 				return possibleProcezz;
 			}
 
