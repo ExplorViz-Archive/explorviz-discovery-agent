@@ -7,7 +7,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discoveryagent.util.TypeService;
+import net.explorviz.discoveryagent.services.TypeService;
 
 @ApplicationPath("")
 public class Application extends ResourceConfig {

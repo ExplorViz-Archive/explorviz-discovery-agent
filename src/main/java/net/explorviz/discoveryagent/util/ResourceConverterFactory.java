@@ -5,6 +5,8 @@ import org.glassfish.hk2.api.Factory;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.SerializationFeature;
 
+import net.explorviz.discoveryagent.services.TypeService;
+
 public class ResourceConverterFactory implements Factory<ResourceConverter> {
 	private final ResourceConverter converter;
 

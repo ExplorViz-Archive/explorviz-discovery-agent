@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.util;
+package net.explorviz.discoveryagent.services;
 
 import java.util.HashMap;
 import java.util.Map;

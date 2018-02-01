@@ -11,6 +11,7 @@ import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.CLIAbstraction;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.discoveryagent.services.FilesystemService;
 
 public class ModelUtility {
 
@@ -113,6 +114,11 @@ public class ModelUtility {
 
 		if (procezz.isMonitoredFlag()) {
 			this.injectKiekerAgentInProcess(procezz);
+			try {
+				FilesystemService.createSubfolderForID(procezz.getId());
+			} catch (final IOException e) {
+				LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", procezz.getId(), e.toString());
+			}
 		} else {
 			this.injectAgentFlag(procezz);
 		}

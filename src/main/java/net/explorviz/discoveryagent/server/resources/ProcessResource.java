@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
-import net.explorviz.discoveryagent.procezz.ProcezzFactory;
 
 @Path("")
 public class ProcessResource {
@@ -34,13 +33,6 @@ public class ProcessResource {
 		}
 
 		return Response.status(200).entity(possibleProcess).build();
-	}
-
-	@GET
-	@Path("procezz/get")
-	@Produces(MEDIA_TYPE)
-	public Procezz giveProcess() throws IOException {
-		return ProcezzFactory.getJavaProcezzesList().get(0);
 	}
 
 	@GET

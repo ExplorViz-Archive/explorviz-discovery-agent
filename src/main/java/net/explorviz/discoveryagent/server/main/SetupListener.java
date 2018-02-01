@@ -1,5 +1,7 @@
 package net.explorviz.discoveryagent.server.main;
 
+import java.io.IOException;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -10,8 +12,9 @@ import org.slf4j.LoggerFactory;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.services.FilesystemService;
 import net.explorviz.discoveryagent.services.NotifyService;
-import net.explorviz.discoveryagent.util.TypeService;
+import net.explorviz.discoveryagent.services.TypeService;
 
 @WebListener
 public class SetupListener implements ServletContextListener {
@@ -25,6 +28,15 @@ public class SetupListener implements ServletContextListener {
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *");
 		LOGGER.info("Server started.");
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
+
+		FilesystemService.servletContext = servletContextEvent.getServletContext();
+
+		try {
+			FilesystemService.createIfNotExistsMonitoringConfigsFolder();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		TypeService.typeMap.put("Agent", Agent.class);
 		TypeService.typeMap.put("Procezz", Procezz.class);
