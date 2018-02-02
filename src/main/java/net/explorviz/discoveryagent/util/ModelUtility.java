@@ -1,8 +1,11 @@
 package net.explorviz.discoveryagent.util;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,28 +22,30 @@ public class ModelUtility {
 
 	private static final String SPACE_SYMBOL = " ";
 	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
-
 	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
-	private final String completeKiekerCommand;
+	public String prepareMonitoringJVMArguments(final long entityID) throws MalformedURLException {
 
-	public ModelUtility() {
-		final String kiekerJarPath = Thread.currentThread().getContextClassLoader()
-				.getResource("kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
+		final ServletContext sc = FilesystemService.servletContext;
+
+		final String kiekerJarPath = sc.getResource("/WEB-INF/kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
 		final String javaagentPart = "-javaagent:" + kiekerJarPath;
 
-		final String configPath = Thread.currentThread().getContextClassLoader()
-				.getResource("kieker/kieker.monitoring.properties").getPath();
+		final String configPath = sc.getResource("/WEB-INF" + FilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/"
+				+ entityID + "/kieker.monitoring.properties").getPath();
 		final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
 
-		final String aopPath = Thread.currentThread().getContextClassLoader().getResource("kieker/aop.xml").getPath();
+		final String aopPath = sc
+				.getResource(
+						"/WEB-INF" + FilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/" + entityID + "/aop.xml")
+				.getPath();
 		final String aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
 
-		this.completeKiekerCommand = javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart
-				+ SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
+		return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart + SPACE_SYMBOL
+				+ SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
 	}
 
-	public void injectKiekerAgentInProcess(final Procezz procezz) {
+	public void injectKiekerAgentInProcess(final Procezz procezz) throws MalformedURLException {
 
 		final String userExecCMD = procezz.getUserExecutionCommand();
 
@@ -49,8 +54,12 @@ public class ModelUtility {
 		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOSExecutionCommand();
 		final String[] execPathFragments = execPath.split("\\s+", 2);
 
-		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + this.completeKiekerCommand + procezz.getId()
+		final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
+
+		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand + procezz.getId()
 				+ SPACE_SYMBOL + execPathFragments[1];
+
+		System.out.println(newExecCommand);
 
 		procezz.setAgentExecutionCommand(newExecCommand);
 	}
@@ -113,13 +122,14 @@ public class ModelUtility {
 		}
 
 		if (procezz.isMonitoredFlag()) {
-			this.injectKiekerAgentInProcess(procezz);
+			// restart with monitoring
 			try {
-				FilesystemService.createSubfolderForID(procezz.getId());
-			} catch (final IOException e) {
-				LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", procezz.getId(), e.toString());
+				this.injectKiekerAgentInProcess(procezz);
+			} catch (final MalformedURLException e) {
+				LOGGER.error("Error while preparing monitoring JVM arguments. Error: {}", e.getMessage());
 			}
 		} else {
+			// restart with userCMD
 			this.injectAgentFlag(procezz);
 		}
 

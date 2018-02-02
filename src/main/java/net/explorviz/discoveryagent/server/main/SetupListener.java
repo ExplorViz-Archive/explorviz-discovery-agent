@@ -29,18 +29,19 @@ public class SetupListener implements ServletContextListener {
 		LOGGER.info("Server started.");
 		LOGGER.info("* * * * * * * * * * * * * * * * * * *\n");
 
+		TypeService.typeMap.put("Agent", Agent.class);
+		TypeService.typeMap.put("Procezz", Procezz.class);
+		TypeService.typeMap.put("ErrorObject", ErrorObject.class);
+
 		FilesystemService.servletContext = servletContextEvent.getServletContext();
 
 		try {
+			FilesystemService.removeMonitoringConfigs();
 			FilesystemService.createIfNotExistsMonitoringConfigsFolder();
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		TypeService.typeMap.put("Agent", Agent.class);
-		TypeService.typeMap.put("Procezz", Procezz.class);
-		TypeService.typeMap.put("ErrorObject", ErrorObject.class);
 
 		// register at backend
 		new Thread(() -> {

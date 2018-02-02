@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.procezz;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
+import net.explorviz.discoveryagent.services.FilesystemService;
 import net.explorviz.discoveryagent.util.ModelUtility;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
@@ -171,6 +173,14 @@ public final class InternalRepository {
 				}
 				newProcezz.setAgent(agentObject);
 				internalProcezzList.add(newProcezz);
+
+				try {
+					FilesystemService.createConfigFolderForProcezz(newProcezz);
+				} catch (final IOException e) {
+					LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
+							e.getMessage());
+				}
+
 				notifyBackend = true;
 			}
 		}
@@ -307,6 +317,16 @@ public final class InternalRepository {
 			procezzInCache.setApplicationName(procezz.getApplicationName());
 			procezzInCache.setShutdownCommand(procezz.getShutdownCommand());
 			procezzInCache.setWebserverFlag(procezz.isWebserverFlag());
+
+			if (!procezzInCache.getAopContent().equals(procezz.getAopContent())) {
+				procezzInCache.setAopContent(procezz.getAopContent());
+				try {
+					FilesystemService.updateAOPFileContentForProcezz(procezzInCache);
+				} catch (final IOException e) {
+					LOGGER.error("Error occured when aop.xml of ID {} was updated. Error: {}", procezz.getId(),
+							e.getMessage());
+				}
+			}
 
 			boolean monitoringStateChanged = false;
 
