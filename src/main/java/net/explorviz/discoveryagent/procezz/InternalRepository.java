@@ -16,6 +16,8 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
+import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
+import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.services.FilesystemService;
@@ -172,6 +174,9 @@ public final class InternalRepository {
 					break;
 				}
 				newProcezz.setAgent(agentObject);
+
+				applyStrategiesOnProcezz(newProcezz);
+
 				internalProcezzList.add(newProcezz);
 
 				try {
@@ -186,6 +191,19 @@ public final class InternalRepository {
 		}
 
 		return notifyBackend;
+	}
+
+	private static void applyStrategiesOnProcezz(final Procezz newProcezz) {
+		final List<DiscoveryStrategy> strategies = DiscoveryStrategyFactory.giveAllStrategies();
+
+		for (final DiscoveryStrategy strategy : strategies) {
+			final boolean isDesiredApp = strategy.applyEntireStrategy(newProcezz);
+
+			if (isDesiredApp) {
+				// found strategy, no need to apply remaining strategies
+				break;
+			}
+		}
 	}
 
 	private static void updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,

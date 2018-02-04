@@ -57,6 +57,7 @@
 		<exclude name="CallSuperInConstructor" />
 		<exclude name="DefaultPackage" />
 		<exclude name="UseConcurrentHashMap" />
+		<exclude name="AvoidFinalLocalVariable" />
 	</rule>
 
 	<!-- UR means "undefined reference" which is already detected by the compiler. 
