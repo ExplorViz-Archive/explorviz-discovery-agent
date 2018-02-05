@@ -92,8 +92,7 @@ public final class FilesystemService {
 		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
 		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
 
-		final String appName = procezz.getApplicationName() == null ? String.valueOf(procezz.getPid())
-				: procezz.getApplicationName();
+		final String appName = procezz.getName() == null ? String.valueOf(procezz.getPid()) : procezz.getName();
 
 		final String kiekerApplicationNameProperty = "kieker.monitoring.applicationName=";
 

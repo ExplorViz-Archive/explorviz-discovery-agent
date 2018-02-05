@@ -104,7 +104,8 @@ public class ModelUtility {
 		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezzTest(procezz);
 
 		if (updatedProcezz == null) {
-			// TODO with error model
+			procezz.setErrorObject(new ErrorObject(procezz,
+					"Couldn't find procezz after restarting, did you insert a valid user execution command? Try to find the valid execution path."));
 			return procezz;
 		}
 

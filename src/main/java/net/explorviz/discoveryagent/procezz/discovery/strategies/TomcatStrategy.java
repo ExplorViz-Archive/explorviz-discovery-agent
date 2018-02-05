@@ -22,7 +22,7 @@ public class TomcatStrategy implements DiscoveryStrategy {
 	@Override
 	public void detectAndSetName(final Procezz newProcezz) {
 		if (isDesiredApplication(newProcezz)) {
-			newProcezz.setApplicationName("Tomcat Web Server");
+			newProcezz.setName("Tomcat Web Server");
 		}
 
 	}

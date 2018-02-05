@@ -82,6 +82,7 @@ public final class InternalRepository {
 			// update pid and osExecCMD
 			internalProcezz.setPid(possibleRestartedProcezz.getPid());
 			internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
+			internalProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
 			return internalProcezz;
 		}
@@ -122,7 +123,7 @@ public final class InternalRepository {
 			updateStoppedProcezzes(stoppedProcezzes, newProcezzListFromOS);
 
 			// finally, add new-found (= remaining) procezzes to the internal storage
-			notifyBackendOfChange = getScaffoldsAndUpdateNewProcezzes(newProcezzListFromOS);
+			notifyBackendOfChange = getAndFillScaffolds(newProcezzListFromOS);
 
 		}
 
@@ -130,7 +131,7 @@ public final class InternalRepository {
 
 	}
 
-	private static boolean getScaffoldsAndUpdateNewProcezzes(final List<Procezz> newProcezzListFromOS) {
+	private static boolean getAndFillScaffolds(final List<Procezz> newProcezzListFromOS) {
 
 		// Get scaffolds with unique ID from backend and insert
 		// new data from new procezzes into these scaffolds
@@ -166,15 +167,19 @@ public final class InternalRepository {
 			}
 
 			for (int i = 0; i < necessaryScaffolds; i++) {
+
 				final Procezz newProcezz = newProcezzListFromOS.get(i);
+
+				// Take ID from scaffold and reset ID from new procezz
 				try {
 					newProcezz.setId(scaffoldedProcezzList.get(i).getId());
 				} catch (final IndexOutOfBoundsException e) {
 					LOGGER.error("IndexOutOfBounds while adding new procezzes to internal list: {}", e);
 					break;
 				}
-				newProcezz.setAgent(agentObject);
 
+				newProcezz.setAgent(agentObject);
+				newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 				applyStrategiesOnProcezz(newProcezz);
 
 				internalProcezzList.add(newProcezz);
@@ -273,21 +278,6 @@ public final class InternalRepository {
 		return null;
 	}
 
-	/*
-	 * @SuppressWarnings("unchecked") private static List<Procezz>
-	 * convertToProcezzList(final String jsonPayload) {
-	 *
-	 * List<Procezz> procezzList = null;
-	 *
-	 * try { procezzList = (List<Procezz>) JSONAPIService.byteArrayToList("Procezz",
-	 * jsonPayload.getBytes(StandardCharsets.UTF_8.name())); } catch (final
-	 * UnsupportedEncodingException e) {
-	 * LOGGER.error("Exception caught while getting bytes of String: {}", e); return
-	 * null; }
-	 *
-	 * return procezzList; }
-	 */
-
 	private static Procezz findProcezzInListByPID(final long PID, final List<Procezz> procezzList) {
 
 		synchronized (internalProcezzList) {
@@ -332,7 +322,7 @@ public final class InternalRepository {
 
 			LOGGER.info("updating procezz: {}", procezz);
 
-			procezzInCache.setApplicationName(procezz.getApplicationName());
+			procezzInCache.setName(procezz.getName());
 			procezzInCache.setShutdownCommand(procezz.getShutdownCommand());
 			procezzInCache.setWebserverFlag(procezz.isWebserverFlag());
 
