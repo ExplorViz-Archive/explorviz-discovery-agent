@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -84,6 +86,27 @@ public final class FilesystemService {
 		final Path aopPath = Paths.get(folderOfPassedIDString + "/aop.xml");
 
 		Files.write(aopPath, procezz.getAopContent().getBytes());
+	}
+
+	public static void updateKiekerNameForProcezz(final Procezz procezz) throws IOException {
+		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
+		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
+
+		final String appName = procezz.getApplicationName() == null ? String.valueOf(procezz.getPid())
+				: procezz.getApplicationName();
+
+		final String kiekerApplicationNameProperty = "kieker.monitoring.applicationName=";
+
+		final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
+			if (line.startsWith(kiekerApplicationNameProperty)) {
+				return kiekerApplicationNameProperty + appName;
+			} else {
+				return line;
+			}
+		}).collect(Collectors.toList());
+
+		Files.write(kiekerConfigPath, kiekerConfigNewContent);
+
 	}
 
 	public static void removeMonitoringConfigs() throws IOException {
