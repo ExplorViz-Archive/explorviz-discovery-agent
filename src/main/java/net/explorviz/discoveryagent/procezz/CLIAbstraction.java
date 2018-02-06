@@ -1,6 +1,7 @@
 package net.explorviz.discoveryagent.procezz;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +42,10 @@ public final class CLIAbstraction {
 	}
 
 	public static void startProcessByCMD(final String fullCMD) throws IOException {
+
+		// Redirect stderr and stdout to /dev/null
+		// Sometimes procecces hang if they are spawned
+		// without reading their output
 		final String[] splittedCMD = fullCMD.split("\\s+");
 		executeShellCommand(splittedCMD);
 	}
@@ -72,10 +77,9 @@ public final class CLIAbstraction {
 
 		try {
 			if (cmd.length == SINGLE_COMMAND_LENGTH) {
-				// javaProcess = Runtime.getRuntime().exec(cmd[0]);
-				new ProcessBuilder(cmd[0]).start();
+				new ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new File("/dev/null")).start();
 			} else {
-				new ProcessBuilder(cmd).start();
+				new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("/dev/null")).start();
 			}
 		} catch (final IOException e) {
 			LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
@@ -88,8 +92,6 @@ public final class CLIAbstraction {
 			throws IOException {
 
 		final List<String> cliLines = new ArrayList<String>();
-
-		InputStream rawInputDataStream;
 
 		// Some command line tools don't work as parameter for /bin/sh
 		// Alternatively, we can execute them with a different exec command
@@ -115,7 +117,7 @@ public final class CLIAbstraction {
 			return cliLines;
 		}
 
-		rawInputDataStream = javaProcess.getInputStream();
+		final InputStream rawInputDataStream = javaProcess.getInputStream();
 
 		// System.out.println("before read");
 

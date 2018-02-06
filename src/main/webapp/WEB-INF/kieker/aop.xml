@@ -43,16 +43,18 @@
 		<!-- Method executions and method calls: -->
 		<!-- <aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentation" /> -->
 		
-		 <!--<aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentationNoGetterAndSetter" /> -->
+		<aspect name="kieker.monitoring.probe.aspectj.flow.operationExecution.FullInstrumentationNoGetterAndSetter" />
 		
-	 	<!-- <aspect name="kieker.monitoring.probe.aspectj.database.Fullinstrumentation" /> -->
+	 	<aspect name="kieker.monitoring.probe.aspectj.database.Fullinstrumentation" />
 		<!--
 			Definition of additional targeted aspects (example for a single additional getter). 
 			Use these directives to create additional aspects without the need to actually implement them. -->
 		<!-- Verifying specific pointcuts -->	
+		<!-- 
 		<concrete-aspect name="kieker.monitoring.probe.aspectj.database.TargetedAspect" extends="kieker.monitoring.probe.aspectj.beforeafter.onlycallee.AbstractAspect">
 			<pointcut name="monitoredOperation" expression="call(* *(..)) &amp;&amp; noGetterAndSetter()" />
 		</concrete-aspect>
+		-->
 	
 	</aspects>
 </aspectj>

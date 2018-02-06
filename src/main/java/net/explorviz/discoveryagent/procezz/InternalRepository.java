@@ -3,26 +3,16 @@ package net.explorviz.discoveryagent.procezz;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.jasminb.jsonapi.ResourceConverter;
-
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discovery.services.ClientService;
-import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
-import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
-import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
-import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.services.FilesystemService;
 import net.explorviz.discoveryagent.util.ModelUtility;
-import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class InternalRepository {
 
@@ -48,29 +38,10 @@ public final class InternalRepository {
 
 	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) {
 		synchronized (internalProcezzList) {
-			final Procezz possibleRestartedProcezz = findProcezzInListByExecCMD(oldProcezz.getUserExecutionCommand(),
-					getNewProcezzesFromOS());
-
-			final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
-
-			if (possibleRestartedProcezz == null || internalProcezz == null) {
-				return null;
-			}
-
-			// update pid and osExecCMD
-			internalProcezz.setPid(possibleRestartedProcezz.getPid());
-			internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
-
-			return internalProcezz;
-		}
-	}
-
-	public static Procezz updateRestartedProcezzTest(final Procezz oldProcezz) {
-		synchronized (internalProcezzList) {
 
 			final long entityID = oldProcezz.getId();
 
-			final Procezz possibleRestartedProcezz = new ModelUtility().findFlaggedProcezzInList(entityID,
+			final Procezz possibleRestartedProcezz = ModelUtility.findFlaggedProcezzInList(entityID,
 					getNewProcezzesFromOS());
 
 			final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
@@ -123,92 +94,12 @@ public final class InternalRepository {
 			updateStoppedProcezzes(stoppedProcezzes, newProcezzListFromOS);
 
 			// finally, add new-found (= remaining) procezzes to the internal storage
-			notifyBackendOfChange = getAndFillScaffolds(newProcezzListFromOS);
+			notifyBackendOfChange = ModelUtility.getAndFillScaffolds(newProcezzListFromOS);
 
 		}
 
 		return notifyBackendOfChange;
 
-	}
-
-	private static boolean getAndFillScaffolds(final List<Procezz> newProcezzListFromOS) {
-
-		// Get scaffolds with unique ID from backend and insert
-		// new data from new procezzes into these scaffolds
-		// Finally, add the new procezzes to the internalProcezzList
-
-		boolean notifyBackend = false;
-
-		synchronized (internalProcezzList) {
-
-			final int necessaryScaffolds = newProcezzListFromOS.size();
-
-			if (necessaryScaffolds == 0) {
-				return notifyBackend;
-			}
-
-			final ClientService clientService = new ClientService();
-
-			final ResourceConverter converter = new ResourceConverterFactory().provide();
-
-			clientService.registerProviderReader(new JSONAPIProvider<>(converter));
-			clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
-			clientService.registerProviderReader(new JSONAPIListProvider(converter));
-			clientService.registerProviderWriter(new JSONAPIListProvider(converter));
-
-			final Map<String, Object> queryParameters = new HashMap<String, Object>();
-			queryParameters.put("necessary-scaffolds", necessaryScaffolds);
-
-			final List<Procezz> scaffoldedProcezzList = clientService
-					.doGETProcezzListRequest("http://localhost:8081/extension/discovery/procezzes", queryParameters);
-
-			if (scaffoldedProcezzList == null) {
-				return notifyBackend;
-			}
-
-			for (int i = 0; i < necessaryScaffolds; i++) {
-
-				final Procezz newProcezz = newProcezzListFromOS.get(i);
-
-				// Take ID from scaffold and reset ID from new procezz
-				try {
-					newProcezz.setId(scaffoldedProcezzList.get(i).getId());
-				} catch (final IndexOutOfBoundsException e) {
-					LOGGER.error("IndexOutOfBounds while adding new procezzes to internal list: {}", e);
-					break;
-				}
-
-				newProcezz.setAgent(agentObject);
-				newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
-				applyStrategiesOnProcezz(newProcezz);
-
-				internalProcezzList.add(newProcezz);
-
-				try {
-					FilesystemService.createConfigFolderForProcezz(newProcezz);
-				} catch (final IOException e) {
-					LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
-							e.getMessage());
-				}
-
-				notifyBackend = true;
-			}
-		}
-
-		return notifyBackend;
-	}
-
-	private static void applyStrategiesOnProcezz(final Procezz newProcezz) {
-		final List<DiscoveryStrategy> strategies = DiscoveryStrategyFactory.giveAllStrategies();
-
-		for (final DiscoveryStrategy strategy : strategies) {
-			final boolean isDesiredApp = strategy.applyEntireStrategy(newProcezz);
-
-			if (isDesiredApp) {
-				// found strategy, no need to apply remaining strategies
-				break;
-			}
-		}
 	}
 
 	private static void updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
@@ -320,7 +211,7 @@ public final class InternalRepository {
 				return null;
 			}
 
-			LOGGER.info("updating procezz: {}", procezz);
+			LOGGER.info("updating Procezz with ID: {}", procezz.getId());
 
 			procezzInCache.setName(procezz.getName());
 			procezzInCache.setShutdownCommand(procezz.getShutdownCommand());
@@ -356,13 +247,23 @@ public final class InternalRepository {
 			// monitoring status or user command changed?
 			if (monitoringStateChanged || newUserCommandSet) {
 
-				return new ModelUtility().handleRestart(procezzInCache);
+				return ModelUtility.handleRestart(procezzInCache);
 
 			}
 
 			return procezzInCache;
 
 		}
+
+	}
+
+	public static Agent updateAgentProperties(final Agent agent) {
+
+		synchronized (internalProcezzList) {
+			agentObject.setName(agent.getName());
+		}
+
+		return agentObject;
 
 	}
 

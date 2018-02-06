@@ -39,8 +39,7 @@ public class SetupListener implements ServletContextListener {
 			FilesystemService.removeMonitoringConfigs();
 			FilesystemService.createIfNotExistsMonitoringConfigsFolder();
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Could not remove / create initial monitoring config folder. Error: {}", e);
 		}
 
 		// register at backend

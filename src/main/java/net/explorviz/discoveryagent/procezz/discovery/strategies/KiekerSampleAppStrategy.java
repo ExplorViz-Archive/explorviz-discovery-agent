@@ -2,6 +2,8 @@ package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
+import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
+import net.explorviz.discoveryagent.util.ModelUtility;
 
 public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
@@ -13,13 +15,7 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 			doesContainSampleAppJar = newProcezz.getOSExecutionCommand().contains("sampleApplication");
 		}
 
-		boolean doesContainKiekerSampleAppName = false;
-
-		if (newProcezz.getWorkingDirectory() != null) {
-			doesContainKiekerSampleAppName = newProcezz.getWorkingDirectory().contains("kiekerSampleApplication");
-		}
-
-		return doesContainSampleAppJar && doesContainKiekerSampleAppName;
+		return doesContainSampleAppJar;
 	}
 
 	@Override
@@ -55,7 +51,11 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 		final String osExecCmd = newProcezz.getOSExecutionCommand();
 		final String workingDir = newProcezz.getWorkingDirectory();
 
-		if (osExecCmd != null && workingDir != null) {
+		if (osExecCmd.contains(ModelUtility.EXPLORVIZ_MODEL_ID_FLAG)) {
+			// was already restarted by agent, probably correct os exec path
+			newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
+
+		} else if (osExecCmd != null && workingDir != null) {
 
 			final String delimeter = "-jar ";
 

@@ -17,3 +17,5 @@ bin
 
 # Mac Finder file
 .DS_Store
+
+test.db

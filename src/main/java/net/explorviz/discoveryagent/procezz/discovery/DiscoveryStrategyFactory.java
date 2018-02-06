@@ -8,6 +8,8 @@ import net.explorviz.discoveryagent.procezz.discovery.strategies.TomcatStrategy;
 
 public final class DiscoveryStrategyFactory {
 
+	public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
+
 	private static List<DiscoveryStrategy> strategies = new ArrayList<DiscoveryStrategy>();
 
 	private DiscoveryStrategyFactory() {

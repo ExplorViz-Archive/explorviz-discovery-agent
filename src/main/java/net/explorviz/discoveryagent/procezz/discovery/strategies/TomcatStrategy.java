@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
+import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 
 public class TomcatStrategy implements DiscoveryStrategy {
 
@@ -30,7 +31,7 @@ public class TomcatStrategy implements DiscoveryStrategy {
 	@Override
 	public void detectAndSetProposedExecCMD(final Procezz newProcezz) {
 		if (isDesiredApplication(newProcezz)) {
-			newProcezz.setProposedExecutionCommand("Use-OS-Exec-CMD");
+			newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
 		}
 	}
 
