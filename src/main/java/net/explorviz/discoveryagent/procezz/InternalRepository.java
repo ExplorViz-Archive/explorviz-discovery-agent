@@ -216,6 +216,7 @@ public final class InternalRepository {
 			procezzInCache.setName(procezz.getName());
 			procezzInCache.setShutdownCommand(procezz.getShutdownCommand());
 			procezzInCache.setWebserverFlag(procezz.isWebserverFlag());
+			procezzInCache.setHidden(procezz.isHidden());
 
 			if (!procezzInCache.getAopContent().equals(procezz.getAopContent())) {
 				procezzInCache.setAopContent(procezz.getAopContent());
@@ -267,6 +268,7 @@ public final class InternalRepository {
 
 		synchronized (internalProcezzList) {
 			agentObject.setName(agent.getName());
+			agentObject.setHidden(agent.isHidden());
 		}
 
 		return agentObject;
