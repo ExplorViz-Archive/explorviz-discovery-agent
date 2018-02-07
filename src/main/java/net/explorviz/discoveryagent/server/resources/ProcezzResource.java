@@ -14,7 +14,7 @@ import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 @Path("")
-public class ProcessResource {
+public class ProcezzResource {
 
 	// private static final Logger LOGGER =
 	// LoggerFactory.getLogger(ProcessResource.class);

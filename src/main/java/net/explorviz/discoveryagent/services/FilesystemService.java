@@ -2,6 +2,7 @@ package net.explorviz.discoveryagent.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
 
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public final class FilesystemService {
 
@@ -21,6 +23,9 @@ public final class FilesystemService {
 
 	public static final String MONITORING_CONFIGS_FOLDER_NAME = "/monitoring-configurations";
 	public static Path configsPath;
+
+	private static final String KIEKER_APPLICATION_NAME_PROPERTY = "kieker.monitoring.applicationName=";
+	private static final String KIEKER_HOSTNAME_PROPERTY = "kieker.monitoring.hostname=";
 
 	private FilesystemService() {
 		// no need to instantiate
@@ -88,17 +93,18 @@ public final class FilesystemService {
 		Files.write(aopPath, procezz.getAopContent().getBytes());
 	}
 
-	public static void updateKiekerNameForProcezz(final Procezz procezz) throws IOException {
+	public static void updateKiekerConfigForProcezz(final Procezz procezz) throws IOException {
 		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
 		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
 
 		final String appName = procezz.getName() == null ? String.valueOf(procezz.getPid()) : procezz.getName();
-
-		final String kiekerApplicationNameProperty = "kieker.monitoring.applicationName=";
+		final String hostName = InternalRepository.agentObject.getIPPortOrName();
 
 		final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
-			if (line.startsWith(kiekerApplicationNameProperty)) {
-				return kiekerApplicationNameProperty + appName;
+			if (line.startsWith(KIEKER_APPLICATION_NAME_PROPERTY)) {
+				return KIEKER_APPLICATION_NAME_PROPERTY + appName;
+			} else if (line.startsWith(KIEKER_HOSTNAME_PROPERTY)) {
+				return KIEKER_HOSTNAME_PROPERTY + hostName;
 			} else {
 				return line;
 			}
@@ -108,10 +114,15 @@ public final class FilesystemService {
 
 	}
 
-	public static void removeMonitoringConfigs() throws IOException {
+	public static void removeIfExistsMonitoringConfigs() throws IOException {
 
-		final String monitoringConfigString = servletContext.getResource("/WEB-INF" + MONITORING_CONFIGS_FOLDER_NAME)
-				.getPath();
+		final URL monitoringConfigsFolder = servletContext.getResource("/WEB-INF" + MONITORING_CONFIGS_FOLDER_NAME);
+
+		if (monitoringConfigsFolder == null) {
+			return;
+		}
+
+		final String monitoringConfigString = monitoringConfigsFolder.getPath();
 		final Path monitoringConfigDir = Paths.get(monitoringConfigString);
 
 		Files.walkFileTree(monitoringConfigDir, new SimpleFileVisitor<Path>() {

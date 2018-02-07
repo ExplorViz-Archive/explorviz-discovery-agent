@@ -221,11 +221,17 @@ public final class InternalRepository {
 				procezzInCache.setAopContent(procezz.getAopContent());
 				try {
 					FilesystemService.updateAOPFileContentForProcezz(procezzInCache);
-					FilesystemService.updateKiekerNameForProcezz(procezzInCache);
 				} catch (final IOException e) {
 					LOGGER.error("Error occured when aop.xml of ID {} was updated. Error: {}", procezz.getId(),
 							e.getMessage());
 				}
+			}
+
+			try {
+				FilesystemService.updateKiekerConfigForProcezz(procezzInCache);
+			} catch (final IOException e) {
+				LOGGER.error("Error occured when kieker.config of ID {} was updated. Error: {}", procezz.getId(),
+						e.getMessage());
 			}
 
 			boolean monitoringStateChanged = false;
