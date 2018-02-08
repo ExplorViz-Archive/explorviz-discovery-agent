@@ -12,9 +12,9 @@ public class TomcatStrategy implements DiscoveryStrategy {
 	public boolean isDesiredApplication(final Procezz newProcezz) {
 		boolean doesContainTomcatName = false;
 
-		if (newProcezz.getOSExecutionCommand() != null) {
+		if (newProcezz.getOsExecutionCommand() != null) {
 			// use Locale.ENGLISH to obtain correct results for locale insensitive strings
-			doesContainTomcatName = newProcezz.getOSExecutionCommand().toLowerCase(Locale.ENGLISH).contains("tomcat");
+			doesContainTomcatName = newProcezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("tomcat");
 		}
 
 		return doesContainTomcatName;

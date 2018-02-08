@@ -12,6 +12,10 @@ import javax.ws.rs.core.Response;
 
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 
 @Path("")
 public class ProcezzResource {
@@ -25,11 +29,12 @@ public class ProcezzResource {
 	@Path("/procezz")
 	@Consumes(MEDIA_TYPE)
 	public Response update(final Procezz procezz) {
-		final Procezz possibleProcess = InternalRepository.updateProcezzByID(procezz);
-
-		// See RFC5789 page 4 for appropriate status codes
-		if (possibleProcess == null) {
-			return Response.status(422).build();
+		Procezz possibleProcess;
+		try {
+			possibleProcess = InternalRepository.updateProcezzByID(procezz);
+		} catch (ProcezzManagementTypeNotFoundException | ProcezzStopException | ProcezzStartException
+				| ProcezzNotFoundException e) {
+			return Response.status(422).entity(e.toString()).build();
 		}
 
 		return Response.status(200).entity(possibleProcess).build();

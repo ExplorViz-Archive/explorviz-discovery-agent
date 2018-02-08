@@ -10,10 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Agent;
-import net.explorviz.discovery.model.ErrorObject;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.services.FilesystemService;
-import net.explorviz.discoveryagent.services.NotifyService;
+import net.explorviz.discoveryagent.services.RegistrationService;
 import net.explorviz.discoveryagent.services.TypeService;
 
 @WebListener
@@ -31,7 +30,6 @@ public class SetupListener implements ServletContextListener {
 
 		TypeService.typeMap.put("Agent", Agent.class);
 		TypeService.typeMap.put("Procezz", Procezz.class);
-		TypeService.typeMap.put("ErrorObject", ErrorObject.class);
 
 		FilesystemService.servletContext = servletContextEvent.getServletContext();
 
@@ -42,10 +40,7 @@ public class SetupListener implements ServletContextListener {
 			LOGGER.error("Could not remove / create initial monitoring config folder. Error: {}", e);
 		}
 
-		// register at backend
-		new Thread(() -> {
-			NotifyService.registerAgent();
-		}).start();
+		RegistrationService.register();
 
 	}
 

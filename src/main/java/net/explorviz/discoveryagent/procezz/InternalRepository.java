@@ -3,16 +3,25 @@ package net.explorviz.discoveryagent.procezz;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
+import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
+import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 import net.explorviz.discoveryagent.services.FilesystemService;
-import net.explorviz.discoveryagent.util.ModelUtility;
 
 public final class InternalRepository {
 
@@ -30,51 +39,53 @@ public final class InternalRepository {
 		return internalProcezzList;
 	}
 
-	public static boolean updateInternalProcezzList() {
+	public static boolean updateInternalProcezzList() throws ProcessingException, WebApplicationException {
 		synchronized (internalProcezzList) {
 			return mergeProcezzListWithInternalList(getNewProcezzesFromOS());
 		}
 	}
 
 	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) {
-		synchronized (internalProcezzList) {
 
-			final long entityID = oldProcezz.getId();
+		final long entityID = oldProcezz.getId();
 
-			final Procezz possibleRestartedProcezz = ModelUtility.findFlaggedProcezzInList(entityID,
-					getNewProcezzesFromOS());
+		final Procezz possibleRestartedProcezz = ProcezzUtility.findFlaggedProcezzInList(entityID,
+				getNewProcezzesFromOS());
 
-			final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
+		final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
 
-			if (possibleRestartedProcezz == null || internalProcezz == null) {
-				return null;
-			}
-
-			// update pid and osExecCMD
-			internalProcezz.setPid(possibleRestartedProcezz.getPid());
-			internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOSExecutionCommand());
-			internalProcezz.setLastDiscoveryTime(System.currentTimeMillis());
-
-			return internalProcezz;
+		if (possibleRestartedProcezz == null || internalProcezz == null) {
+			return null;
 		}
+
+		// update pid and osExecCMD
+		internalProcezz.setPid(possibleRestartedProcezz.getPid());
+		internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOsExecutionCommand());
+		internalProcezz.setLastDiscoveryTime(System.currentTimeMillis());
+
+		return internalProcezz;
+
 	}
 
 	public static List<Procezz> getNewProcezzesFromOS() {
 
 		if (agentObject == null) {
+			LOGGER.warn("No agent object in internal repository. The agent will not detect procezzes");
 			return new ArrayList<Procezz>();
 		}
 
-		final List<Procezz> newOSProcezzList = ProcezzFactory.getJavaProcezzesListOrEmpty();
+		final List<Procezz> newOSProcezzList = new ArrayList<Procezz>();
 
-		for (final Procezz p : newOSProcezzList) {
-			p.setAgent(agentObject);
+		// Take every managementType and let them fetch the procezzLists
+		for (final ProcezzManagementType managementType : ProcezzManagementTypeFactory.getAllProcezzManagementTypes()) {
+			newOSProcezzList.addAll(managementType.getProcezzListFromOSAndSetAgent(agentObject));
 		}
 
 		return newOSProcezzList;
 	}
 
-	public static boolean mergeProcezzListWithInternalList(final List<Procezz> newProcezzListFromOS) {
+	public static boolean mergeProcezzListWithInternalList(final List<Procezz> newProcezzListFromOS)
+			throws ProcessingException, WebApplicationException {
 
 		boolean notifyBackendOfChange = false;
 
@@ -82,53 +93,72 @@ public final class InternalRepository {
 			return notifyBackendOfChange;
 		}
 
+		// newProcezzListFromOS may contain duplicates, since multiple managementTypes
+		// may find the same OS process
+		final List<Procezz> newProcezzListWithoutDuplicates = removeDuplicatesInProcezzList(newProcezzListFromOS);
+
+		boolean notifyBackendOfLoss;
+
 		synchronized (internalProcezzList) {
 
 			LOGGER.info("Updating procezzList at: {}", new Date());
 
 			// Check if already obtained PIDs are still in the new obtained procezzList
-			final List<Procezz> stoppedProcezzes = filterListByInternalPIDs(newProcezzListFromOS);
+			final List<Procezz> stoppedProcezzes = getStoppedProcezzesOfInternalList(newProcezzListWithoutDuplicates);
 
 			// Check if a running procezz was restarted by agent
 			// and update old procezz entity
-			updateStoppedProcezzes(stoppedProcezzes, newProcezzListFromOS);
+			notifyBackendOfLoss = updateStoppedProcezzes(stoppedProcezzes, newProcezzListWithoutDuplicates);
 
 			// finally, add new-found (= remaining) procezzes to the internal storage
-			notifyBackendOfChange = ModelUtility.getAndFillScaffolds(newProcezzListFromOS);
+			notifyBackendOfChange = ProcezzUtility.initializeAndAddNewProcezzes(newProcezzListWithoutDuplicates);
 
 		}
 
-		return notifyBackendOfChange;
+		return notifyBackendOfChange || notifyBackendOfLoss;
 
 	}
 
-	private static void updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
+	public static List<Procezz> removeDuplicatesInProcezzList(final List<Procezz> newProcezzListFromOS) {
+		return new ArrayList<Procezz>(new HashSet<Procezz>(newProcezzListFromOS));
+	}
+
+	private static boolean updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
 			final List<Procezz> newProcezzListFromOS) {
-		synchronized (internalProcezzList) {
-			for (final Procezz procezz : stoppedProcezzes) {
 
-				// Any execCMD of a restarted procezz has a unique explorviz flag
-				final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
-						newProcezzListFromOS);
+		boolean unexpectedStoppedProcezzFound = false;
 
-				if (possibleProcezz == null) {
-					// Restarting failed, send error object
-					procezz.setStopped(true);
-				} else {
-					// Procezz has been restarted correctly
+		for (final Procezz procezz : stoppedProcezzes) {
 
-					procezz.setPid(possibleProcezz.getPid());
-					procezz.setUserExecutionCommand(possibleProcezz.getOSExecutionCommand());
-					procezz.setMonitoredFlag(true);
+			// Any execCMD of a restarted procezz has a unique explorviz flag
+			final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
+					newProcezzListFromOS);
 
-					newProcezzListFromOS.remove(possibleProcezz);
-				}
+			if (possibleProcezz == null) {
+				// Unexpected Procezz loss
+				procezz.setStopped(true);
+				procezz.setErrorOccured(true);
+				procezz.setErrorMessage("Procezz could not be found in latest procezzList. Maybe an error occured.");
+				unexpectedStoppedProcezzFound = true;
+			} else {
+				// Procezz has been restarted correctly
+
+				procezz.setStopped(false);
+				procezz.setErrorOccured(false);
+				procezz.setErrorMessage(null);
+
+				procezz.setPid(possibleProcezz.getPid());
+				procezz.setUserExecutionCommand(possibleProcezz.getOsExecutionCommand());
+				procezz.setMonitoredFlag(true);
+
+				newProcezzListFromOS.remove(possibleProcezz);
 			}
 		}
 
+		return unexpectedStoppedProcezzFound;
 	}
 
-	private static List<Procezz> filterListByInternalPIDs(final List<Procezz> newProcezzList) {
+	private static List<Procezz> getStoppedProcezzesOfInternalList(final List<Procezz> newProcezzList) {
 
 		final List<Procezz> stoppedProcezzes = new ArrayList<Procezz>();
 
@@ -158,7 +188,7 @@ public final class InternalRepository {
 			final List<Procezz> procezzList) {
 		for (final Procezz possibleProcezz : procezzList) {
 
-			final String osExecCMD = possibleProcezz.getOSExecutionCommand();
+			final String osExecCMD = possibleProcezz.getOsExecutionCommand();
 
 			if (userExecutionCommand != null && userExecutionCommand.equals(osExecCMD)) {
 				return possibleProcezz;
@@ -201,7 +231,8 @@ public final class InternalRepository {
 		}
 	}
 
-	public static Procezz updateProcezzByID(final Procezz procezz) {
+	public static Procezz updateProcezzByID(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
+			ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
 
 		synchronized (internalProcezzList) {
 
@@ -254,7 +285,7 @@ public final class InternalRepository {
 			// monitoring status or user command changed?
 			if (monitoringStateChanged || newUserCommandSet) {
 
-				return ModelUtility.handleRestart(procezzInCache);
+				return ProcezzUtility.handleRestart(procezzInCache);
 
 			}
 

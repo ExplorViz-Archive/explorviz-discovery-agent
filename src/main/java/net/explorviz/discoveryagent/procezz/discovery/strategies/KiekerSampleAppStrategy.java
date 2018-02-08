@@ -1,9 +1,11 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
+import java.util.Locale;
+
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
-import net.explorviz.discoveryagent.util.ModelUtility;
 
 public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
@@ -11,8 +13,9 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 	public boolean isDesiredApplication(final Procezz newProcezz) {
 		boolean doesContainSampleAppJar = false;
 
-		if (newProcezz.getOSExecutionCommand() != null) {
-			doesContainSampleAppJar = newProcezz.getOSExecutionCommand().contains("sampleApplication");
+		if (newProcezz.getOsExecutionCommand() != null) {
+			doesContainSampleAppJar = newProcezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH)
+					.contains("sampleapplication");
 		}
 
 		return doesContainSampleAppJar;
@@ -48,10 +51,10 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 			return;
 		}
 
-		final String osExecCmd = newProcezz.getOSExecutionCommand();
+		final String osExecCmd = newProcezz.getOsExecutionCommand();
 		final String workingDir = newProcezz.getWorkingDirectory();
 
-		if (osExecCmd.contains(ModelUtility.EXPLORVIZ_MODEL_ID_FLAG)) {
+		if (osExecCmd.contains(ProcezzUtility.EXPLORVIZ_MODEL_ID_FLAG)) {
 			// was already restarted by agent, probably correct os exec path
 			newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
 

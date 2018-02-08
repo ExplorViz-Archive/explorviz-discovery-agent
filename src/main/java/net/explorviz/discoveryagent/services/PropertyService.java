@@ -28,4 +28,12 @@ public final class PropertyService {
 		return (String) PROP.get(propName);
 	}
 
+	public static String getExplorVizBackendRootURL() {
+		final String backendIP = getStringProperty("backendIP");
+		final String backendPort = getStringProperty("backendPort");
+
+		return "http://" + backendIP + ":" + backendPort;
+
+	}
+
 }

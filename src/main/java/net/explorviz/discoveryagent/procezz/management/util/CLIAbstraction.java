@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.procezz;
+package net.explorviz.discoveryagent.procezz.management.util;
 
 import java.io.BufferedReader;
 import java.io.File;
