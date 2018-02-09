@@ -3,6 +3,7 @@ package net.explorviz.discoveryagent.services;
 import java.util.List;
 
 import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.Response;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
@@ -13,6 +14,8 @@ import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class NotifyService {
+
+	private static final int HTTP_UNPROCESSABLE_ENTITY = 422;
 
 	private NotifyService() {
 		// no need to instantiate
@@ -28,7 +31,13 @@ public final class NotifyService {
 		clientService.registerProviderReader(new JSONAPIListProvider(converter));
 		clientService.registerProviderWriter(new JSONAPIListProvider(converter));
 
-		clientService.doPOSTRequest(procezzList, "http://localhost:8081/extension/discovery/procezzes");
+		final Response response = clientService.doPOSTRequest(procezzList,
+				PropertyService.getExplorVizBackendRootURL() + "/extension/discovery/procezzes");
+
+		if (response.getStatus() == HTTP_UNPROCESSABLE_ENTITY) {
+			// re-register of agent necessary
+			throw new ProcessingException("Backend responded with re-register instruction.");
+		}
 
 	}
 }

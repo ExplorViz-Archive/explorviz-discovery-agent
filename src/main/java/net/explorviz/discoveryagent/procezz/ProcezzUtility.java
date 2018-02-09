@@ -39,6 +39,9 @@ public final class ProcezzUtility {
 
 	private static final String SPACE_SYMBOL = " ";
 	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
+	// private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
+	// "\\s\\-Dexplorviz\\.agent\\.model\\.id=([^\\s]+)";
+	private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX = "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
 
 	private ProcezzUtility() {
 		// no need to instantiate
@@ -72,7 +75,9 @@ public final class ProcezzUtility {
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
 		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
-		final String[] execPathFragments = execPath.split("\\s+", 2);
+		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+
+		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
 		final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
@@ -89,11 +94,9 @@ public final class ProcezzUtility {
 
 		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
 
-		if (execPath.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
-			return;
-		}
+		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-		final String[] execPathFragments = execPath.split("\\s+", 2);
+		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
 		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG + procezz.getId()
 				+ SPACE_SYMBOL + execPathFragments[1];

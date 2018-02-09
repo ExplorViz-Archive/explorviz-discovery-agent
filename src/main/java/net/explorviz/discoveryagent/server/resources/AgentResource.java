@@ -12,7 +12,7 @@ import net.explorviz.discoveryagent.procezz.InternalRepository;
 public class AgentResource {
 
 	// private static final Logger LOGGER =
-	// LoggerFactory.getLogger(ProcessResource.class);
+	// LoggerFactory.getLogger(AgentResource.class);
 
 	private static final String MEDIA_TYPE = "application/vnd.api+json";
 
@@ -21,12 +21,6 @@ public class AgentResource {
 	@Consumes(MEDIA_TYPE)
 	public Response update(final Agent agent) {
 		final Agent updatedAgent = InternalRepository.updateAgentProperties(agent);
-
-		// See RFC5789 page 4 for appropriate status codes
-		if (updatedAgent == null) {
-			return Response.status(422).build();
-		}
-
 		return Response.status(200).entity(updatedAgent).build();
 	}
 

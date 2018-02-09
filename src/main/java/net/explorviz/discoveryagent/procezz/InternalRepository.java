@@ -63,6 +63,10 @@ public final class InternalRepository {
 		internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOsExecutionCommand());
 		internalProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
+		// reset possible error state (user restarted crashed procezz)
+		internalProcezz.setErrorOccured(false);
+		internalProcezz.setErrorMessage(null);
+
 		return internalProcezz;
 
 	}
@@ -130,16 +134,23 @@ public final class InternalRepository {
 
 		for (final Procezz procezz : stoppedProcezzes) {
 
-			// Any execCMD of a restarted procezz has a unique explorviz flag
+			// Every execCMD of a restarted procezz has a unique explorviz flag
 			final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
 					newProcezzListFromOS);
 
 			if (possibleProcezz == null) {
-				// Unexpected Procezz loss
-				procezz.setStopped(true);
-				procezz.setErrorOccured(true);
-				procezz.setErrorMessage("Procezz could not be found in latest procezzList. Maybe an error occured.");
-				unexpectedStoppedProcezzFound = true;
+				// Procezz loss
+
+				if (!procezz.isStopped()) {
+					// Unexpected Procezz loss
+					// that was not already discovered
+					procezz.setStopped(true);
+					procezz.setErrorOccured(true);
+					procezz.setErrorMessage(
+							"Procezz could not be found in latest procezzList. Maybe an error occured.");
+					unexpectedStoppedProcezzFound = true;
+				}
+
 			} else {
 				// Procezz has been restarted correctly
 

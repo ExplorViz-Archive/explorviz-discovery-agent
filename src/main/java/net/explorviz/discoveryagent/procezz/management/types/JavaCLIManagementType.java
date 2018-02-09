@@ -75,12 +75,14 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 		try {
 			CLIAbstraction.startProcessByCMD(procezz.getAgentExecutionCommand());
 		} catch (final IOException e) {
+			LOGGER.error("Error during procezz start. Exception: {}", e);
 			throw new ProcezzStartException("Error during procezz start. Exception: " + e);
 		}
 
 		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezz(procezz);
 
 		if (updatedProcezz == null) {
+			LOGGER.warn("Couldn't find started procezz in new procezzList from OS.");
 			throw new ProcezzNotFoundException("Couldn't find started procezz in new procezzList from OS.");
 		}
 

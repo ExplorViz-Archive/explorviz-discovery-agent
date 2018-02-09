@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.services;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -85,8 +86,8 @@ public final class RegistrationService {
 			agentScaffold = clientService.doGETRequest(Agent.class, explorVizUrl, queryParameters);
 		} catch (ProcessingException | WebApplicationException e) {
 			LOGGER.info(
-					"Couldn't register agent. Will retry in one minute. Backend offline or wrong backend IP? Check explorviz.properties file. Error: {}",
-					e.toString());
+					"Couldn't register agent at time: {}. Will retry in one minute. Backend offline or wrong backend IP? Check explorviz.properties file. Error: {}",
+					new Date(System.currentTimeMillis()), e.toString());
 			runRegistrationTimer(REGISTRATION_TIMER_RATE);
 			return;
 		}

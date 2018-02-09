@@ -8,6 +8,7 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.services.FilesystemService;
+import net.explorviz.discoveryagent.util.ErrorObjectHelper;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public class DependencyInjectionBinder extends AbstractBinder {
@@ -15,6 +16,8 @@ public class DependencyInjectionBinder extends AbstractBinder {
 	public void configure() {
 		this.bind(FilesystemService.class).to(FilesystemService.class).in(Singleton.class);
 		this.bind(ProcezzUtility.class).to(ProcezzUtility.class).in(Singleton.class);
+		this.bind(ErrorObjectHelper.class).to(ErrorObjectHelper.class).in(Singleton.class);
+
 		this.bindFactory(ResourceConverterFactory.class).to(ResourceConverter.class).in(Singleton.class);
 	}
 }
