@@ -26,15 +26,15 @@ public final class RegistrationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
-	private static final long REGISTRATION_TIMER_RATE = 100000;
+	private static final long REGISTRATION_TIMER_RATE = 60000;
 	private static final long UPDATE_TIMER_RATE = 30000;
 
 	private static AtomicBoolean registrationDone = new AtomicBoolean(false);
 
-	private static boolean isHttpRequestSetupDone = false;
+	private static boolean isHttpRequestSetupDone;
 
-	private static Timer registrationTimer = null;
-	private static Timer updateTimer = null;
+	private static Timer registrationTimer;
+	private static Timer updateTimer;
 
 	private static String explorVizUrl;
 	private static ResourceConverter converter;
@@ -79,8 +79,7 @@ public final class RegistrationService {
 
 	}
 
-	private static void callExplorVizBackend() {
-
+	public static void callExplorVizBackend() {
 		Agent agentScaffold = null;
 		try {
 			agentScaffold = clientService.doGETRequest(Agent.class, explorVizUrl, queryParameters);

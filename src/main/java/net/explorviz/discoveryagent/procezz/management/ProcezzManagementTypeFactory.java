@@ -39,8 +39,8 @@ public final class ProcezzManagementTypeFactory {
 		}
 
 		if (possibleKey == null) {
-			throw new ProcezzManagementTypeNotFoundException(
-					"No ProcezzManagement found for the passed key: " + identifier);
+			throw new ProcezzManagementTypeNotFoundException("ProcezzManagementType not found",
+					new Exception("No ProcezzManagementType found for the passed key: " + identifier));
 		} else {
 			return managementTypes.get(possibleKey);
 		}

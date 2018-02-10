@@ -23,6 +23,7 @@ public class UpdateProcezzListService extends TimerTask {
 				final boolean notifyBackend = InternalRepository.updateInternalProcezzList();
 
 				if (notifyBackend) {
+					InternalRepository.agentObject.setProcezzes(InternalRepository.getProcezzList());
 					NotifyService.sendProcezzList(InternalRepository.getProcezzList());
 				}
 			}

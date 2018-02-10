@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
 import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
@@ -38,22 +39,42 @@ public class ProcezzResource {
 	@PATCH
 	@Path("/procezz")
 	@Consumes(MEDIA_TYPE)
-	public Response update(final Procezz procezz) {
-		Procezz possibleProcess;
+	public Response updateProcezz(final Procezz procezz) {
+
+		Procezz possibleProcezz;
 
 		try {
-			possibleProcess = InternalRepository.updateProcezzByID(procezz);
-		} catch (ProcezzManagementTypeNotFoundException | ProcezzStopException | ProcezzStartException
-				| ProcezzNotFoundException e) {
-
+			possibleProcezz = InternalRepository.updateProcezzByID(procezz);
+		} catch (final ProcezzNotFoundException e) {
 			LOGGER.error("Error occured while patching procezz. Error: {}", e.toString());
 
 			final String errorObject = errorObjectHelper.createErrorObjectString(HTTP_STATUS_UNPROCESSABLE_ENTITY,
 					ERROR_INTERNAL_TITLE, e.getMessage());
 			return Response.status(422).entity(errorObject).build();
 		}
+		return Response.status(200).entity(possibleProcezz).build();
+	}
 
-		return Response.status(200).entity(possibleProcess).build();
+	@PATCH
+	@Path("/procezz/restart")
+	@Consumes(MEDIA_TYPE)
+	public Response restartProcezz(final Procezz procezz) {
+
+		Procezz possibleProcezz;
+
+		try {
+			possibleProcezz = InternalRepository.updateProcezzByID(procezz);
+			possibleProcezz = ProcezzUtility.handleRestart(possibleProcezz);
+		} catch (final ProcezzNotFoundException | ProcezzManagementTypeNotFoundException | ProcezzStopException
+				| ProcezzStartException e) {
+			LOGGER.error("Error occured while restarting procezz. Error: {}", e.toString());
+
+			final String errorObject = errorObjectHelper.createErrorObjectString(HTTP_STATUS_UNPROCESSABLE_ENTITY,
+					ERROR_INTERNAL_TITLE, e.toString());
+			return Response.status(422).entity(errorObject).build();
+		}
+
+		return Response.status(200).entity(possibleProcezz).build();
 	}
 
 }

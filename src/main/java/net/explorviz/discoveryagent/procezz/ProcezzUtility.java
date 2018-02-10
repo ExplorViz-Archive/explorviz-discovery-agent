@@ -47,7 +47,7 @@ public final class ProcezzUtility {
 		// no need to instantiate
 	}
 
-	public static String prepareMonitoringJVMArguments(final long entityID) throws MalformedURLException {
+	private static String prepareMonitoringJVMArguments(final long entityID) throws MalformedURLException {
 
 		final ServletContext sc = FilesystemService.servletContext;
 
@@ -68,7 +68,7 @@ public final class ProcezzUtility {
 				+ SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
 	}
 
-	public static void injectKiekerAgentInProcess(final Procezz procezz) throws MalformedURLException {
+	private static void injectKiekerAgentInProcess(final Procezz procezz) throws MalformedURLException {
 
 		final String userExecCMD = procezz.getUserExecutionCommand();
 
@@ -106,6 +106,8 @@ public final class ProcezzUtility {
 
 	public static Procezz handleRestart(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
 			ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
+
+		LOGGER.info("Restarting procezz");
 
 		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
 				.getProcezzManagement(procezz.getProcezzManagementType());

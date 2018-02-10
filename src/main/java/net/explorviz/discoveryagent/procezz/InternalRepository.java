@@ -17,10 +17,7 @@ import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 import net.explorviz.discoveryagent.services.FilesystemService;
 
 public final class InternalRepository {
@@ -45,7 +42,7 @@ public final class InternalRepository {
 		}
 	}
 
-	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) {
+	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) throws ProcezzNotFoundException {
 
 		final long entityID = oldProcezz.getId();
 
@@ -229,29 +226,25 @@ public final class InternalRepository {
 		return null;
 	}
 
-	public static Procezz findProcezzByID(final long id) {
+	public static Procezz findProcezzByID(final long id) throws ProcezzNotFoundException {
 		synchronized (internalProcezzList) {
 			final Procezz procezzInCache = internalProcezzList.stream().filter(Objects::nonNull)
 					.filter(p -> p.getId() == id).findFirst().orElse(null);
 
 			if (procezzInCache == null) {
-				return null;
+				throw new ProcezzNotFoundException("Could not find procezz with Id " + id + " in internal repository",
+						new Exception());
 			}
 
 			return procezzInCache;
 		}
 	}
 
-	public static Procezz updateProcezzByID(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
-			ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
+	public static Procezz updateProcezzByID(final Procezz procezz) throws ProcezzNotFoundException {
 
 		synchronized (internalProcezzList) {
 
 			final Procezz procezzInCache = findProcezzByID(procezz.getId());
-
-			if (procezzInCache == null) {
-				return null;
-			}
 
 			LOGGER.info("updating Procezz with ID: {}", procezz.getId());
 
@@ -277,31 +270,10 @@ public final class InternalRepository {
 						e.getMessage());
 			}
 
-			boolean monitoringStateChanged = false;
-
-			if (procezz.isMonitoredFlag() != procezzInCache.isMonitoredFlag()) {
-				procezzInCache.setMonitoredFlag(procezz.isMonitoredFlag());
-				monitoringStateChanged = true;
-			}
-
-			boolean newUserCommandSet = false;
-
-			final String userExecutionCommand = procezz.getUserExecutionCommand();
-			if (userExecutionCommand != null
-					&& !userExecutionCommand.equals(procezzInCache.getUserExecutionCommand())) {
-				procezzInCache.setUserExecutionCommand(userExecutionCommand);
-				newUserCommandSet = true;
-			}
-
-			// monitoring status or user command changed?
-			if (monitoringStateChanged || newUserCommandSet) {
-
-				return ProcezzUtility.handleRestart(procezzInCache);
-
-			}
+			procezzInCache.setMonitoredFlag(procezz.isMonitoredFlag());
+			procezzInCache.setUserExecutionCommand(procezz.getUserExecutionCommand());
 
 			return procezzInCache;
-
 		}
 
 	}
