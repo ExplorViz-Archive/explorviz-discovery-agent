@@ -29,7 +29,6 @@ public class AgentResource {
 	@Path("/agent")
 	@Consumes(MEDIA_TYPE)
 	public Agent getAgentWithprocezzes() {
-		System.out.println(InternalRepository.agentObject);
 		return InternalRepository.agentObject;
 	}
 

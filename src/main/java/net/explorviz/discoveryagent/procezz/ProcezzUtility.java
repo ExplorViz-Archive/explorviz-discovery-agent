@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
+import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
@@ -68,40 +69,52 @@ public final class ProcezzUtility {
 				+ SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
 	}
 
-	private static void injectKiekerAgentInProcess(final Procezz procezz) throws MalformedURLException {
+	private static void injectKiekerAgentInProcess(final Procezz procezz) throws ProcezzStartException {
 
 		final String userExecCMD = procezz.getUserExecutionCommand();
 
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
 		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
+
+		// remove potential old flag
 		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
 		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
-		final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
+		try {
+			final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
-		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand + procezz.getId()
-				+ SPACE_SYMBOL + execPathFragments[1];
+			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand + procezz.getId()
+					+ SPACE_SYMBOL + execPathFragments[1];
 
-		procezz.setAgentExecutionCommand(newExecCommand);
+			procezz.setAgentExecutionCommand(newExecCommand);
+		} catch (final MalformedURLException | IndexOutOfBoundsException e) {
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e);
+		}
+
 	}
 
-	private static void injectExplorVizAgentFlag(final Procezz procezz) {
+	private static void injectExplorVizAgentFlag(final Procezz procezz) throws ProcezzStartException {
 		final String userExecCMD = procezz.getUserExecutionCommand();
 
 		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
 		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
 
+		// remove potential old flag
 		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
 		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
-		final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG + procezz.getId()
-				+ SPACE_SYMBOL + execPathFragments[1];
+		try {
+			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
+					+ procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+			procezz.setAgentExecutionCommand(newExecCommand);
+		} catch (final IndexOutOfBoundsException e) {
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e);
+		}
 
-		procezz.setAgentExecutionCommand(newExecCommand);
 	}
 
 	public static Procezz handleRestart(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
@@ -116,11 +129,8 @@ public final class ProcezzUtility {
 
 		if (procezz.isMonitoredFlag()) {
 			// restart with monitoring
-			try {
-				injectKiekerAgentInProcess(procezz);
-			} catch (final MalformedURLException e) {
-				LOGGER.error("Error while preparing monitoring JVM arguments. Error: {}", e.getMessage());
-			}
+			injectKiekerAgentInProcess(procezz);
+
 		} else {
 			// restart
 			injectExplorVizAgentFlag(procezz);

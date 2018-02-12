@@ -101,11 +101,11 @@ public final class FilesystemService {
 		}
 	}
 
-	public static void updateKiekerConfigForProcezz(final Procezz procezz) throws ProcezzMonitoringSettingsException {
-		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
+	public static void updateKiekerConfigForProcezz(final Procezz procezzInCache) throws ProcezzMonitoringSettingsException {
+		final String folderOfPassedIDString = configsPath + "/" + procezzInCache.getId();
 		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
 
-		final String appName = procezz.getName() == null ? String.valueOf(procezz.getPid()) : procezz.getName();
+		final String appName = procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid()) : procezzInCache.getName();
 		final String hostName = InternalRepository.agentObject.getIPPortOrName();
 		try {
 
@@ -123,9 +123,9 @@ public final class FilesystemService {
 
 		} catch (final IOException e) {
 			throw new ProcezzMonitoringSettingsException(
-					"There was an error while updating the kieker.config for the passed procezz (ID: " + procezz.getId()
+					"There was an error while updating the kieker.config for the passed procezz (ID: " + procezzInCache.getId()
 							+ ")",
-					e, procezz);
+					e, procezzInCache);
 		}
 
 	}
