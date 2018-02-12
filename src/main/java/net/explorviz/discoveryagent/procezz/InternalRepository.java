@@ -1,6 +1,5 @@
 package net.explorviz.discoveryagent.procezz;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,11 +12,12 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
 import net.explorviz.discoveryagent.services.FilesystemService;
 
 public final class InternalRepository {
@@ -232,7 +232,9 @@ public final class InternalRepository {
 					.filter(p -> p.getId() == id).findFirst().orElse(null);
 
 			if (procezzInCache == null) {
-				throw new ProcezzNotFoundException("Could not find procezz with Id " + id + " in internal repository",
+				throw new ProcezzNotFoundException(
+						"Could not update procezz. The respective agent did not find the passed procezz (ID: " + id
+								+ ") in the internal memory ",
 						new Exception());
 			}
 
@@ -240,7 +242,8 @@ public final class InternalRepository {
 		}
 	}
 
-	public static Procezz updateProcezzByID(final Procezz procezz) throws ProcezzNotFoundException {
+	public static Procezz updateProcezzByID(final Procezz procezz)
+			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException {
 
 		synchronized (internalProcezzList) {
 
@@ -255,20 +258,10 @@ public final class InternalRepository {
 
 			if (!procezzInCache.getAopContent().equals(procezz.getAopContent())) {
 				procezzInCache.setAopContent(procezz.getAopContent());
-				try {
-					FilesystemService.updateAOPFileContentForProcezz(procezzInCache);
-				} catch (final IOException e) {
-					LOGGER.error("Error occured when aop.xml of ID {} was updated. Error: {}", procezz.getId(),
-							e.getMessage());
-				}
+				FilesystemService.updateAOPFileContentForProcezz(procezzInCache);
 			}
 
-			try {
-				FilesystemService.updateKiekerConfigForProcezz(procezzInCache);
-			} catch (final IOException e) {
-				LOGGER.error("Error occured when kieker.config of ID {} was updated. Error: {}", procezz.getId(),
-						e.getMessage());
-			}
+			FilesystemService.updateKiekerConfigForProcezz(procezzInCache);
 
 			procezzInCache.setMonitoredFlag(procezz.isMonitoredFlag());
 			procezzInCache.setUserExecutionCommand(procezz.getUserExecutionCommand());

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 
@@ -86,31 +87,46 @@ public final class FilesystemService {
 
 	}
 
-	public static void updateAOPFileContentForProcezz(final Procezz procezz) throws IOException {
+	public static void updateAOPFileContentForProcezz(final Procezz procezz) throws ProcezzMonitoringSettingsException {
 		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
 		final Path aopPath = Paths.get(folderOfPassedIDString + "/aop.xml");
 
-		Files.write(aopPath, procezz.getAopContent().getBytes());
+		try {
+			Files.write(aopPath, procezz.getAopContent().getBytes());
+		} catch (final IOException e) {
+			throw new ProcezzMonitoringSettingsException(
+					"There was an error while updating the aop.xml for the passed procezz (ID: " + procezz.getId()
+							+ ")",
+					e, procezz);
+		}
 	}
 
-	public static void updateKiekerConfigForProcezz(final Procezz procezz) throws IOException {
+	public static void updateKiekerConfigForProcezz(final Procezz procezz) throws ProcezzMonitoringSettingsException {
 		final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
 		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
 
 		final String appName = procezz.getName() == null ? String.valueOf(procezz.getPid()) : procezz.getName();
 		final String hostName = InternalRepository.agentObject.getIPPortOrName();
+		try {
 
-		final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
-			if (line.startsWith(KIEKER_APPLICATION_NAME_PROPERTY)) {
-				return KIEKER_APPLICATION_NAME_PROPERTY + appName;
-			} else if (line.startsWith(KIEKER_HOSTNAME_PROPERTY)) {
-				return KIEKER_HOSTNAME_PROPERTY + hostName;
-			} else {
-				return line;
-			}
-		}).collect(Collectors.toList());
+			final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
+				if (line.startsWith(KIEKER_APPLICATION_NAME_PROPERTY)) {
+					return KIEKER_APPLICATION_NAME_PROPERTY + appName;
+				} else if (line.startsWith(KIEKER_HOSTNAME_PROPERTY)) {
+					return KIEKER_HOSTNAME_PROPERTY + hostName;
+				} else {
+					return line;
+				}
+			}).collect(Collectors.toList());
 
-		Files.write(kiekerConfigPath, kiekerConfigNewContent);
+			Files.write(kiekerConfigPath, kiekerConfigNewContent);
+
+		} catch (final IOException e) {
+			throw new ProcezzMonitoringSettingsException(
+					"There was an error while updating the kieker.config for the passed procezz (ID: " + procezz.getId()
+							+ ")",
+					e, procezz);
+		}
 
 	}
 

@@ -18,6 +18,9 @@ public class Application extends ResourceConfig {
 
 		register(new DependencyInjectionBinder());
 
+		// Exception Mapper
+		packages("net.explorviz.discovery.exceptions.mapper");
+
 		// provider
 		packages("net.explorviz.discoveryagent.server.provider");
 

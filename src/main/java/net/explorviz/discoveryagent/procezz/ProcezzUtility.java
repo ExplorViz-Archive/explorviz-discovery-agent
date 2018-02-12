@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
@@ -22,10 +26,6 @@ import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.services.FilesystemService;

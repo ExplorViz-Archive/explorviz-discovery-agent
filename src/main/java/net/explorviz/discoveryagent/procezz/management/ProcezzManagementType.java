@@ -2,11 +2,11 @@ package net.explorviz.discoveryagent.procezz.management;
 
 import java.util.List;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 
 public interface ProcezzManagementType {
 

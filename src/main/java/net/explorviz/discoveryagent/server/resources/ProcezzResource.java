@@ -1,7 +1,9 @@
 package net.explorviz.discoveryagent.server.resources;
 
-import javax.inject.Inject;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -9,14 +11,15 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discovery.model.helper.ErrorObjectHelper;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzManagementTypeNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
-import net.explorviz.discoveryagent.util.ErrorObjectHelper;
 
 @Path("")
 public class ProcezzResource {
@@ -29,36 +32,18 @@ public class ProcezzResource {
 
 	private static final String ERROR_INTERNAL_TITLE = "An internal agent error occured.";
 
-	private final ErrorObjectHelper errorObjectHelper;
-
-	@Inject
-	public ProcezzResource(final ErrorObjectHelper errorObjectHelper) {
-		this.errorObjectHelper = errorObjectHelper;
-	}
-
 	@PATCH
 	@Path("/procezz")
 	@Consumes(MEDIA_TYPE)
-	public Response updateProcezz(final Procezz procezz) {
-
-		Procezz possibleProcezz;
-
-		try {
-			possibleProcezz = InternalRepository.updateProcezzByID(procezz);
-		} catch (final ProcezzNotFoundException e) {
-			LOGGER.error("Error occured while patching procezz. Error: {}", e.toString());
-
-			final String errorObject = errorObjectHelper.createErrorObjectString(HTTP_STATUS_UNPROCESSABLE_ENTITY,
-					ERROR_INTERNAL_TITLE, e.getMessage());
-			return Response.status(422).entity(errorObject).build();
-		}
-		return Response.status(200).entity(possibleProcezz).build();
+	public Procezz updateProcezz(final Procezz procezz)
+			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException {
+		return InternalRepository.updateProcezzByID(procezz);
 	}
 
 	@PATCH
 	@Path("/procezz/restart")
 	@Consumes(MEDIA_TYPE)
-	public Response restartProcezz(final Procezz procezz) {
+	public Response restartProcezz(final Procezz procezz) throws ProcezzMonitoringSettingsException {
 
 		Procezz possibleProcezz;
 
@@ -69,12 +54,19 @@ public class ProcezzResource {
 				| ProcezzStartException e) {
 			LOGGER.error("Error occured while restarting procezz. Error: {}", e.toString());
 
-			final String errorObject = errorObjectHelper.createErrorObjectString(HTTP_STATUS_UNPROCESSABLE_ENTITY,
-					ERROR_INTERNAL_TITLE, e.toString());
-			return Response.status(422).entity(errorObject).build();
+			final byte[] errorObj = ErrorObjectHelper.getInstance()
+					.createSerializedErrorArray(HTTP_STATUS_UNPROCESSABLE_ENTITY, ERROR_INTERNAL_TITLE, e.toString());
+			return Response.status(422).entity(errorObj).build();
 		}
 
 		return Response.status(200).entity(possibleProcezz).build();
+	}
+
+	@GET
+	@Path("/procezz")
+	@Consumes(MEDIA_TYPE)
+	public List<Procezz> giveProcezzList() throws ProcezzNotFoundException, ProcezzMonitoringSettingsException {
+		return InternalRepository.getProcezzList();
 	}
 
 }

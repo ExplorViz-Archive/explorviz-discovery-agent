@@ -7,13 +7,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzNotFoundException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStartException;
-import net.explorviz.discoveryagent.procezz.management.exceptions.ProcezzStopException;
 import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
 
 public class JavaCLIManagementType implements ProcezzManagementType {

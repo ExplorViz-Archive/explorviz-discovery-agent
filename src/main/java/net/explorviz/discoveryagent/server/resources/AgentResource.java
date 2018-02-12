@@ -1,6 +1,7 @@
 package net.explorviz.discoveryagent.server.resources;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -22,6 +23,14 @@ public class AgentResource {
 	public Response update(final Agent agent) {
 		final Agent updatedAgent = InternalRepository.updateAgentProperties(agent);
 		return Response.status(200).entity(updatedAgent).build();
+	}
+
+	@GET
+	@Path("/agent")
+	@Consumes(MEDIA_TYPE)
+	public Agent getAgentWithprocezzes() {
+		System.out.println(InternalRepository.agentObject);
+		return InternalRepository.agentObject;
 	}
 
 }
