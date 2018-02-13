@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
@@ -76,18 +77,10 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 			CLIAbstraction.startProcessByCMD(procezz.getAgentExecutionCommand());
 		} catch (final IOException e) {
 			LOGGER.error("Error during procezz start. Exception: {}", e);
-			throw new ProcezzStartException("Error during procezz start. Exception", e);
+			throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START, e, procezz);
 		}
 
-		final Procezz updatedProcezz = InternalRepository.updateRestartedProcezz(procezz);
-
-		if (updatedProcezz == null) {
-			LOGGER.warn("Couldn't find started procezz in new procezzList from OS.");
-			throw new ProcezzNotFoundException("Couldn't find started procezz in new procezzList from OS.",
-					new Exception());
-		}
-
-		return updatedProcezz;
+		return InternalRepository.updateRestartedProcezz(procezz);
 
 	}
 
@@ -96,7 +89,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 		try {
 			CLIAbstraction.killProcessByPID(procezz.getPid());
 		} catch (final IOException e) {
-			throw new ProcezzStopException("Could not stop procezz.", e);
+			throw new ProcezzStopException(ResponseUtil.ERROR_PROCEZZ_STOP, e, procezz);
 		}
 
 	}

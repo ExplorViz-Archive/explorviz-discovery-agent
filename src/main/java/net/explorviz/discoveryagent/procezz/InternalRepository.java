@@ -12,6 +12,7 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.model.Agent;
@@ -46,14 +47,14 @@ public final class InternalRepository {
 
 		final long entityID = oldProcezz.getId();
 
-		final Procezz possibleRestartedProcezz = ProcezzUtility.findFlaggedProcezzInList(entityID,
-				getNewProcezzesFromOS());
+		Procezz possibleRestartedProcezz = null;
+		try {
+			possibleRestartedProcezz = ProcezzUtility.findFlaggedProcezzInList(entityID, getNewProcezzesFromOS());
+		} catch (final ProcezzNotFoundException e) {
+			throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_START_NOT_FOUND, e, oldProcezz);
+		}
 
 		final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
-
-		if (possibleRestartedProcezz == null || internalProcezz == null) {
-			return null;
-		}
 
 		// update pid and osExecCMD
 		internalProcezz.setPid(possibleRestartedProcezz.getPid());
@@ -232,10 +233,7 @@ public final class InternalRepository {
 					.filter(p -> p.getId() == id).findFirst().orElse(null);
 
 			if (procezzInCache == null) {
-				throw new ProcezzNotFoundException(
-						"Could not update procezz. The respective agent did not find the passed procezz (ID: " + id
-								+ ") in the internal memory ",
-						new Exception());
+				throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_ID_NOT_FOUND, new Exception());
 			}
 
 			return procezzInCache;

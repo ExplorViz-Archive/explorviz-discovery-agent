@@ -90,7 +90,7 @@ public final class ProcezzUtility {
 
 			procezz.setAgentExecutionCommand(newExecCommand);
 		} catch (final MalformedURLException | IndexOutOfBoundsException e) {
-			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e);
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
 		}
 
 	}
@@ -112,7 +112,7 @@ public final class ProcezzUtility {
 					+ procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
 			procezz.setAgentExecutionCommand(newExecCommand);
 		} catch (final IndexOutOfBoundsException e) {
-			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e);
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
 		}
 
 	}
@@ -140,7 +140,8 @@ public final class ProcezzUtility {
 
 	}
 
-	public static Procezz findFlaggedProcezzInList(final long entityID, final List<Procezz> procezzList) {
+	public static Procezz findFlaggedProcezzInList(final long entityID, final List<Procezz> procezzList)
+			throws ProcezzNotFoundException {
 
 		for (final Procezz p : procezzList) {
 			final boolean containsFlag = p.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + entityID);
@@ -150,7 +151,7 @@ public final class ProcezzUtility {
 			}
 		}
 
-		return null;
+		throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_FLAG_NOT_FOUND, new Exception());
 	}
 
 	public static boolean initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS) {
