@@ -1,20 +1,17 @@
 package net.explorviz.discoveryagent.services;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
+import net.explorviz.discovery.exceptions.GenericNoConnectionException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
@@ -39,7 +36,8 @@ public final class RegistrationService {
 	private static String explorVizUrl;
 	private static ResourceConverter converter;
 	private static ClientService clientService;
-	private static Map<String, Object> queryParameters;
+
+	private static Agent agent;
 
 	private RegistrationService() {
 		// don't instantiate
@@ -62,28 +60,25 @@ public final class RegistrationService {
 		clientService.registerProviderReader(new JSONAPIProvider<>(converter));
 		clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-		queryParameters = new HashMap<String, Object>();
-
 		final String ip = PropertyService.getStringProperty("agentIP");
 		final String userDefinedPort = PropertyService.getStringProperty("agentPort");
 		final String embeddedGrettyPort = PropertyService.getStringProperty("httpPort");
 
 		final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
 
-		queryParameters.put("ip", ip);
-		queryParameters.put("port", port);
+		explorVizUrl = PropertyService.getExplorVizBackendRootURL() + "/extension/discovery/agent";
 
-		explorVizUrl = PropertyService.getExplorVizBackendRootURL() + "/extension/discovery/agent/register";
+		agent = new Agent(ip, port);
+		agent.setId("placeholder");
 
 		isHttpRequestSetupDone = true;
 
 	}
 
 	public static void callExplorVizBackend() {
-		Agent agentScaffold = null;
 		try {
-			agentScaffold = clientService.doGETRequest(Agent.class, explorVizUrl, queryParameters);
-		} catch (ProcessingException | WebApplicationException e) {
+			agent = clientService.postAgent(agent, explorVizUrl);
+		} catch (ProcezzGenericException | GenericNoConnectionException e) {
 			LOGGER.info(
 					"Couldn't register agent at time: {}. Will retry in one minute. Backend offline or wrong backend IP? Check explorviz.properties file. Error: {}",
 					new Date(System.currentTimeMillis()), e.toString());
@@ -91,9 +86,9 @@ public final class RegistrationService {
 			return;
 		}
 
-		if (agentScaffold == null) {
+		if (agent == null) {
 
-			LOGGER.warn("Agent registered, but agentScaffold was null. Trying to re-register.");
+			LOGGER.warn("Updated agent object was null. Will try to re-register.");
 
 		} else {
 
@@ -102,10 +97,21 @@ public final class RegistrationService {
 
 			LOGGER.info("Agent successfully registered");
 
-			InternalRepository.agentObject = agentScaffold;
-			ProcezzUtility.getAndFillScaffolds(InternalRepository.getProcezzList());
-			registrationDone.set(true);
-			startUpdateService();
+			InternalRepository.agentObject = agent;
+
+			// get new Ids for potential already discovered procezzes
+			try {
+				ProcezzUtility.getIdsForProcezzes(InternalRepository.getProcezzList());
+				registrationDone.set(true);
+				startUpdateService();
+			} catch (ProcezzGenericException | GenericNoConnectionException e) {
+				LOGGER.error(
+						"Could not obtain unique IDs for procezzes. New procezzes WILL NOT be added to internal procezzlist Error: {}",
+						e.getMessage());
+				// Error occured, try to re-register again
+				register();
+
+			}
 		}
 	}
 

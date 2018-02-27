@@ -2,25 +2,23 @@ package net.explorviz.discoveryagent.procezz;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletContext;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.jasminb.jsonapi.ResourceConverter;
 
+import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
+import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
-import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
@@ -48,7 +46,7 @@ public final class ProcezzUtility {
 		// no need to instantiate
 	}
 
-	private static String prepareMonitoringJVMArguments(final long entityID) throws MalformedURLException {
+	private static String prepareMonitoringJVMArguments(final String entityID) throws MalformedURLException {
 
 		final ServletContext sc = FilesystemService.servletContext;
 
@@ -117,30 +115,46 @@ public final class ProcezzUtility {
 
 	}
 
+	public static void handleStop(final Procezz procezz)
+			throws ProcezzManagementTypeNotFoundException, ProcezzStopException {
+		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
+				.getProcezzManagement(procezz.getProcezzManagementType());
+
+		LOGGER.info("Stopping procezz");
+
+		managementType.killProcezz(procezz);
+
+	}
+
 	public static Procezz handleRestart(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
 			ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
-
-		LOGGER.info("Restarting procezz");
 
 		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
 				.getProcezzManagement(procezz.getProcezzManagementType());
 
+		LOGGER.info("Restarting procezz");
+
 		managementType.killProcezz(procezz);
 
-		if (procezz.isMonitoredFlag()) {
-			// restart with monitoring
-			injectKiekerAgentInProcess(procezz);
-
+		if (procezz.isStopped()) {
+			throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START_STOPPED, new Exception(), procezz);
 		} else {
-			// restart
-			injectExplorVizAgentFlag(procezz);
-		}
+			// stopped flag not set -> restart process
+			if (procezz.isMonitoredFlag()) {
+				// restart with monitoring
+				injectKiekerAgentInProcess(procezz);
 
-		return managementType.startProcezz(procezz);
+			} else {
+				// restart
+				injectExplorVizAgentFlag(procezz);
+			}
+
+			return managementType.startProcezz(procezz);
+		}
 
 	}
 
-	public static Procezz findFlaggedProcezzInList(final long entityID, final List<Procezz> procezzList)
+	public static Procezz findFlaggedProcezzInList(final String entityID, final List<Procezz> procezzList)
 			throws ProcezzNotFoundException {
 
 		for (final Procezz p : procezzList) {
@@ -154,8 +168,16 @@ public final class ProcezzUtility {
 		throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_FLAG_NOT_FOUND, new Exception());
 	}
 
-	public static boolean initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS) {
-		final boolean notifyBackend = getAndFillScaffolds(newProcezzListFromOS);
+	public static void initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS) {
+
+		try {
+			getIdsForProcezzes(newProcezzListFromOS);
+		} catch (ProcezzGenericException | GenericNoConnectionException e) {
+			LOGGER.error(
+					"Could not obtain unique IDs for procezzes. New procezzes WILL NOT be added to internal procezzlist Error: {}",
+					e.getMessage());
+			return;
+		}
 
 		// Finally, add the new procezzes to the internalProcezzList
 		synchronized (InternalRepository.getProcezzList()) {
@@ -174,23 +196,13 @@ public final class ProcezzUtility {
 				InternalRepository.getProcezzList().add(newProcezz);
 			}
 		}
-
-		return notifyBackend;
 	}
 
-	public static boolean getAndFillScaffolds(final List<Procezz> newProcezzList)
-			throws ProcessingException, WebApplicationException {
+	public static void getIdsForProcezzes(final List<Procezz> newProcezzList)
+			throws ProcezzGenericException, GenericNoConnectionException {
 
 		// Get scaffolds with unique ID from backend and insert
 		// new data from new procezzes into these scaffolds
-
-		boolean notifyBackend = false;
-
-		final int necessaryScaffolds = newProcezzList.size();
-
-		if (necessaryScaffolds == 0) {
-			return notifyBackend;
-		}
 
 		final ClientService clientService = new ClientService();
 
@@ -201,36 +213,17 @@ public final class ProcezzUtility {
 		clientService.registerProviderReader(new JSONAPIListProvider(converter));
 		clientService.registerProviderWriter(new JSONAPIListProvider(converter));
 
-		final Map<String, Object> queryParameters = new HashMap<String, Object>();
-		queryParameters.put("necessary-scaffolds", necessaryScaffolds);
+		final List<Procezz> procezzListWithIds = clientService.postProcezzList(newProcezzList,
+				"http://localhost:8081/extension/discovery/procezzes");
 
-		final List<Procezz> scaffoldedProcezzList = clientService
-				.doGETProcezzListRequest("http://localhost:8081/extension/discovery/procezzes", queryParameters);
-
-		if (scaffoldedProcezzList == null) {
-			return notifyBackend;
+		// Update again
+		// Sometimes JSON API converter gets confused
+		// and Ember will therefore think there are two agents
+		for (int i = 0; i < procezzListWithIds.size(); i++) {
+			final Procezz p = newProcezzList.get(i);
+			p.setAgent(InternalRepository.agentObject);
+			p.setId(procezzListWithIds.get(i).getId());
 		}
-
-		final Agent agentObject = InternalRepository.agentObject;
-
-		for (int i = 0; i < necessaryScaffolds; i++) {
-
-			final Procezz newProcezz = newProcezzList.get(i);
-
-			// Take ID from scaffold and reset ID from new procezz
-			try {
-				newProcezz.setId(scaffoldedProcezzList.get(i).getId());
-			} catch (final IndexOutOfBoundsException e) {
-				LOGGER.error("IndexOutOfBounds while adding new procezzes to internal list: {}", e);
-				break;
-			}
-
-			newProcezz.setAgent(agentObject);
-
-			notifyBackend = true;
-		}
-
-		return notifyBackend;
 	}
 
 	public static void applyStrategiesOnProcezz(final Procezz newProcezz) {
@@ -244,6 +237,29 @@ public final class ProcezzUtility {
 				break;
 			}
 		}
+	}
+
+	public static void copyProcezzAttributeValues(final Procezz sourceProcezz, final Procezz targetProcezz)
+			throws ProcezzMonitoringSettingsException {
+		LOGGER.info("updating procezz with id: {}", targetProcezz.getId());
+
+		targetProcezz.setName(sourceProcezz.getName());
+		targetProcezz.setShutdownCommand(sourceProcezz.getShutdownCommand());
+		targetProcezz.setWebserverFlag(sourceProcezz.isWebserverFlag());
+		targetProcezz.setHidden(sourceProcezz.isHidden());
+		targetProcezz.setStopped(sourceProcezz.isStopped());
+		targetProcezz.setRestart(sourceProcezz.isRestart());
+
+		if (!targetProcezz.getAopContent().equals(sourceProcezz.getAopContent())) {
+			targetProcezz.setAopContent(sourceProcezz.getAopContent());
+			FilesystemService.updateAOPFileContentForProcezz(targetProcezz);
+		}
+
+		FilesystemService.updateKiekerConfigForProcezz(targetProcezz);
+
+		targetProcezz.setMonitoredFlag(sourceProcezz.isMonitoredFlag());
+		targetProcezz.setUserExecutionCommand(sourceProcezz.getUserExecutionCommand());
+
 	}
 
 }

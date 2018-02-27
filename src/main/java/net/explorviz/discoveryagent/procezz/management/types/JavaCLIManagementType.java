@@ -3,6 +3,7 @@ package net.explorviz.discoveryagent.procezz.management.types;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,16 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
 	private List<Procezz> getOSProcezzList(final Agent possibleAgent) {
 		final List<Procezz> procezzList = new ArrayList<Procezz>();
+
+		final AtomicLong placeholderId = new AtomicLong(0);
+
 		try {
 			CLIAbstraction.findProzzeses().forEach((pid, execCMD) -> {
 				if (!execCMD.contains(CLIAbstraction.GET_ALL_PROCESSES) && !"grep java".equals(execCMD)) {
 					final Procezz p = new Procezz(pid, execCMD);
+
+					// default id for serialization / deserialization by JSON API converter
+					p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
 					// add pwdx (working directory) output to procezz object
 

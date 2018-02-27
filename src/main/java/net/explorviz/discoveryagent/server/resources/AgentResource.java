@@ -12,13 +12,10 @@ import net.explorviz.discoveryagent.procezz.InternalRepository;
 @Path("")
 public class AgentResource {
 
-	// private static final Logger LOGGER =
-	// LoggerFactory.getLogger(AgentResource.class);
-
 	private static final String MEDIA_TYPE = "application/vnd.api+json";
 
 	@PATCH
-	@Path("/agent")
+	@Path("agent")
 	@Consumes(MEDIA_TYPE)
 	public Response update(final Agent agent) {
 		final Agent updatedAgent = InternalRepository.updateAgentProperties(agent);
@@ -26,7 +23,7 @@ public class AgentResource {
 	}
 
 	@GET
-	@Path("/agent")
+	@Path("agent")
 	@Consumes(MEDIA_TYPE)
 	public Agent getAgentWithprocezzes() {
 		return InternalRepository.agentObject;

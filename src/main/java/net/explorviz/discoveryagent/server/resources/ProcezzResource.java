@@ -11,7 +11,6 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
-import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 
 @Path("")
 public class ProcezzResource {
@@ -19,24 +18,12 @@ public class ProcezzResource {
 	private static final String MEDIA_TYPE = "application/vnd.api+json";
 
 	@PATCH
-	@Path("/procezz")
+	@Path("procezz")
 	@Consumes(MEDIA_TYPE)
 	public Procezz updateProcezz(final Procezz procezz)
-			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException {
-		return InternalRepository.updateProcezzByID(procezz);
-	}
-
-	@PATCH
-	@Path("/procezz/restart")
-	@Consumes(MEDIA_TYPE)
-	public Procezz restartProcezz(final Procezz procezz)
-			throws ProcezzMonitoringSettingsException, ProcezzNotFoundException, ProcezzManagementTypeNotFoundException,
+			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
 			ProcezzStopException, ProcezzStartException {
-
-		Procezz possibleProcezz = InternalRepository.updateProcezzByID(procezz);
-		possibleProcezz = ProcezzUtility.handleRestart(possibleProcezz);
-
-		return possibleProcezz;
+		return InternalRepository.handleProcezzPatchRequest(procezz);
 	}
 
 }
