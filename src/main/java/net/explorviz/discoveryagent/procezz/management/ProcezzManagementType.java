@@ -14,17 +14,15 @@ public interface ProcezzManagementType {
 
 	List<Procezz> getProcezzListFromOSAndSetAgent(Agent agent);
 
-	Procezz startProcezz(Procezz procezz) throws ProcezzStartException, ProcezzNotFoundException;
+	void startProcezz(Procezz procezz) throws ProcezzStartException, ProcezzNotFoundException;
 
 	void killProcezz(Procezz procezz) throws ProcezzStopException;
 
-	default Procezz restartProcezz(final Procezz procezz)
-			throws ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
-		killProcezz(procezz);
-		return startProcezz(procezz);
-	}
-
-	String getWorkingDirectory(Procezz procezz);
+	void setWorkingDirectory(Procezz procezz);
 
 	String getManagementTypeDescriptor();
+
+	void setProgrammingLanguage(Procezz procezz);
+
+	String getProgrammingLanguage();
 }

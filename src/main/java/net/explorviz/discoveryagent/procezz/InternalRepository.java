@@ -49,14 +49,14 @@ public final class InternalRepository {
 
 		final String entityID = oldProcezz.getId();
 
-		Procezz possibleRestartedProcezz = null;
+		Procezz possibleRestartedProcezz;
 		try {
 			possibleRestartedProcezz = ProcezzUtility.findFlaggedProcezzInList(entityID, getNewProcezzesFromOS());
 		} catch (final ProcezzNotFoundException e) {
 			throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_START_NOT_FOUND, e, oldProcezz);
 		}
 
-		final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
+		final Procezz internalProcezz = findProcezzByID(entityID);
 
 		// update pid and osExecCMD
 		internalProcezz.setPid(possibleRestartedProcezz.getPid());
@@ -66,6 +66,9 @@ public final class InternalRepository {
 		// reset possible error state (user restarted crashed procezz)
 		internalProcezz.setErrorOccured(false);
 		internalProcezz.setErrorMessage(null);
+
+		internalProcezz.setStopped(false);
+		internalProcezz.setRestart(false);
 
 		return internalProcezz;
 
@@ -240,10 +243,13 @@ public final class InternalRepository {
 
 			final Procezz procezzInCache = findProcezzByID(procezz.getId());
 
-			ProcezzUtility.copyProcezzAttributeValues(procezz, procezzInCache);
+			final boolean oldStoppedState = procezzInCache.isStopped();
 
-			if (procezzInCache.isStopped()) {
+			ProcezzUtility.copyUserAccessibleProcezzAttributeValues(procezz, procezzInCache);
+
+			if (!oldStoppedState && procezzInCache.isStopped()) {
 				ProcezzUtility.handleStop(procezzInCache);
+				// procezzInCache.setPid(0);
 			}
 
 			if (procezzInCache.isRestart()) {

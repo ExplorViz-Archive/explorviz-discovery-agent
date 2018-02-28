@@ -3,6 +3,7 @@ package net.explorviz.discoveryagent.procezz;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 
@@ -123,7 +124,6 @@ public final class ProcezzUtility {
 		LOGGER.info("Stopping procezz");
 
 		managementType.killProcezz(procezz);
-
 	}
 
 	public static Procezz handleRestart(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
@@ -149,7 +149,20 @@ public final class ProcezzUtility {
 				injectExplorVizAgentFlag(procezz);
 			}
 
-			return managementType.startProcezz(procezz);
+			managementType.startProcezz(procezz);
+
+			try {
+				// wait a short period of time,
+				// since restarted procezzes with
+				// a faulty execution command
+				// might appear as a running procezz for
+				// a small amount of time
+				TimeUnit.SECONDS.sleep(2);
+			} catch (final InterruptedException e) {
+				LOGGER.warn("Could not wait after starting a procezz.");
+			}
+
+			return InternalRepository.updateRestartedProcezz(procezz);
 		}
 
 	}
@@ -239,7 +252,7 @@ public final class ProcezzUtility {
 		}
 	}
 
-	public static void copyProcezzAttributeValues(final Procezz sourceProcezz, final Procezz targetProcezz)
+	public static void copyUserAccessibleProcezzAttributeValues(final Procezz sourceProcezz, final Procezz targetProcezz)
 			throws ProcezzMonitoringSettingsException {
 		LOGGER.info("updating procezz with id: {}", targetProcezz.getId());
 

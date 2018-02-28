@@ -14,7 +14,6 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
 
@@ -45,17 +44,8 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 					// default id for serialization / deserialization by JSON API converter
 					p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
-					// add pwdx (working directory) output to procezz object
-
-					String workingDir = "";
-
-					try {
-						workingDir = CLIAbstraction.findWorkingDirectoryForPID(pid);
-					} catch (final IOException e) {
-						LOGGER.error("Error when finding working directory for procezz with PID {}: {}", pid, e);
-					}
-
-					p.setWorkingDirectory(workingDir);
+					setWorkingDirectory(p);
+					setProgrammingLanguage(p);
 
 					if (possibleAgent != null) {
 						p.setAgent(possibleAgent);
@@ -76,7 +66,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 	}
 
 	@Override
-	public Procezz startProcezz(final Procezz procezz) throws ProcezzStartException, ProcezzNotFoundException {
+	public void startProcezz(final Procezz procezz) throws ProcezzStartException, ProcezzNotFoundException {
 
 		LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
 
@@ -86,8 +76,6 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 			LOGGER.error("Error during procezz start. Exception: {}", e);
 			throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START, e, procezz);
 		}
-
-		return InternalRepository.updateRestartedProcezz(procezz);
 
 	}
 
@@ -102,14 +90,33 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 	}
 
 	@Override
-	public String getWorkingDirectory(final Procezz procezz) {
-		// TODO Auto-generated method stub
-		return null;
+	public void setWorkingDirectory(final Procezz procezz) {
+		// add pwdx (working directory) output to procezz object
+
+		String workingDir = "";
+
+		try {
+			workingDir = CLIAbstraction.findWorkingDirectoryForPID(procezz.getPid());
+		} catch (final IOException e) {
+			LOGGER.error("Error when finding working directory for procezz with PID {}: {}", procezz.getPid(), e);
+		}
+
+		procezz.setWorkingDirectory(workingDir);
 	}
 
 	@Override
 	public String getManagementTypeDescriptor() {
 		return "JavaCLI";
+	}
+
+	@Override
+	public String getProgrammingLanguage() {
+		return "Java";
+	}
+
+	@Override
+	public void setProgrammingLanguage(final Procezz procezz) {
+		procezz.setProgrammingLanguage(getProgrammingLanguage());
 	}
 
 }
