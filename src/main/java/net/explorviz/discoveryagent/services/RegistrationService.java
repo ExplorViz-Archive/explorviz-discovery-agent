@@ -14,6 +14,7 @@ import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.services.ClientService;
+import net.explorviz.discovery.services.PropertyService;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;

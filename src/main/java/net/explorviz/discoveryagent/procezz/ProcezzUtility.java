@@ -20,6 +20,7 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
+import net.explorviz.discovery.services.PropertyService;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
@@ -27,7 +28,6 @@ import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFact
 import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
-import net.explorviz.discoveryagent.services.PropertyService;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class ProcezzUtility {
