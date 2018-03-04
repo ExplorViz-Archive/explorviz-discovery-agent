@@ -9,14 +9,14 @@
 		     allowed patterns, including wildcards. 
 		-->
 
-		<!-- 
-			Use * to consider all classes in all packages. In this case, you typically need some additional excludes. 
-		-->
+		
+		<!-- Use * to consider all classes in all packages. In this case, you typically need some additional excludes. -->
+		
+		
 		<include within="*"/>
 
-		<!--
-			Include/exclude examples for specific libraries:
-		-->
+		
+		<!-- Include/exclude examples for specific libraries: -->		
 
 		<!-- 
 		     Important: The logger library that is configured to be used by Kieker must always be excluded!
@@ -49,12 +49,14 @@
 		<!--
 			Definition of additional targeted aspects (example for a single additional getter). 
 			Use these directives to create additional aspects without the need to actually implement them. -->
+			
 		<!-- Verifying specific pointcuts -->	
+		
 		<!-- 
 		<concrete-aspect name="kieker.monitoring.probe.aspectj.database.TargetedAspect" extends="kieker.monitoring.probe.aspectj.beforeafter.onlycallee.AbstractAspect">
 			<pointcut name="monitoredOperation" expression="call(* *(..)) &amp;&amp; noGetterAndSetter()" />
 		</concrete-aspect>
-		-->
-	
+		-->	
 	</aspects>
+	
 </aspectj>

@@ -1,14 +1,18 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
@@ -16,10 +20,19 @@ import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
+import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 
 public class JavaCLIManagementType implements ProcezzManagementType {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JavaCLIManagementType.class);
+
+	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
+
+	private static final String SPACE_SYMBOL = " ";
+	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
+	// private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
+	// "\\s\\-Dexplorviz\\.agent\\.model\\.id=([^\\s]+)";
+	private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX = "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
 
 	@Override
 	public List<Procezz> getProcezzListFromOS() {
@@ -117,6 +130,101 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 	@Override
 	public void setProgrammingLanguage(final Procezz procezz) {
 		procezz.setProgrammingLanguage(getProgrammingLanguage());
+	}
+
+	@Override
+	public void injectKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
+
+		final String userExecCMD = procezz.getUserExecutionCommand();
+
+		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
+
+		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
+
+		// remove potential old flag
+		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+
+		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+
+		try {
+			final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
+
+			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand + procezz.getId()
+					+ SPACE_SYMBOL + execPathFragments[1];
+
+			procezz.setAgentExecutionCommand(newExecCommand);
+		} catch (final MalformedURLException | IndexOutOfBoundsException e) {
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
+		}
+	}
+
+	@Override
+	public void injectProcezzIdentificationProperty(final Procezz procezz) throws ProcezzStartException {
+		final String userExecCMD = procezz.getUserExecutionCommand();
+
+		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
+
+		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
+
+		// remove potential old flag
+		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+
+		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+
+		try {
+			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
+					+ procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+			procezz.setAgentExecutionCommand(newExecCommand);
+		} catch (final IndexOutOfBoundsException e) {
+			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
+		}
+	}
+
+	@Override
+	public void removeKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
+		final String userExecCMD = procezz.getUserExecutionCommand();
+
+		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
+
+		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
+
+		// remove potential old flag
+		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+		procezz.setAgentExecutionCommand(execPathWithoutAgentFlag);
+
+	}
+
+	private String prepareMonitoringJVMArguments(final String entityID) throws MalformedURLException {
+
+		final ServletContext sc = MonitoringFilesystemService.servletContext;
+
+		final String kiekerJarPath = sc.getResource("/WEB-INF/kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
+		final String javaagentPart = "-javaagent:" + kiekerJarPath;
+
+		final String configPath = sc.getResource("/WEB-INF" + MonitoringFilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/"
+				+ entityID + "/kieker.monitoring.properties").getPath();
+		final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
+
+		final String aopPath = sc
+				.getResource(
+						"/WEB-INF" + MonitoringFilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/" + entityID + "/aop.xml")
+				.getPath();
+		final String aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
+
+		return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart + SPACE_SYMBOL
+				+ SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
+	}
+
+	@Override
+	public boolean compareProcezzesByIdentificationProperty(final Procezz p1, final Procezz p2)
+			throws ProcezzManagementTypeIncompatibleException {
+		if (!p1.getProcezzManagementType().equals(p2.getProcezzManagementType())) {
+			throw new ProcezzManagementTypeIncompatibleException(ResponseUtil.ERROR_PROCEZZ_TYPE_INCOMPATIBLE_COMP,
+					new Exception());
+		}
+
+		return p2.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + p1.getId());
+
 	}
 
 }

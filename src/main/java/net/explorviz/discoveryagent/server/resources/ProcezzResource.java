@@ -4,6 +4,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
@@ -22,7 +23,7 @@ public class ProcezzResource {
 	@Consumes(MEDIA_TYPE)
 	public Procezz updateProcezz(final Procezz procezz)
 			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
-			ProcezzStopException, ProcezzStartException {
+			ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
 		return InternalRepository.handleProcezzPatchRequest(procezz);
 	}
 

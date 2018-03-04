@@ -23,8 +23,8 @@ public final class RegistrationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
-	private static final long REGISTRATION_TIMER_RATE = 60000;
-	private static final long UPDATE_TIMER_RATE = 30000;
+	private static final long REGISTRATION_TIMER_RATE = PropertyService.getIntegerProperty("registrationTimerRate");
+	private static final long UPDATE_TIMER_RATE = PropertyService.getIntegerProperty("updateTimerRate");
 
 	private static AtomicBoolean registrationDone = new AtomicBoolean(false);
 
@@ -66,7 +66,9 @@ public final class RegistrationService {
 
 		final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
 
-		explorVizUrl = PropertyService.getExplorVizBackendRootURL() + "/extension/discovery/agent";
+		explorVizUrl = PropertyService.getExplorVizBackendServerURL()
+				+ PropertyService.getStringProperty("backendBaseURL")
+				+ PropertyService.getStringProperty("backendAgentPath");
 
 		agent = new Agent(ip, port);
 		agent.setId("placeholder");

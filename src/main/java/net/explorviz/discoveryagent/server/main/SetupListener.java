@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discoveryagent.services.FilesystemService;
+import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.discoveryagent.services.RegistrationService;
 import net.explorviz.discoveryagent.services.TypeService;
 
@@ -31,11 +31,11 @@ public class SetupListener implements ServletContextListener {
 		TypeService.typeMap.put("Agent", Agent.class);
 		TypeService.typeMap.put("Procezz", Procezz.class);
 
-		FilesystemService.servletContext = servletContextEvent.getServletContext();
+		MonitoringFilesystemService.servletContext = servletContextEvent.getServletContext();
 
 		try {
-			FilesystemService.removeIfExistsMonitoringConfigs();
-			FilesystemService.createIfNotExistsMonitoringConfigsFolder();
+			MonitoringFilesystemService.removeIfExistsMonitoringConfigs();
+			MonitoringFilesystemService.createIfNotExistsMonitoringConfigsFolder();
 		} catch (final IOException e) {
 			LOGGER.error("Could not remove / create initial monitoring config folder. Error: {}", e);
 		}

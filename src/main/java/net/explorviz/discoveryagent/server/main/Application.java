@@ -5,6 +5,7 @@ import javax.ws.rs.ApplicationPath;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzGenericMapper;
+import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeIncompatibleMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeNotFoundMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzMonitoringSettingsMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzNotFoundMapper;
@@ -25,12 +26,13 @@ public class Application extends ResourceConfig {
 		register(new DependencyInjectionBinder());
 
 		// Exception Mapper
-		register(ProcezzNotFoundMapper.class);
+		register(ProcezzGenericMapper.class);
+		register(ProcezzManagementTypeIncompatibleMapper.class);
+		register(ProcezzManagementTypeNotFoundMapper.class);
 		register(ProcezzMonitoringSettingsMapper.class);
+		register(ProcezzNotFoundMapper.class);
 		register(ProcezzStartMapper.class);
 		register(ProcezzStopMapper.class);
-		register(ProcezzManagementTypeNotFoundMapper.class);
-		register(ProcezzGenericMapper.class);
 
 		// provider
 		packages("net.explorviz.discoveryagent.server.provider");

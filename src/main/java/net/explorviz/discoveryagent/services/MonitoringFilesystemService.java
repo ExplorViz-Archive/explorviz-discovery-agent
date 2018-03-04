@@ -18,7 +18,7 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsExcep
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 
-public final class FilesystemService {
+public final class MonitoringFilesystemService {
 
 	public static ServletContext servletContext;
 
@@ -28,7 +28,7 @@ public final class FilesystemService {
 	private static final String KIEKER_APPLICATION_NAME_PROPERTY = "kieker.monitoring.applicationName=";
 	private static final String KIEKER_HOSTNAME_PROPERTY = "kieker.monitoring.hostname=";
 
-	private FilesystemService() {
+	private MonitoringFilesystemService() {
 		// no need to instantiate
 	}
 

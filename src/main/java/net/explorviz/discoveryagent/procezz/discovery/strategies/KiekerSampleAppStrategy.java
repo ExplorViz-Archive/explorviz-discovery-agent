@@ -3,11 +3,12 @@ package net.explorviz.discoveryagent.procezz.discovery.strategies;
 import java.util.Locale;
 
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 
 public class KiekerSampleAppStrategy implements DiscoveryStrategy {
+
+	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
 	@Override
 	public boolean isDesiredApplication(final Procezz newProcezz) {
@@ -54,7 +55,7 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 		final String osExecCmd = newProcezz.getOsExecutionCommand();
 		final String workingDir = newProcezz.getWorkingDirectory();
 
-		if (osExecCmd.contains(ProcezzUtility.EXPLORVIZ_MODEL_ID_FLAG)) {
+		if (osExecCmd.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
 			// was already restarted by agent, probably correct os exec path
 			newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
 

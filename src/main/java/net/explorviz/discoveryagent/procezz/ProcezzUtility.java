@@ -1,11 +1,8 @@
 package net.explorviz.discoveryagent.procezz;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +12,7 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
@@ -28,92 +26,16 @@ import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
 import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
-import net.explorviz.discoveryagent.services.FilesystemService;
+import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
+import net.explorviz.discoveryagent.services.PropertyService;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 
 public final class ProcezzUtility {
 
-	public static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProcezzUtility.class);
-
-	private static final String SPACE_SYMBOL = " ";
-	private static final String SKIP_DEFAULT_AOP = "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
-	// private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
-	// "\\s\\-Dexplorviz\\.agent\\.model\\.id=([^\\s]+)";
-	private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX = "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
 
 	private ProcezzUtility() {
 		// no need to instantiate
-	}
-
-	private static String prepareMonitoringJVMArguments(final String entityID) throws MalformedURLException {
-
-		final ServletContext sc = FilesystemService.servletContext;
-
-		final String kiekerJarPath = sc.getResource("/WEB-INF/kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath();
-		final String javaagentPart = "-javaagent:" + kiekerJarPath;
-
-		final String configPath = sc.getResource("/WEB-INF" + FilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/"
-				+ entityID + "/kieker.monitoring.properties").getPath();
-		final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + configPath;
-
-		final String aopPath = sc
-				.getResource(
-						"/WEB-INF" + FilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/" + entityID + "/aop.xml")
-				.getPath();
-		final String aopPart = "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
-
-		return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart + SPACE_SYMBOL
-				+ SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
-	}
-
-	private static void injectKiekerAgentInProcess(final Procezz procezz) throws ProcezzStartException {
-
-		final String userExecCMD = procezz.getUserExecutionCommand();
-
-		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
-
-		final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
-
-		// remove potential old flag
-		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-
-		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
-
-		try {
-			final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
-
-			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand + procezz.getId()
-					+ SPACE_SYMBOL + execPathFragments[1];
-
-			procezz.setAgentExecutionCommand(newExecCommand);
-		} catch (final MalformedURLException | IndexOutOfBoundsException e) {
-			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
-		}
-
-	}
-
-	private static void injectExplorVizAgentFlag(final Procezz procezz) throws ProcezzStartException {
-		final String userExecCMD = procezz.getUserExecutionCommand();
-
-		final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
-
-		final String execPath = useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
-
-		// remove potential old flag
-		final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-
-		final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
-
-		try {
-			final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-					+ procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
-			procezz.setAgentExecutionCommand(newExecCommand);
-		} catch (final IndexOutOfBoundsException e) {
-			throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
-		}
-
 	}
 
 	public static void handleStop(final Procezz procezz)
@@ -126,8 +48,9 @@ public final class ProcezzUtility {
 		managementType.killProcezz(procezz);
 	}
 
-	public static Procezz handleRestart(final Procezz procezz) throws ProcezzManagementTypeNotFoundException,
-			ProcezzStopException, ProcezzStartException, ProcezzNotFoundException {
+	public static Procezz handleRestart(final Procezz procezz)
+			throws ProcezzManagementTypeNotFoundException, ProcezzStopException, ProcezzStartException,
+			ProcezzNotFoundException, ProcezzManagementTypeIncompatibleException {
 
 		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
 				.getProcezzManagement(procezz.getProcezzManagementType());
@@ -142,11 +65,12 @@ public final class ProcezzUtility {
 			// stopped flag not set -> restart process
 			if (procezz.isMonitoredFlag()) {
 				// restart with monitoring
-				injectKiekerAgentInProcess(procezz);
+				managementType.injectKiekerAgentInProcezz(procezz);
 
 			} else {
-				// restart
-				injectExplorVizAgentFlag(procezz);
+				// restart without monitoring
+				managementType.removeKiekerAgentInProcezz(procezz);
+				managementType.injectProcezzIdentificationProperty(procezz);
 			}
 
 			managementType.startProcezz(procezz);
@@ -167,14 +91,23 @@ public final class ProcezzUtility {
 
 	}
 
-	public static Procezz findFlaggedProcezzInList(final String entityID, final List<Procezz> procezzList)
-			throws ProcezzNotFoundException {
+	public static Procezz findProcezzInList(final Procezz procezz, final List<Procezz> procezzList)
+			throws ProcezzNotFoundException, ProcezzManagementTypeNotFoundException,
+			ProcezzManagementTypeIncompatibleException {
+
+		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
+				.getProcezzManagement(procezz.getProcezzManagementType());
 
 		for (final Procezz p : procezzList) {
-			final boolean containsFlag = p.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + entityID);
 
-			if (containsFlag) {
-				return p;
+			if (procezz.getProcezzManagementType().equals(p.getProcezzManagementType())) {
+
+				final boolean isEqual = managementType.compareProcezzesByIdentificationProperty(procezz, p);
+
+				if (isEqual) {
+					return p;
+				}
+
 			}
 		}
 
@@ -200,7 +133,7 @@ public final class ProcezzUtility {
 				newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
 				try {
-					FilesystemService.createConfigFolderForProcezz(newProcezz);
+					MonitoringFilesystemService.createConfigFolderForProcezz(newProcezz);
 				} catch (final IOException e) {
 					LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
 							e.getMessage());
@@ -226,8 +159,11 @@ public final class ProcezzUtility {
 		clientService.registerProviderReader(new JSONAPIListProvider(converter));
 		clientService.registerProviderWriter(new JSONAPIListProvider(converter));
 
-		final List<Procezz> procezzListWithIds = clientService.postProcezzList(newProcezzList,
-				"http://localhost:8081/extension/discovery/procezzes");
+		final String explorVizProcessUrl = PropertyService.getExplorVizBackendServerURL()
+				+ PropertyService.getStringProperty("backendBaseURL")
+				+ PropertyService.getStringProperty("backendProcezzPath");
+
+		final List<Procezz> procezzListWithIds = clientService.postProcezzList(newProcezzList, explorVizProcessUrl);
 
 		// Update again
 		// Sometimes JSON API converter gets confused
@@ -252,8 +188,16 @@ public final class ProcezzUtility {
 		}
 	}
 
-	public static void copyUserAccessibleProcezzAttributeValues(final Procezz sourceProcezz, final Procezz targetProcezz)
-			throws ProcezzMonitoringSettingsException {
+	public static void copyAgentAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
+			final Procezz targetProcezz) {
+
+		targetProcezz.setPid(sourceProcezz.getPid());
+		targetProcezz.setAgentExecutionCommand(sourceProcezz.getOsExecutionCommand());
+		targetProcezz.setLastDiscoveryTime(System.currentTimeMillis());
+	}
+
+	public static void copyUserAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
+			final Procezz targetProcezz) throws ProcezzMonitoringSettingsException {
 		LOGGER.info("updating procezz with id: {}", targetProcezz.getId());
 
 		targetProcezz.setName(sourceProcezz.getName());
@@ -265,10 +209,10 @@ public final class ProcezzUtility {
 
 		if (!targetProcezz.getAopContent().equals(sourceProcezz.getAopContent())) {
 			targetProcezz.setAopContent(sourceProcezz.getAopContent());
-			FilesystemService.updateAOPFileContentForProcezz(targetProcezz);
+			MonitoringFilesystemService.updateAOPFileContentForProcezz(targetProcezz);
 		}
 
-		FilesystemService.updateKiekerConfigForProcezz(targetProcezz);
+		MonitoringFilesystemService.updateKiekerConfigForProcezz(targetProcezz);
 
 		targetProcezz.setMonitoredFlag(sourceProcezz.isMonitoredFlag());
 		targetProcezz.setUserExecutionCommand(sourceProcezz.getUserExecutionCommand());

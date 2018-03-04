@@ -24,11 +24,15 @@ public final class PropertyService {
 		}
 	}
 
+	public static int getIntegerProperty(final String propName) {
+		return Integer.valueOf(getStringProperty(propName));
+	}
+
 	public static String getStringProperty(final String propName) {
 		return (String) PROP.get(propName);
 	}
 
-	public static String getExplorVizBackendRootURL() {
+	public static String getExplorVizBackendServerURL() {
 		final String backendIP = getStringProperty("backendIP");
 		final String backendPort = getStringProperty("backendPort");
 

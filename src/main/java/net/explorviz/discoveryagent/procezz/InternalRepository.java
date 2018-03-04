@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
+import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
@@ -45,23 +46,36 @@ public final class InternalRepository {
 		}
 	}
 
-	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) throws ProcezzNotFoundException {
-
-		final String entityID = oldProcezz.getId();
+	public static Procezz updateRestartedProcezz(final Procezz oldProcezz) throws ProcezzNotFoundException,
+			ProcezzManagementTypeNotFoundException, ProcezzManagementTypeIncompatibleException {
 
 		Procezz possibleRestartedProcezz;
 		try {
-			possibleRestartedProcezz = ProcezzUtility.findFlaggedProcezzInList(entityID, getNewProcezzesFromOS());
-		} catch (final ProcezzNotFoundException e) {
-			throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_START_NOT_FOUND, e, oldProcezz);
+			possibleRestartedProcezz = ProcezzUtility.findProcezzInList(oldProcezz, getNewProcezzesFromOS());
 		}
 
-		final Procezz internalProcezz = findProcezzByID(entityID);
+		catch (final ProcezzNotFoundException e) {
+			throw new ProcezzNotFoundException(
+					ResponseUtil.PROCEZZ_STARTED + ResponseUtil.ERROR_PROCEZZ_START_NOT_FOUND, e, oldProcezz);
+		}
 
-		// update pid and osExecCMD
-		internalProcezz.setPid(possibleRestartedProcezz.getPid());
-		internalProcezz.setAgentExecutionCommand(possibleRestartedProcezz.getOsExecutionCommand());
-		internalProcezz.setLastDiscoveryTime(System.currentTimeMillis());
+		catch (final ProcezzManagementTypeNotFoundException e) {
+			throw new ProcezzManagementTypeNotFoundException(
+					ResponseUtil.PROCEZZ_STARTED + ResponseUtil.ERROR_PROCEZZ_TYPE_NOT_FOUND_DETAIL
+							+ ResponseUtil.UNEXCPECTED_ERROR_USER_NOTIFICATION,
+					e, oldProcezz);
+		}
+
+		catch (final ProcezzManagementTypeIncompatibleException e) {
+			throw new ProcezzManagementTypeIncompatibleException(
+					ResponseUtil.PROCEZZ_STARTED + ResponseUtil.ERROR_PROCEZZ_TYPE_INCOMPATIBLE_COMP
+							+ ResponseUtil.UNEXCPECTED_ERROR_USER_NOTIFICATION,
+					e, oldProcezz);
+		}
+
+		final Procezz internalProcezz = findProcezzByID(oldProcezz.getId());
+
+		ProcezzUtility.copyAgentAccessibleProcezzAttributeValues(possibleRestartedProcezz, internalProcezz);
 
 		// reset possible error state (user restarted crashed procezz)
 		internalProcezz.setErrorOccured(false);
@@ -119,31 +133,16 @@ public final class InternalRepository {
 		return new ArrayList<Procezz>(new HashSet<Procezz>(newProcezzListFromOS));
 	}
 
-	private static boolean updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
+	private static void updateStoppedProcezzes(final List<Procezz> stoppedProcezzes,
 			final List<Procezz> newProcezzListFromOS) {
-
-		boolean unexpectedStoppedProcezzFound = false;
 
 		for (final Procezz procezz : stoppedProcezzes) {
 
 			// Every execCMD of a restarted procezz has a unique explorviz flag
-			final Procezz possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(),
-					newProcezzListFromOS);
+			Procezz possibleProcezz;
+			try {
+				possibleProcezz = findProcezzInListByExecCMD(procezz.getUserExecutionCommand(), newProcezzListFromOS);
 
-			if (possibleProcezz == null) {
-				// Procezz loss
-
-				if (!procezz.isStopped()) {
-					// Unexpected Procezz loss
-					// that was not already discovered
-					procezz.setStopped(true);
-					procezz.setErrorOccured(true);
-					procezz.setErrorMessage(
-							"Procezz could not be found in latest procezzList. Maybe an error occured.");
-					unexpectedStoppedProcezzFound = true;
-				}
-
-			} else {
 				// Procezz has been restarted correctly
 
 				procezz.setStopped(false);
@@ -156,9 +155,20 @@ public final class InternalRepository {
 
 				newProcezzListFromOS.remove(possibleProcezz);
 			}
-		}
 
-		return unexpectedStoppedProcezzFound;
+			catch (final ProcezzNotFoundException e) {
+				// Procezz loss
+
+				if (!procezz.isStopped()) {
+					// Unexpected Procezz loss
+					// that was not already discovered
+					procezz.setStopped(true);
+					procezz.setErrorOccured(true);
+					procezz.setErrorMessage(
+							"Procezz could not be found in latest procezzList. Maybe an error occured.");
+				}
+			}
+		}
 	}
 
 	private static List<Procezz> getStoppedProcezzesOfInternalList(final List<Procezz> newProcezzList) {
@@ -189,7 +199,7 @@ public final class InternalRepository {
 	}
 
 	private static Procezz findProcezzInListByExecCMD(final String userExecutionCommand,
-			final List<Procezz> procezzList) {
+			final List<Procezz> procezzList) throws ProcezzNotFoundException {
 		for (final Procezz possibleProcezz : procezzList) {
 
 			final String osExecCMD = possibleProcezz.getOsExecutionCommand();
@@ -197,10 +207,9 @@ public final class InternalRepository {
 			if (userExecutionCommand != null && userExecutionCommand.equals(osExecCMD)) {
 				return possibleProcezz;
 			}
-
 		}
 
-		return null;
+		throw new ProcezzNotFoundException(ResponseUtil.PROCEZZ_NOT_FOUND_IN_LIST, new Exception());
 	}
 
 	private static Procezz findProcezzInListByPID(final long PID, final List<Procezz> procezzList) {
@@ -237,7 +246,7 @@ public final class InternalRepository {
 
 	public static Procezz handleProcezzPatchRequest(final Procezz procezz)
 			throws ProcezzNotFoundException, ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
-			ProcezzStopException, ProcezzStartException {
+			ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
 
 		synchronized (internalProcezzList) {
 

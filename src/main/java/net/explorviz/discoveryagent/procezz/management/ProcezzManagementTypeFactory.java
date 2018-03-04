@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discoveryagent.procezz.management.types.JavaCLIManagementType;
 
@@ -39,8 +40,8 @@ public final class ProcezzManagementTypeFactory {
 		}
 
 		if (possibleKey == null) {
-			throw new ProcezzManagementTypeNotFoundException("ProcezzManagementType not found",
-					new Exception("No ProcezzManagementType found for the passed key: " + identifier));
+			throw new ProcezzManagementTypeNotFoundException(ResponseUtil.ERROR_PROCEZZ_TYPE_NOT_FOUND_DETAIL,
+					new Exception());
 		} else {
 			return managementTypes.get(possibleKey);
 		}
