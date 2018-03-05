@@ -16,6 +16,7 @@ import javax.servlet.ServletContext;
 
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discovery.services.PropertyService;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public final class MonitoringFilesystemService {
@@ -25,8 +26,11 @@ public final class MonitoringFilesystemService {
 	public static final String MONITORING_CONFIGS_FOLDER_NAME = "/monitoring-configurations";
 	public static Path configsPath;
 
+	private static final String MONITORING_DEFAULT_CONFIGS_PATH = "/WEB-INF/kieker";
+
 	private static final String KIEKER_APPLICATION_NAME_PROPERTY = "kieker.monitoring.applicationName=";
 	private static final String KIEKER_HOSTNAME_PROPERTY = "kieker.monitoring.hostname=";
+	private static final String KIEKER_TCP_HOSTNAME_PROPERTY = "kieker.monitoring.writer.tcp.SingleSocketTcpWriter.hostname=";
 
 	private MonitoringFilesystemService() {
 		// no need to instantiate
@@ -44,6 +48,25 @@ public final class MonitoringFilesystemService {
 		}
 
 		configsPath = Paths.get(configsFolderPath);
+	}
+
+	public static void updateDefaultKiekerProperties() throws IOException {
+		final String webINFFolder = servletContext.getResource(MONITORING_DEFAULT_CONFIGS_PATH).getPath();
+		final String kiekerDefaultProperties = webINFFolder + "/kieker.monitoring.properties";
+
+		final Path kiekerConfigPath = Paths.get(kiekerDefaultProperties);
+
+		final String backendURL = PropertyService.getStringProperty("backendIP");
+
+		final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
+			if (line.startsWith(KIEKER_TCP_HOSTNAME_PROPERTY)) {
+				return KIEKER_TCP_HOSTNAME_PROPERTY + backendURL;
+			} else {
+				return line;
+			}
+		}).collect(Collectors.toList());
+
+		Files.write(kiekerConfigPath, kiekerConfigNewContent);
 	}
 
 	public static void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
@@ -101,11 +124,13 @@ public final class MonitoringFilesystemService {
 		}
 	}
 
-	public static void updateKiekerConfigForProcezz(final Procezz procezzInCache) throws ProcezzMonitoringSettingsException {
+	public static void updateKiekerConfigForProcezz(final Procezz procezzInCache)
+			throws ProcezzMonitoringSettingsException {
 		final String folderOfPassedIDString = configsPath + "/" + procezzInCache.getId();
 		final Path kiekerConfigPath = Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
 
-		final String appName = procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid()) : procezzInCache.getName();
+		final String appName = procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid())
+				: procezzInCache.getName();
 		final String hostName = InternalRepository.agentObject.getIPPortOrName();
 		try {
 
@@ -123,8 +148,8 @@ public final class MonitoringFilesystemService {
 
 		} catch (final IOException e) {
 			throw new ProcezzMonitoringSettingsException(
-					"There was an error while updating the kieker.config for the passed procezz (ID: " + procezzInCache.getId()
-							+ ")",
+					"There was an error while updating the kieker.config for the passed procezz (ID: "
+							+ procezzInCache.getId() + ")",
 					e, procezzInCache);
 		}
 

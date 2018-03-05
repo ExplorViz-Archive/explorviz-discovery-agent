@@ -36,6 +36,7 @@ public class SetupListener implements ServletContextListener {
 		try {
 			MonitoringFilesystemService.removeIfExistsMonitoringConfigs();
 			MonitoringFilesystemService.createIfNotExistsMonitoringConfigsFolder();
+			MonitoringFilesystemService.updateDefaultKiekerProperties();
 		} catch (final IOException e) {
 			LOGGER.error("Could not remove / create initial monitoring config folder. Error: {}", e);
 		}
