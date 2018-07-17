@@ -84,6 +84,8 @@ public final class InternalRepository {
 		internalProcezz.setStopped(false);
 		internalProcezz.setRestart(false);
 
+		internalProcezz.setWasFoundByBackend(false);
+
 		return internalProcezz;
 
 	}
@@ -252,6 +254,8 @@ public final class InternalRepository {
 
 			final Procezz procezzInCache = findProcezzByID(procezz.getId());
 
+			procezzInCache.setWasFoundByBackend(procezz.wasFoundByBackend());
+
 			final boolean oldStoppedState = procezzInCache.isStopped();
 
 			ProcezzUtility.copyUserAccessibleProcezzAttributeValues(procezz, procezzInCache);
@@ -259,6 +263,11 @@ public final class InternalRepository {
 			if (!oldStoppedState && procezzInCache.isStopped()) {
 				ProcezzUtility.handleStop(procezzInCache);
 				// procezzInCache.setPid(0);
+			}
+
+			if (procezz.isErrorOccured()) {
+				procezzInCache.setErrorOccured(true);
+				procezzInCache.setErrorMessage(procezz.getErrorMessage());
 			}
 
 			if (procezzInCache.isRestart()) {
