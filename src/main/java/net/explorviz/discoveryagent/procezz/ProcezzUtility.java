@@ -38,14 +38,16 @@ public final class ProcezzUtility {
 		// no need to instantiate
 	}
 
-	public static void handleStop(final Procezz procezz)
+	public static void handleStop(final Procezz procezzInCache)
 			throws ProcezzManagementTypeNotFoundException, ProcezzStopException {
 		final ProcezzManagementType managementType = ProcezzManagementTypeFactory
-				.getProcezzManagement(procezz.getProcezzManagementType());
+				.getProcezzManagement(procezzInCache.getProcezzManagementType());
 
 		LOGGER.info("Stopping procezz");
 
-		managementType.killProcezz(procezz);
+		procezzInCache.setMonitoredFlag(false);
+		procezzInCache.setWasFoundByBackend(false);
+		managementType.killProcezz(procezzInCache);
 	}
 
 	public static Procezz handleRestart(final Procezz procezz)
