@@ -15,6 +15,8 @@ import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 
+import net.explorviz.discovery.exceptions.agent.AgentNotFoundException;
+import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 
@@ -33,7 +35,7 @@ public class AgentResource {
 	@PATCH
 	@Path("{id}")
 	@Consumes(MEDIA_TYPE)
-	public Response update(final Agent agent) {
+	public Response update(@PathParam("id") final String agentID, final Agent agent) {
 		// TODO return agent by ID
 		final Agent updatedAgent = InternalRepository.updateAgentProperties(agent);
 		return Response.status(200).entity(updatedAgent).build();
@@ -42,7 +44,8 @@ public class AgentResource {
 	@GET
 	@Path("{id}")
 	@Produces(MEDIA_TYPE)
-	public Response getAgentWithprocezzes() throws DocumentSerializationException, UnsupportedEncodingException {
+	public Response getAgentWithprocezzes(@PathParam("id") final String agentID)
+			throws DocumentSerializationException, UnsupportedEncodingException {
 
 		// TODO query parameter "embed"
 
@@ -58,9 +61,14 @@ public class AgentResource {
 	}
 
 	@Path("{id}/procezzes")
-	public ProcezzResource getProcezzResource(@PathParam("id") final long agentID) {
-		// TODO check if agentID is correct
-		return new ProcezzResource(agentID);
+	public ProcezzResource getProcezzResource(@PathParam("id") final String agentID) throws AgentNotFoundException {
+		System.out.println(agentID + " und " + InternalRepository.agentObject.getId());
+		if (InternalRepository.agentObject.getId().equals(agentID)) {
+			return new ProcezzResource();
+		} else {
+			throw new AgentNotFoundException(ResponseUtil.ERROR_AGENT_ID_NOT_FOUND, new Exception());
+		}
+
 	}
 
 }

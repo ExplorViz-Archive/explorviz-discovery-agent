@@ -4,6 +4,7 @@ import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
+import net.explorviz.discovery.exceptions.mapper.agent.AgentNotFoundMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzGenericMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeIncompatibleMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeNotFoundMapper;
@@ -33,6 +34,7 @@ public class Application extends ResourceConfig {
 		register(ProcezzNotFoundMapper.class);
 		register(ProcezzStartMapper.class);
 		register(ProcezzStopMapper.class);
+		register(AgentNotFoundMapper.class);
 
 		// provider
 		packages("net.explorviz.discoveryagent.server.provider");

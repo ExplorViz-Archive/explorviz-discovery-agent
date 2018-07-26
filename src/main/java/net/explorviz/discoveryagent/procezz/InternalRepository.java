@@ -278,6 +278,17 @@ public final class InternalRepository {
 		}
 	}
 
+	public static void restartProcezzByID(final String id)
+			throws ProcezzNotFoundException, ProcezzManagementTypeNotFoundException, ProcezzStopException,
+			ProcezzStartException, ProcezzManagementTypeIncompatibleException {
+		synchronized (internalProcezzList) {
+
+			final Procezz procezzInCache = findProcezzByID(id);
+
+			ProcezzUtility.handleRestart(procezzInCache);
+		}
+	}
+
 	public static Agent updateAgentProperties(final Agent agent) {
 
 		synchronized (internalProcezzList) {
