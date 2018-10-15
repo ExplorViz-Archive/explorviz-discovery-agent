@@ -3,65 +3,75 @@ package net.explorviz.discoveryagent.services;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.servlet.ServletContext;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.PropertyService;
-import net.explorviz.discoveryagent.procezz.InternalRepository;
 
 public final class MonitoringFilesystemService {
 
-  public static ServletContext servletContext;
-
-  public static final String MONITORING_CONFIGS_FOLDER_NAME = "/monitoring-configurations";
-  public static Path configsPath;
-
-  private static final String MONITORING_DEFAULT_CONFIGS_PATH = "/WEB-INF/kieker";
-
-  private static final String KIEKER_APPLICATION_NAME_PROPERTY =
-      "kieker.monitoring.applicationName=";
+  public static final String MONITORING_CONFIGS_FOLDER_NAME = "monitoring-configurations";
+  private static final String MONITORING_DEFAULT_CONF_PATH = "kieker";
+  private static final String KIEKER_APP_NAME_PROPERTY = "kieker.monitoring.applicationName=";
   private static final String KIEKER_HOSTNAME_PROPERTY = "kieker.monitoring.hostname=";
   private static final String KIEKER_TCP_HOSTNAME_PROPERTY =
       "kieker.monitoring.writer.tcp.SingleSocketTcpWriter.hostname=";
+  private static final String KIEKER_FILENAME = "kieker.monitoring.properties";
+  private static final String AOP_FILENAME = "aop.xml";
 
-  private MonitoringFilesystemService() {
-    // no need to instantiate
+  private Path configsPath;
+
+  public void createMonitoringConfigsFolder() throws IOException {
+
+    // Create temporary folder in temp directory of this OS
+
+    final Path tempPathToDir = Files.createTempDirectory("explorviz-discovery-agent");
+
+    final File tempDir = tempPathToDir.toFile();
+
+    final String configsFolderPath = tempDir + File.separator + MONITORING_CONFIGS_FOLDER_NAME;
+
+    configsPath = Files.createDirectory(Paths.get(configsFolderPath));
+
+    copyDefaultKiekerProperties();
+    updateDefaultKiekerProperties();
+
+    tempDir.deleteOnExit();
   }
 
-  public static void createIfNotExistsMonitoringConfigsFolder() throws IOException {
+  private void copyDefaultKiekerProperties() throws IOException {
 
-    final String webINFFolder = servletContext.getResource("/WEB-INF").getPath();
-    final String configsFolderPath = webINFFolder + MONITORING_CONFIGS_FOLDER_NAME;
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-    final File folderToCreate = new File(configsFolderPath);
+    final URL urlToDefaultKiekerProps =
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_FILENAME);
 
-    if (!folderToCreate.exists()) {
-      configsPath = Files.createDirectory(Paths.get(configsFolderPath));
-    }
+    final URL urlToDefaultAopProps =
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + AOP_FILENAME);
 
-    configsPath = Paths.get(configsFolderPath);
+    final Path kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.getFile());
+    final Path kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.getFile());
+
+    Files.copy(kiekerDefaultConfigPath,
+        Paths.get(configsPath.toString() + File.separator + KIEKER_FILENAME));
+    Files.copy(kiekerDefaultAopPath,
+        Paths.get(configsPath.toString() + File.separator + AOP_FILENAME));
+
   }
 
-  public static void updateDefaultKiekerProperties() throws IOException {
-    final String webINFFolder =
-        servletContext.getResource(MONITORING_DEFAULT_CONFIGS_PATH).getPath();
-    final String kiekerDefaultProperties = webINFFolder + "/kieker.monitoring.properties";
+  private void updateDefaultKiekerProperties() throws IOException {
+    final Path kiekerConfigPath =
+        Paths.get(configsPath.toString() + File.separator + KIEKER_FILENAME);
 
-    final Path kiekerConfigPath = Paths.get(kiekerDefaultProperties);
-
-    final String backendURL = PropertyService.getStringProperty("backendIP");
+    final String backendUrl = PropertyService.getStringProperty("backendIP");
 
     final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
       if (line.startsWith(KIEKER_TCP_HOSTNAME_PROPERTY)) {
-        return KIEKER_TCP_HOSTNAME_PROPERTY + backendURL;
+        return KIEKER_TCP_HOSTNAME_PROPERTY + backendUrl;
       } else {
         return line;
       }
@@ -70,41 +80,41 @@ public final class MonitoringFilesystemService {
     Files.write(kiekerConfigPath, kiekerConfigNewContent);
   }
 
-  public static void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
+  public void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
 
-    createIfNotExistsMonitoringConfigsFolder();
+    createMonitoringConfigsFolder();
 
-    final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
+    final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
 
-    final File folderOfPassedID = new File(folderOfPassedIDString);
+    final File folderOfPassedId = new File(folderOfPassedIdString);
 
-    if (!folderOfPassedID.exists()) {
-      Files.createDirectory(Paths.get(folderOfPassedIDString));
+    if (!folderOfPassedId.exists()) {
+      Files.createDirectory(Paths.get(folderOfPassedIdString));
     }
 
-    final String configPathString =
-        servletContext.getResource("/WEB-INF/kieker/kieker.monitoring.properties").getPath();
-    final String aopPathString = servletContext.getResource("/WEB-INF/kieker/aop.xml").getPath();
+    final String configPathString = configsPath + File.separator + KIEKER_FILENAME;
+
+    final String aopPathString = configsPath + File.separator + AOP_FILENAME;
 
     final Path sourceKiekerConfigPath = Paths.get(configPathString);
-    final Path sourceAOPPath = Paths.get(aopPathString);
+    final Path sourceAopPath = Paths.get(aopPathString);
 
     final Path targetKiekerConfigPath =
-        Paths.get(folderOfPassedIDString + "/" + sourceKiekerConfigPath.getFileName());
-    final Path targetAOPPath =
-        Paths.get(folderOfPassedIDString + "/" + sourceAOPPath.getFileName());
+        Paths.get(folderOfPassedIdString + "/" + sourceKiekerConfigPath.getFileName());
+    final Path targetAopPath =
+        Paths.get(folderOfPassedIdString + "/" + sourceAopPath.getFileName());
 
     if (!targetKiekerConfigPath.toFile().exists()) {
       Files.copy(sourceKiekerConfigPath,
-          Paths.get(folderOfPassedIDString + "/" + sourceKiekerConfigPath.getFileName()));
+          Paths.get(folderOfPassedIdString + "/" + sourceKiekerConfigPath.getFileName()));
     }
 
-    if (!targetAOPPath.toFile().exists()) {
-      Files.copy(sourceAOPPath,
-          Paths.get(folderOfPassedIDString + "/" + sourceAOPPath.getFileName()));
+    if (!targetAopPath.toFile().exists()) {
+      Files.copy(sourceAopPath,
+          Paths.get(folderOfPassedIdString + "/" + sourceAopPath.getFileName()));
     }
 
-    final String aopFileContent = new String(Files.readAllBytes(targetAOPPath));
+    final String aopFileContent = new String(Files.readAllBytes(targetAopPath));
 
     final String kiekerConfigFileContent = new String(Files.readAllBytes(targetKiekerConfigPath));
 
@@ -113,10 +123,10 @@ public final class MonitoringFilesystemService {
 
   }
 
-  public static void updateAOPFileContentForProcezz(final Procezz procezz)
+  public void updateAopFileContentForProcezz(final Procezz procezz)
       throws ProcezzMonitoringSettingsException {
-    final String folderOfPassedIDString = configsPath + "/" + procezz.getId();
-    final Path aopPath = Paths.get(folderOfPassedIDString + "/aop.xml");
+    final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
+    final Path aopPath = Paths.get(folderOfPassedIdString + "/aop.xml");
 
     try {
       Files.write(aopPath, procezz.getAopContent().getBytes());
@@ -128,23 +138,22 @@ public final class MonitoringFilesystemService {
     }
   }
 
-  public static void updateKiekerConfigForProcezz(final Procezz procezzInCache)
+  public void updateKiekerConfigForProcezz(final Procezz procezzInCache, final String hostname)
       throws ProcezzMonitoringSettingsException {
-    final String folderOfPassedIDString = configsPath + "/" + procezzInCache.getId();
+    final String folderOfPassedIdString = configsPath + "/" + procezzInCache.getId();
     final Path kiekerConfigPath =
-        Paths.get(folderOfPassedIDString + "/kieker.monitoring.properties");
+        Paths.get(folderOfPassedIdString + "/kieker.monitoring.properties");
 
     final String appName =
         procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid())
             : procezzInCache.getName();
-    final String hostName = InternalRepository.agentObject.getIPPortOrName();
     try {
 
       final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
-        if (line.startsWith(KIEKER_APPLICATION_NAME_PROPERTY)) {
-          return KIEKER_APPLICATION_NAME_PROPERTY + appName;
+        if (line.startsWith(KIEKER_APP_NAME_PROPERTY)) {
+          return KIEKER_APP_NAME_PROPERTY + appName;
         } else if (line.startsWith(KIEKER_HOSTNAME_PROPERTY)) {
-          return KIEKER_HOSTNAME_PROPERTY + hostName;
+          return KIEKER_HOSTNAME_PROPERTY + hostname;
         } else {
           return line;
         }
@@ -158,38 +167,26 @@ public final class MonitoringFilesystemService {
               + procezzInCache.getId() + ")",
           e, procezzInCache);
     }
-
   }
 
-  public static void removeIfExistsMonitoringConfigs() throws IOException {
-
-    final URL monitoringConfigsFolder =
-        servletContext.getResource("/WEB-INF" + MONITORING_CONFIGS_FOLDER_NAME);
-
-    if (monitoringConfigsFolder == null) {
-      return;
-    }
-
-    final String monitoringConfigString = monitoringConfigsFolder.getPath();
-    final Path monitoringConfigDir = Paths.get(monitoringConfigString);
-
-    Files.walkFileTree(monitoringConfigDir, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-          throws IOException {
-        Files.delete(file);
-        return FileVisitResult.CONTINUE;
-      }
-
-      @Override
-      public FileVisitResult postVisitDirectory(final Path dir, final IOException exc)
-          throws IOException {
-        Files.delete(dir);
-        return FileVisitResult.CONTINUE;
-      }
-
-    });
-
-  }
-
+  /*
+   * public void removeIfExistsMonitoringConfigs() throws IOException {
+   *
+   * final Path monitoringConfigDir = Paths.get(MONITORING_CONFIGS_FOLDER_NAME);
+   *
+   * if (!Files.exists(monitoringConfigDir)) { return; }
+   *
+   * Files.walkFileTree(monitoringConfigDir, new SimpleFileVisitor<Path>() {
+   *
+   * @Override public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+   * throws IOException { Files.delete(file); return FileVisitResult.CONTINUE; }
+   *
+   * @Override public FileVisitResult postVisitDirectory(final Path dir, final IOException exc)
+   * throws IOException { Files.delete(dir); return FileVisitResult.CONTINUE; }
+   *
+   * });
+   *
+   *
+   * }
+   */
 }

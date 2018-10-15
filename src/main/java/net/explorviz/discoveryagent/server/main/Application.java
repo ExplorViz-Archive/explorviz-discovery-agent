@@ -18,10 +18,14 @@ public class Application extends ResourceConfig {
 
   public Application() {
 
+    super();
+
     TypeService.typeMap.put("Agent", Agent.class);
     TypeService.typeMap.put("Procezz", Procezz.class);
 
     register(new DependencyInjectionBinder());
+
+    register(SetupApplicationListener.class);
 
     // Exception Mapper
     register(ProcezzGenericMapper.class);

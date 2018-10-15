@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public final class Main {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-  private static final int DEFAULT_PORT = 8083;
+  private static final int DEFAULT_PORT = 8084;
 
   private Main() {
     // Utility Class

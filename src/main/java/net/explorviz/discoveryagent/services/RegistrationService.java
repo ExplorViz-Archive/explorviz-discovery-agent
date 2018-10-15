@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.inject.Inject;
 import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
 import net.explorviz.discovery.model.Agent;
@@ -39,15 +40,21 @@ public final class RegistrationService {
 
   private static Agent agent;
 
-  private RegistrationService() {
-    // don't instantiate
+  private final InternalRepository internalRepository;
+  private final ProcezzUtility procezzUtility;
+
+  @Inject
+  public RegistrationService(final InternalRepository internalRepository,
+      final ProcezzUtility procezzUtility) {
+    this.internalRepository = internalRepository;
+    this.procezzUtility = procezzUtility;
   }
 
-  public static boolean isRegistrationDone() {
+  public boolean isRegistrationDone() {
     return registrationDone.get();
   }
 
-  private static void prepareHTTPRequest() {
+  private void prepareHTTPRequest() {
 
     if (isHttpRequestSetupDone) {
       return;
@@ -60,11 +67,8 @@ public final class RegistrationService {
     clientService.registerProviderReader(new JSONAPIProvider<>(converter));
     clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-    final String ip = PropertyService.getStringProperty("agentIP");
-    final String userDefinedPort = PropertyService.getStringProperty("agentPort");
-    final String embeddedGrettyPort = PropertyService.getStringProperty("httpPort");
-
-    final String port = userDefinedPort.length() > 1 ? userDefinedPort : embeddedGrettyPort;
+    final String ip = PropertyService.getStringProperty("server.ip");
+    final String port = PropertyService.getStringProperty("server.port");
 
     explorVizUrl = PropertyService.getExplorVizBackendServerURL()
         + PropertyService.getStringProperty("backendBaseURL")
@@ -77,7 +81,7 @@ public final class RegistrationService {
 
   }
 
-  public static void callExplorVizBackend() {
+  public void callExplorVizBackend() {
     try {
       agent = clientService.postAgent(agent, explorVizUrl);
     } catch (ProcezzGenericException | GenericNoConnectionException e) {
@@ -99,11 +103,11 @@ public final class RegistrationService {
 
       LOGGER.info("Agent successfully registered");
 
-      InternalRepository.agentObject = agent;
+      internalRepository.agentObject = agent;
 
       // get new Ids for potential already discovered procezzes
       try {
-        ProcezzUtility.getIdsForProcezzes(InternalRepository.getProcezzList());
+        procezzUtility.getIdsForProcezzes(internalRepository.getProcezzList());
         registrationDone.set(true);
         startUpdateService();
       } catch (ProcezzGenericException | GenericNoConnectionException e) {
@@ -117,7 +121,7 @@ public final class RegistrationService {
     }
   }
 
-  public static void register() {
+  public void register() {
 
     if (updateTimer != null) {
       updateTimer.cancel();
@@ -132,15 +136,15 @@ public final class RegistrationService {
     runRegistrationTimer(0);
   }
 
-  private static void runRegistrationTimer(final long scheduleDelay) {
+  private void runRegistrationTimer(final long scheduleDelay) {
     prepareHTTPRequest();
 
     final TimerTask registrationTask = new TimerTask() {
 
       @Override
       public void run() {
-        if (!RegistrationService.isRegistrationDone()) {
-          RegistrationService.callExplorVizBackend();
+        if (!isRegistrationDone()) {
+          callExplorVizBackend();
         }
       }
     };
@@ -148,13 +152,14 @@ public final class RegistrationService {
     registrationTimer.schedule(registrationTask, scheduleDelay);
   }
 
-  private static void startUpdateService() {
+  private void startUpdateService() {
 
     LOGGER.info("Starting UpdateService");
 
     updateTimer = new Timer(true);
 
-    final UpdateProcezzListService updateService = new UpdateProcezzListService();
+    final UpdateProcezzListService updateService =
+        new UpdateProcezzListService(this, internalRepository);
 
     // refresh internal ProcessList every minute
     updateTimer.scheduleAtFixedRate(updateService, 0, UPDATE_TIMER_RATE);

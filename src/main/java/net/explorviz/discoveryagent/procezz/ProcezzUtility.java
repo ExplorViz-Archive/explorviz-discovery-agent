@@ -4,6 +4,7 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
 import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
@@ -13,6 +14,7 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsExcep
 import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
+import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discovery.services.ClientService;
 import net.explorviz.discovery.services.PropertyService;
@@ -31,11 +33,14 @@ public final class ProcezzUtility {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcezzUtility.class);
 
-  private ProcezzUtility() {
-    // no need to instantiate
+  private final MonitoringFilesystemService filesystemService;
+
+  @Inject
+  public ProcezzUtility(final MonitoringFilesystemService filesystemService) {
+    this.filesystemService = filesystemService;
   }
 
-  public static void handleStop(final Procezz procezzInCache)
+  public void handleStop(final Procezz procezzInCache)
       throws ProcezzManagementTypeNotFoundException, ProcezzStopException {
     final ProcezzManagementType managementType = ProcezzManagementTypeFactory
         .getProcezzManagement(procezzInCache.getProcezzManagementType());
@@ -47,7 +52,7 @@ public final class ProcezzUtility {
     managementType.killProcezz(procezzInCache);
   }
 
-  public static Procezz handleRestart(final Procezz procezz)
+  public Procezz handleRestart(final Procezz procezz)
       throws ProcezzManagementTypeNotFoundException, ProcezzStopException, ProcezzStartException,
       ProcezzNotFoundException, ProcezzManagementTypeIncompatibleException {
 
@@ -86,12 +91,12 @@ public final class ProcezzUtility {
         LOGGER.warn("Could not wait after starting a procezz.");
       }
 
-      return InternalRepository.updateRestartedProcezz(procezz);
+      return procezz;
     }
 
   }
 
-  public static Procezz findProcezzInList(final Procezz procezz, final List<Procezz> procezzList)
+  public Procezz findProcezzInList(final Procezz procezz, final List<Procezz> procezzList)
       throws ProcezzNotFoundException, ProcezzManagementTypeNotFoundException,
       ProcezzManagementTypeIncompatibleException {
 
@@ -114,7 +119,8 @@ public final class ProcezzUtility {
     throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_FLAG_NOT_FOUND, new Exception());
   }
 
-  public static void initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS) {
+  public Procezz initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS,
+      final List<Procezz> internalProcezzList) {
 
     try {
       getIdsForProcezzes(newProcezzListFromOS);
@@ -122,29 +128,30 @@ public final class ProcezzUtility {
       LOGGER.error(
           "Could not obtain unique IDs for procezzes. New procezzes WILL NOT be added to internal procezzlist Error: {}",
           e.getMessage());
-      return;
+      return null;
     }
 
     // Finally, add the new procezzes to the internalProcezzList
-    synchronized (InternalRepository.getProcezzList()) {
+    synchronized (internalProcezzList) {
       for (final Procezz newProcezz : newProcezzListFromOS) {
         applyStrategiesOnProcezz(newProcezz);
 
         newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
         try {
-          MonitoringFilesystemService.createConfigFolderForProcezz(newProcezz);
+          filesystemService.createConfigFolderForProcezz(newProcezz);
         } catch (final IOException e) {
           LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
               e.getMessage());
         }
 
-        InternalRepository.getProcezzList().add(newProcezz);
+        return newProcezz;
       }
     }
+    return null;
   }
 
-  public static void getIdsForProcezzes(final List<Procezz> newProcezzList)
+  public void getIdsForProcezzes(final List<Procezz> newProcezzList)
       throws ProcezzGenericException, GenericNoConnectionException {
 
     // Get scaffolds with unique ID from backend and insert
@@ -171,12 +178,11 @@ public final class ProcezzUtility {
     // and Ember will therefore think there are two agents
     for (int i = 0; i < procezzListWithIds.size(); i++) {
       final Procezz p = newProcezzList.get(i);
-      p.setAgent(InternalRepository.agentObject);
       p.setId(procezzListWithIds.get(i).getId());
     }
   }
 
-  public static void applyStrategiesOnProcezz(final Procezz newProcezz) {
+  public void applyStrategiesOnProcezz(final Procezz newProcezz) {
     final List<DiscoveryStrategy> strategies = DiscoveryStrategyFactory.giveAllStrategies();
 
     for (final DiscoveryStrategy strategy : strategies) {
@@ -189,7 +195,7 @@ public final class ProcezzUtility {
     }
   }
 
-  public static void copyAgentAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
+  public void copyAgentAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
       final Procezz targetProcezz) {
 
     targetProcezz.setPid(sourceProcezz.getPid());
@@ -197,8 +203,9 @@ public final class ProcezzUtility {
     targetProcezz.setLastDiscoveryTime(System.currentTimeMillis());
   }
 
-  public static void copyUserAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
-      final Procezz targetProcezz) throws ProcezzMonitoringSettingsException {
+  public void copyUserAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
+      final Procezz targetProcezz, final Agent internalAgent)
+      throws ProcezzMonitoringSettingsException {
     LOGGER.info("updating procezz with id: {}", targetProcezz.getId());
 
     targetProcezz.setName(sourceProcezz.getName());
@@ -210,10 +217,10 @@ public final class ProcezzUtility {
 
     if (!targetProcezz.getAopContent().equals(sourceProcezz.getAopContent())) {
       targetProcezz.setAopContent(sourceProcezz.getAopContent());
-      MonitoringFilesystemService.updateAOPFileContentForProcezz(targetProcezz);
+      filesystemService.updateAopFileContentForProcezz(targetProcezz);
     }
 
-    MonitoringFilesystemService.updateKiekerConfigForProcezz(targetProcezz);
+    filesystemService.updateKiekerConfigForProcezz(targetProcezz, internalAgent.getIPPortOrName());
 
     targetProcezz.setMonitoredFlag(sourceProcezz.isMonitoredFlag());
     targetProcezz.setUserExecutionCommand(sourceProcezz.getUserExecutionCommand());
