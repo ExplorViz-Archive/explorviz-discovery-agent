@@ -2,33 +2,32 @@ package net.explorviz.discoveryagent.procezz.discovery;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.explorviz.discoveryagent.procezz.discovery.strategies.KiekerSampleAppStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.strategies.TomcatStrategy;
 
 public final class DiscoveryStrategyFactory {
 
-	public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
+  public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
 
-	private static List<DiscoveryStrategy> strategies = new ArrayList<DiscoveryStrategy>();
+  private static List<DiscoveryStrategy> strategies = new ArrayList<DiscoveryStrategy>();
 
-	private DiscoveryStrategyFactory() {
-		// no need to instantiate
-	}
+  private DiscoveryStrategyFactory() {
+    // no need to instantiate
+  }
 
-	public static List<DiscoveryStrategy> giveAllStrategies() {
+  public static List<DiscoveryStrategy> giveAllStrategies() {
 
-		synchronized (strategies) {
+    synchronized (strategies) {
 
-			if (strategies.isEmpty()) {
-				strategies.add(new KiekerSampleAppStrategy());
-				strategies.add(new TomcatStrategy());
-			}
+      if (strategies.isEmpty()) {
+        strategies.add(new KiekerSampleAppStrategy());
+        strategies.add(new TomcatStrategy());
+      }
 
-		}
+    }
 
-		return strategies;
+    return strategies;
 
-	}
+  }
 
 }

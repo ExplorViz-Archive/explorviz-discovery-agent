@@ -1,82 +1,81 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
 import java.util.Locale;
-
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 
 public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
-	private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
+  private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
-	@Override
-	public boolean isDesiredApplication(final Procezz newProcezz) {
-		boolean doesContainSampleAppJar = false;
+  @Override
+  public boolean isDesiredApplication(final Procezz newProcezz) {
+    boolean doesContainSampleAppJar = false;
 
-		if (newProcezz.getOsExecutionCommand() != null) {
-			doesContainSampleAppJar = newProcezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH)
-					.contains("sampleapplication");
-		}
+    if (newProcezz.getOsExecutionCommand() != null) {
+      doesContainSampleAppJar = newProcezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH)
+          .contains("sampleapplication");
+    }
 
-		return doesContainSampleAppJar;
-	}
+    return doesContainSampleAppJar;
+  }
 
-	@Override
-	public boolean applyEntireStrategy(final Procezz newProcezz) {
+  @Override
+  public boolean applyEntireStrategy(final Procezz newProcezz) {
 
-		final boolean isDesiredApplication = isDesiredApplication(newProcezz);
+    final boolean isDesiredApplication = isDesiredApplication(newProcezz);
 
-		if (isDesiredApplication) {
-			detectAndSetName(newProcezz);
-			detectAndSetProposedExecCMD(newProcezz);
-		}
+    if (isDesiredApplication) {
+      detectAndSetName(newProcezz);
+      detectAndSetProposedExecCMD(newProcezz);
+    }
 
-		return isDesiredApplication;
+    return isDesiredApplication;
 
-	}
+  }
 
-	@Override
-	public void detectAndSetName(final Procezz newProcezz) {
+  @Override
+  public void detectAndSetName(final Procezz newProcezz) {
 
-		if (isDesiredApplication(newProcezz)) {
-			newProcezz.setName("KiekerSampleApp");
-		}
+    if (isDesiredApplication(newProcezz)) {
+      newProcezz.setName("KiekerSampleApp");
+    }
 
-	}
+  }
 
-	@Override
-	public void detectAndSetProposedExecCMD(final Procezz newProcezz) {
+  @Override
+  public void detectAndSetProposedExecCMD(final Procezz newProcezz) {
 
-		if (!isDesiredApplication(newProcezz)) {
-			return;
-		}
+    if (!isDesiredApplication(newProcezz)) {
+      return;
+    }
 
-		final String osExecCmd = newProcezz.getOsExecutionCommand();
-		final String workingDir = newProcezz.getWorkingDirectory();
+    final String osExecCmd = newProcezz.getOsExecutionCommand();
+    final String workingDir = newProcezz.getWorkingDirectory();
 
-		if (osExecCmd.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
-			// was already restarted by agent, probably correct os exec path
-			newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
+    if (osExecCmd.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
+      // was already restarted by agent, probably correct os exec path
+      newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
 
-		} else if (osExecCmd != null && workingDir != null) {
+    } else if (osExecCmd != null && workingDir != null) {
 
-			final String delimeter = "-jar ";
+      final String delimeter = "-jar ";
 
-			final String[] splittetAtJarFlag = osExecCmd.split(delimeter, 2);
+      final String[] splittetAtJarFlag = osExecCmd.split(delimeter, 2);
 
-			final String proposedExecCMD = splittetAtJarFlag[0] + delimeter + workingDir.trim() + "/"
-					+ splittetAtJarFlag[1].trim();
+      final String proposedExecCMD =
+          splittetAtJarFlag[0] + delimeter + workingDir.trim() + "/" + splittetAtJarFlag[1].trim();
 
-			newProcezz.setProposedExecutionCommand(proposedExecCMD);
+      newProcezz.setProposedExecutionCommand(proposedExecCMD);
 
-		}
+    }
 
-	}
+  }
 
-	@Override
-	public void detectAndSetProperties(final Procezz newProcezz) {
-		// nothing to do
-	}
+  @Override
+  public void detectAndSetProperties(final Procezz newProcezz) {
+    // nothing to do
+  }
 
 }
