@@ -1,76 +1,31 @@
-apply plugin: 'war'
-apply plugin: 'org.akhikhl.gretty'
-apply plugin: 'java-library'
-
-
-def loadProperties = {
-    def properties = new Properties()
-    file('src/main/webapp/WEB-INF/classes/explorviz.properties').withInputStream {
-        properties.load(it)
-    }
-    return properties
-}
-
+apply from: 'https://raw.githubusercontent.com/ExplorViz/gradle-script-plugins/master/microservice.gradle'
+apply plugin: 'com.github.spotbugs'
+apply plugin: 'checkstyle'
 
 buildscript {
-  	repositories {
-		jcenter()
-  	}
-  	dependencies {
-    		classpath 'org.akhikhl.gretty:gretty:+'
-  	}
-}
+  repositories {
+    jcenter()	
+      maven {
+        url 'https://plugins.gradle.org/m2/'
+      }
+  }
 
+  dependencies {
+    classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.3"
+  }
+}
 
 repositories {
-    jcenter()
-    maven { url 'https://jitpack.io' }
+  jcenter()
+  maven { url 'https://jitpack.io' }
 }
-
 
 //configurations.all {
 //    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 //}
 
-dependencies {
-
-	// Jersey and Servlet
-	compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version:'2.26'	
-	compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.26'
-	compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version:'2.26'	
-	compile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
-	
-	// JSON + Parsing
-	compile group: 'com.github.jasminb', name: 'jsonapi-converter', version:'0.8'
-	compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version:'2.23'
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.7.1'
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.7.1'
-	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.7.1'
-	
-	// Simple Logging Facade for Java 
-	compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
-	
+dependencies {	
 	// Common discovery files (e.g. model classes)
-  	//compile 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
-  	compile project(':explorviz-discovery-common')
-
-    testCompile 'junit:junit:4.12'
-}
-
-
-// Instructions to build .war file
-war {
-    archiveName 'explorviz-discovery-agent.war'
-}
-
-
-// Embedded Webserver
-gretty {
-	httpPort = loadProperties().httpPort.toInteger()
-	servletContainer = loadProperties().servletContainer
-	contextPath = loadProperties().contextPath
-	recompileOnSourceChange = false
-  	reloadOnClassChange = false
-  	reloadOnConfigChange = false
-  	reloadOnLibChange = false
+  compile 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
+  //compile project(':explorviz-discovery-common')
 }

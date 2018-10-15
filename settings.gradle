@@ -1,4 +1,4 @@
 rootProject.name = 'explorviz-discovery-agent'
 
-include ':explorviz-discovery-common'
-project(':explorviz-discovery-common').projectDir = file('../explorviz-discovery-common')
+//include ':explorviz-discovery-common'
+//project(':explorviz-discovery-common').projectDir = file('../explorviz-discovery-common')
