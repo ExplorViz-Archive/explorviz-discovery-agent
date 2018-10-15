@@ -1,21 +1,24 @@
-# Eclipse
-.settings/*
+target/
 
-# We want Findbugs settings
-!.settings/edu.umd.cs.findbugs.core.prefs
-
-# We want Eclipse Save Action settings
-!.settings/org.eclipse.jdt.ui.prefs
-
-# Gradle output and temp files
 build
 .gradle
 
-# Eclipse files (created with 'gradlew eclipse')
 bin
 .classpath
 
-# Mac Finder file
+.project
+
 .DS_Store
 
-test.db
+.gitmodules
+
+.settings/*
+
+*/.settings/*
+!*/.settings/edu.umd.cs.findbugs.core.prefs
+!*/.settings/qa.eclipse.plugin.checkstyle.prefs
+!*/.settings/qa.eclipse.plugin.pmd.prefs
+!*/.settings/org.eclipse.jdt.ui.prefs
+!*/.settings/org.eclipse.jdt.core.prefs
+
+.ruleset

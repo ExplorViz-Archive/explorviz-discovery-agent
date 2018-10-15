@@ -24,8 +24,13 @@ repositories {
 //    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 //}
 
-dependencies {	
-	// Common discovery files (e.g. model classes)
+dependencies {
+  
+  // Common discovery files (e.g. model classes)
   compile 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
   //compile project(':explorviz-discovery-common')
+  
+  // Shared utility classes for ExplorViz, e.g., PropertyHelper
+  compile 'com.github.ExplorViz.explorviz-backend:shared:dev-1-SNAPSHOT'
+  
 }
