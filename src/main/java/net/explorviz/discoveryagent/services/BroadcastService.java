@@ -32,6 +32,7 @@ public class BroadcastService {
   }
 
   public void broadcastMessage(final Agent agent) {
+    LOGGER.info("Sending SSE");;
     final OutboundSseEvent event = this.sse.newEventBuilder().name("message")
         .mediaType(APPLICATION_JSON_API_TYPE).data(agent).build();
 

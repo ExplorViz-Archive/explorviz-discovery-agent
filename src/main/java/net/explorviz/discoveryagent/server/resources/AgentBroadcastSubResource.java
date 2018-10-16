@@ -9,9 +9,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.sse.SseEventSink;
 import net.explorviz.discoveryagent.services.BroadcastService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AgentBroadcastSubResource {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AgentBroadcastSubResource.class);
 
   private final BroadcastService broadcastService;
 
@@ -34,5 +38,7 @@ public class AgentBroadcastSubResource {
     response.addHeader("X-Accel-Buffering", "no");
 
     this.broadcastService.register(eventSink);
+
+    LOGGER.info("Discovery Service registered for SSE");
   }
 }
