@@ -8,11 +8,18 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 
+/**
+ * Implementations of the ProcezzManagementType interface are used to collect data of running
+ * processes. Additionally, these implementations must implement the operations for process
+ * lifecycle management and monitoring framework setup for this process. Implementations of this
+ * interface must be registered at
+ * {@code net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory}.
+ */
 public interface ProcezzManagementType {
 
-  List<Procezz> getProcezzListFromOS();
+  List<Procezz> getProcezzListFromOs();
 
-  List<Procezz> getProcezzListFromOSAndSetAgent(Agent agent);
+  List<Procezz> getProcezzListFromOsAndSetAgent(Agent agent);
 
   void setWorkingDirectory(Procezz procezz);
 
@@ -26,11 +33,11 @@ public interface ProcezzManagementType {
 
   String getProgrammingLanguage();
 
-  void injectKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException;
+  void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException;
 
   void injectProcezzIdentificationProperty(final Procezz procezz) throws ProcezzStartException;
 
-  void removeKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException;
+  void removeMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException;
 
   boolean compareProcezzesByIdentificationProperty(final Procezz p1, final Procezz p2)
       throws ProcezzManagementTypeIncompatibleException;

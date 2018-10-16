@@ -1,6 +1,5 @@
 package net.explorviz.discoveryagent.procezz;
 
-import com.github.jasminb.jsonapi.ResourceConverter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -17,16 +16,11 @@ import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discovery.services.ClientService;
-import net.explorviz.discovery.services.PropertyService;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
-import net.explorviz.discoveryagent.server.provider.JSONAPIListProvider;
-import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
-import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +31,19 @@ public final class ProcezzUtility {
   private final AtomicLong counter = new AtomicLong(0);
 
   private final MonitoringFilesystemService filesystemService;
+  private final ProcezzManagementTypeFactory procezzMngTypeFactory;
 
   @Inject
-  public ProcezzUtility(final MonitoringFilesystemService filesystemService) {
+  public ProcezzUtility(final MonitoringFilesystemService filesystemService,
+      final ProcezzManagementTypeFactory procezzMngTypeFactory) {
     this.filesystemService = filesystemService;
+    this.procezzMngTypeFactory = procezzMngTypeFactory;
   }
 
   public void handleStop(final Procezz procezzInCache)
       throws ProcezzManagementTypeNotFoundException, ProcezzStopException {
-    final ProcezzManagementType managementType = ProcezzManagementTypeFactory
-        .getProcezzManagement(procezzInCache.getProcezzManagementType());
+    final ProcezzManagementType managementType =
+        this.procezzMngTypeFactory.getProcezzManagement(procezzInCache.getProcezzManagementType());
 
     LOGGER.info("Stopping procezz");
 
@@ -60,7 +57,7 @@ public final class ProcezzUtility {
       ProcezzNotFoundException, ProcezzManagementTypeIncompatibleException {
 
     final ProcezzManagementType managementType =
-        ProcezzManagementTypeFactory.getProcezzManagement(procezz.getProcezzManagementType());
+        this.procezzMngTypeFactory.getProcezzManagement(procezz.getProcezzManagementType());
 
     LOGGER.info("Restarting procezz");
 
@@ -73,11 +70,11 @@ public final class ProcezzUtility {
       // stopped flag not set -> restart process
       if (procezz.isMonitoredFlag()) {
         // restart with monitoring
-        managementType.injectKiekerAgentInProcezz(procezz);
+        managementType.injectMonitoringAgentInProcezz(procezz);
 
       } else {
         // restart without monitoring
-        managementType.removeKiekerAgentInProcezz(procezz);
+        managementType.removeMonitoringAgentInProcezz(procezz);
         managementType.injectProcezzIdentificationProperty(procezz);
       }
 
@@ -104,7 +101,7 @@ public final class ProcezzUtility {
       ProcezzManagementTypeIncompatibleException {
 
     final ProcezzManagementType managementType =
-        ProcezzManagementTypeFactory.getProcezzManagement(procezz.getProcezzManagementType());
+        this.procezzMngTypeFactory.getProcezzManagement(procezz.getProcezzManagementType());
 
     for (final Procezz p : procezzList) {
 
@@ -122,7 +119,7 @@ public final class ProcezzUtility {
     throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_FLAG_NOT_FOUND, new Exception());
   }
 
-  public Procezz initializeAndAddNewProcezzes(final String idPrefix,
+  public void initializeAndAddNewProcezzes(final String idPrefix,
       final List<Procezz> newProcezzListFromOS, final List<Procezz> internalProcezzList) {
 
     try {
@@ -131,7 +128,6 @@ public final class ProcezzUtility {
       LOGGER.error(
           "Could not obtain unique IDs for procezzes. New procezzes WILL NOT be added to internal procezzlist Error: {}",
           e.getMessage());
-      return null;
     }
 
     // Finally, add the new procezzes to the internalProcezzList
@@ -148,47 +144,15 @@ public final class ProcezzUtility {
               e.getMessage());
         }
 
-        return newProcezz;
+        internalProcezzList.add(newProcezz);
       }
     }
-    return null;
   }
 
   public void createUniqureIdsForProcezzes(final String prefix, final List<Procezz> newProcezzList)
       throws ProcezzGenericException, GenericNoConnectionException {
     for (final Procezz p : newProcezzList) {
       p.setId(prefix + "-" + counter.incrementAndGet());
-    }
-  }
-
-  public void getIdsForProcezzes(final List<Procezz> newProcezzList)
-      throws ProcezzGenericException, GenericNoConnectionException {
-
-    // Get scaffolds with unique ID from backend and insert
-    // new data from new procezzes into these scaffolds
-
-    final ClientService clientService = new ClientService();
-
-    final ResourceConverter converter = new ResourceConverterFactory().provide();
-
-    clientService.registerProviderReader(new JSONAPIProvider<>(converter));
-    clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
-    clientService.registerProviderReader(new JSONAPIListProvider(converter));
-    clientService.registerProviderWriter(new JSONAPIListProvider(converter));
-
-    final String explorVizProcessUrl = PropertyService.getExplorVizBackendServerURL()
-        + PropertyService.getStringProperty("backendBaseURL")
-        + PropertyService.getStringProperty("backendProcezzPath");
-
-    final List<Procezz> procezzListWithIds =
-        clientService.postProcezzList(newProcezzList, explorVizProcessUrl);
-
-    // Update again
-    // Sometimes JSON API converter gets confused
-    // and Ember will therefore think there are two agents
-    for (int i = 0; i < procezzListWithIds.size(); i++) {
-      final Procezz p = newProcezzList.get(i);
-      p.setId(procezzListWithIds.get(i).getId());
     }
   }
 

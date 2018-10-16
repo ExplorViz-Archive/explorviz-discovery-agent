@@ -4,30 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
 import net.explorviz.discoveryagent.procezz.management.types.JavaCLIManagementType;
+import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 
 public final class ProcezzManagementTypeFactory {
 
   private static ConcurrentMap<String, ProcezzManagementType> managementTypes =
       new ConcurrentHashMap<>();
 
-  private ProcezzManagementTypeFactory() {
-    // no need to instantiate
+  private final MonitoringFilesystemService monitoringFsService;
+
+  @Inject
+  public ProcezzManagementTypeFactory(final MonitoringFilesystemService monitoringFsService) {
+    this.monitoringFsService = monitoringFsService;
   }
 
-  private static void createManagementTypes() {
+  private void createManagementTypes() {
 
     if (managementTypes.isEmpty()) {
 
-      final ProcezzManagementType type = new JavaCLIManagementType();
+      final ProcezzManagementType type = new JavaCLIManagementType(monitoringFsService);
       managementTypes.put(type.getManagementTypeDescriptor(), type);
     }
 
   }
 
-  public static ProcezzManagementType getProcezzManagement(final String identifier)
+  public ProcezzManagementType getProcezzManagement(final String identifier)
       throws ProcezzManagementTypeNotFoundException {
 
     String possibleKey = null;
@@ -48,7 +53,7 @@ public final class ProcezzManagementTypeFactory {
 
   }
 
-  public static List<ProcezzManagementType> getAllProcezzManagementTypes() {
+  public List<ProcezzManagementType> getAllProcezzManagementTypes() {
 
     createManagementTypes();
 

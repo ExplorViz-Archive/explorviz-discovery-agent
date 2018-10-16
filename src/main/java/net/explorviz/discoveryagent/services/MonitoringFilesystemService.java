@@ -14,14 +14,15 @@ import net.explorviz.discovery.services.PropertyService;
 
 public final class MonitoringFilesystemService {
 
-  public static final String MONITORING_CONFIGS_FOLDER_NAME = "monitoring-configurations";
+  private static final String MONITORING_CONFIGS_FOLDER_NAME = "monitoring-configurations";
   private static final String MONITORING_DEFAULT_CONF_PATH = "kieker";
   private static final String KIEKER_APP_NAME_PROPERTY = "kieker.monitoring.applicationName=";
   private static final String KIEKER_HOSTNAME_PROPERTY = "kieker.monitoring.hostname=";
   private static final String KIEKER_TCP_HOSTNAME_PROPERTY =
       "kieker.monitoring.writer.tcp.SingleSocketTcpWriter.hostname=";
-  private static final String KIEKER_FILENAME = "kieker.monitoring.properties";
-  private static final String AOP_FILENAME = "aop.xml";
+  private static final String KIEKER_PROPS_FILENAME = "kieker.monitoring.properties";
+  private static final String AOP_PROPS_FILENAME = "aop.xml";
+  private static final String KIEKER_JAR_FILENAME = "kieker-1.14-SNAPSHOT-aspectj.jar";
 
   private Path configsPath;
 
@@ -47,25 +48,31 @@ public final class MonitoringFilesystemService {
 
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-    final URL urlToDefaultKiekerProps =
-        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_FILENAME);
+    final URL urlToDefaultKiekerProps = classLoader
+        .getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_PROPS_FILENAME);
 
     final URL urlToDefaultAopProps =
-        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + AOP_FILENAME);
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + AOP_PROPS_FILENAME);
+
+    final URL urlToDefaultKiekerJar = classLoader
+        .getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_JAR_FILENAME);
 
     final Path kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.getFile());
     final Path kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.getFile());
+    final Path kiekerDefaultJarPath = Paths.get(urlToDefaultKiekerJar.getFile());
 
     Files.copy(kiekerDefaultConfigPath,
-        Paths.get(configsPath.toString() + File.separator + KIEKER_FILENAME));
+        Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
     Files.copy(kiekerDefaultAopPath,
-        Paths.get(configsPath.toString() + File.separator + AOP_FILENAME));
+        Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
+    Files.copy(kiekerDefaultJarPath,
+        Paths.get(configsPath.toString() + File.separator + KIEKER_JAR_FILENAME));
 
   }
 
   private void updateDefaultKiekerProperties() throws IOException {
     final Path kiekerConfigPath =
-        Paths.get(configsPath.toString() + File.separator + KIEKER_FILENAME);
+        Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME);
 
     final String backendUrl = PropertyService.getStringProperty("backendIP");
 
@@ -92,9 +99,9 @@ public final class MonitoringFilesystemService {
       Files.createDirectory(Paths.get(folderOfPassedIdString));
     }
 
-    final String configPathString = configsPath + File.separator + KIEKER_FILENAME;
+    final String configPathString = configsPath + File.separator + KIEKER_PROPS_FILENAME;
 
-    final String aopPathString = configsPath + File.separator + AOP_FILENAME;
+    final String aopPathString = configsPath + File.separator + AOP_PROPS_FILENAME;
 
     final Path sourceKiekerConfigPath = Paths.get(configPathString);
     final Path sourceAopPath = Paths.get(aopPathString);
@@ -167,6 +174,28 @@ public final class MonitoringFilesystemService {
               + procezzInCache.getId() + ")",
           e, procezzInCache);
     }
+  }
+
+  public String getKiekerJarPath() {
+    return configsPath.toAbsolutePath().toString() + File.separator + KIEKER_JAR_FILENAME;
+  }
+
+  public String getKiekerConfigPath() {
+    return configsPath.toAbsolutePath().toString() + File.separator + KIEKER_PROPS_FILENAME;
+  }
+
+  public String getKiekerConfigPathForProcezzID(final String entityID) {
+    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
+        + KIEKER_PROPS_FILENAME;
+  }
+
+  public String getAopConfigPath() {
+    return configsPath.toAbsolutePath().toString() + File.separator + AOP_PROPS_FILENAME;
+  }
+
+  public String getAopConfigPathForProcezzID(final String entityID) {
+    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
+        + AOP_PROPS_FILENAME;
   }
 
   /*

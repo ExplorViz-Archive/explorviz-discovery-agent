@@ -1,6 +1,7 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,6 +14,7 @@ import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
+import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +31,19 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
 
+  private final MonitoringFilesystemService monitoringFsService;
+
+  public JavaCLIManagementType(final MonitoringFilesystemService monitoringFsService) {
+    this.monitoringFsService = monitoringFsService;
+  }
+
   @Override
-  public List<Procezz> getProcezzListFromOS() {
+  public List<Procezz> getProcezzListFromOs() {
     return getOSProcezzList(null);
   }
 
   @Override
-  public List<Procezz> getProcezzListFromOSAndSetAgent(final Agent agent) {
+  public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
     return getOSProcezzList(agent);
   }
 
@@ -130,7 +138,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   }
 
   @Override
-  public void injectKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
+  public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
 
     final String userExecCMD = procezz.getUserExecutionCommand();
 
@@ -144,14 +152,13 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
     try {
-      // final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
-      final String completeKiekerCommand = " ";
+      final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
           + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
 
       procezz.setAgentExecutionCommand(newExecCommand);
-    } catch (final IndexOutOfBoundsException e) {
+    } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
   }
@@ -181,7 +188,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   }
 
   @Override
-  public void removeKiekerAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
+  public void removeMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
@@ -195,29 +202,23 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
   }
 
-  /*
-   * private String prepareMonitoringJVMArguments(final String entityID) throws
-   * MalformedURLException {
-   *
-   * // TODO inject kieker properties
-   *
-   * final String kiekerJarPath =
-   * sc.getResource("/WEB-INF/kieker/kieker-1.14-SNAPSHOT-aspectj.jar").getPath(); final String
-   * javaagentPart = "-javaagent:" + kiekerJarPath;
-   *
-   * final String configPath = sc.getResource("/WEB-INF" +
-   * MonitoringFilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/" + entityID +
-   * "/kieker.monitoring.properties").getPath(); final String kiekerConfigPart =
-   * "-Dkieker.monitoring.configuration=" + configPath;
-   *
-   * final String aopPath = sc.getResource("/WEB-INF" +
-   * MonitoringFilesystemService.MONITORING_CONFIGS_FOLDER_NAME + "/" + entityID +
-   * "/aop.xml").getPath(); final String aopPart =
-   * "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopPath;
-   *
-   * return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopPart + SPACE_SYMBOL
-   * + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG; }
-   */
+
+  private String prepareMonitoringJVMArguments(final String entityID) throws MalformedURLException {
+
+    final String kiekerJarPath = monitoringFsService.getKiekerJarPath();
+    final String javaagentPart = "-javaagent:" + kiekerJarPath;
+
+    final String kiekerConfigPath = monitoringFsService.getKiekerConfigPathForProcezzID(entityID);
+    final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
+
+    final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
+    final String aopConfigPart =
+        "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopConfigPath;
+
+    return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopConfigPart
+        + SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
+  }
+
 
   @Override
   public boolean compareProcezzesByIdentificationProperty(final Procezz p1, final Procezz p2)

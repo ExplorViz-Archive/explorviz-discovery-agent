@@ -29,10 +29,14 @@ public final class InternalRepository {
   private final List<Procezz> internalProcezzList = new ArrayList<Procezz>();
 
   private final ProcezzUtility procezzUtility;
+  private final ProcezzManagementTypeFactory procezzMngTypeFactory;
+
 
   @Inject
-  public InternalRepository(final ProcezzUtility procezzUtility) {
+  public InternalRepository(final ProcezzUtility procezzUtility,
+      final ProcezzManagementTypeFactory procezzMngTypeFactory) {
     this.procezzUtility = procezzUtility;
+    this.procezzMngTypeFactory = procezzMngTypeFactory;
   }
 
   public List<Procezz> getProcezzList() {
@@ -101,9 +105,9 @@ public final class InternalRepository {
     final List<Procezz> newOSProcezzList = new ArrayList<Procezz>();
 
     // Take every managementType and let them fetch the procezzLists
-    for (final ProcezzManagementType managementType : ProcezzManagementTypeFactory
+    for (final ProcezzManagementType managementType : this.procezzMngTypeFactory
         .getAllProcezzManagementTypes()) {
-      newOSProcezzList.addAll(managementType.getProcezzListFromOSAndSetAgent(agentObject));
+      newOSProcezzList.addAll(managementType.getProcezzListFromOsAndSetAgent(agentObject));
     }
 
     return newOSProcezzList;
@@ -113,7 +117,7 @@ public final class InternalRepository {
 
     // newProcezzListFromOS may contain duplicates, since multiple managementTypes
     // may find the same OS process
-    final List<Procezz> newProcezzListWithoutDuplicates =
+    final List<Procezz> newProcezzListNoDuplicates =
         removeDuplicatesInProcezzList(newProcezzListFromOS);
 
     synchronized (internalProcezzList) {
@@ -122,15 +126,15 @@ public final class InternalRepository {
 
       // Check if already obtained PIDs are still in the new obtained procezzList
       final List<Procezz> stoppedProcezzes =
-          getStoppedProcezzesOfInternalList(newProcezzListWithoutDuplicates);
+          getStoppedProcezzesOfInternalList(newProcezzListNoDuplicates);
 
       // Check if a running procezz was restarted by agent
       // and update old procezz entity
-      updateStoppedProcezzes(stoppedProcezzes, newProcezzListWithoutDuplicates);
+      updateStoppedProcezzes(stoppedProcezzes, newProcezzListNoDuplicates);
 
       // finally, add new-found (= remaining) procezzes to the internal storage
-      internalProcezzList.add(procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(),
-          newProcezzListWithoutDuplicates, internalProcezzList));
+      procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(),
+          newProcezzListNoDuplicates, internalProcezzList);
 
     }
 
