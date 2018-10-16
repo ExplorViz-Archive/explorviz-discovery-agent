@@ -129,8 +129,8 @@ public final class InternalRepository {
       updateStoppedProcezzes(stoppedProcezzes, newProcezzListWithoutDuplicates);
 
       // finally, add new-found (= remaining) procezzes to the internal storage
-      internalProcezzList.add(procezzUtility
-          .initializeAndAddNewProcezzes(newProcezzListWithoutDuplicates, internalProcezzList));
+      internalProcezzList.add(procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(),
+          newProcezzListWithoutDuplicates, internalProcezzList));
 
     }
 

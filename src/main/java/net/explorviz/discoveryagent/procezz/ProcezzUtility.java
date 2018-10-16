@@ -4,6 +4,7 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 public final class ProcezzUtility {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcezzUtility.class);
+
+  private final AtomicLong counter = new AtomicLong(0);
 
   private final MonitoringFilesystemService filesystemService;
 
@@ -119,11 +122,11 @@ public final class ProcezzUtility {
     throw new ProcezzNotFoundException(ResponseUtil.ERROR_PROCEZZ_FLAG_NOT_FOUND, new Exception());
   }
 
-  public Procezz initializeAndAddNewProcezzes(final List<Procezz> newProcezzListFromOS,
-      final List<Procezz> internalProcezzList) {
+  public Procezz initializeAndAddNewProcezzes(final String idPrefix,
+      final List<Procezz> newProcezzListFromOS, final List<Procezz> internalProcezzList) {
 
     try {
-      getIdsForProcezzes(newProcezzListFromOS);
+      createUniqureIdsForProcezzes(idPrefix, newProcezzListFromOS);
     } catch (ProcezzGenericException | GenericNoConnectionException e) {
       LOGGER.error(
           "Could not obtain unique IDs for procezzes. New procezzes WILL NOT be added to internal procezzlist Error: {}",
@@ -149,6 +152,13 @@ public final class ProcezzUtility {
       }
     }
     return null;
+  }
+
+  public void createUniqureIdsForProcezzes(final String prefix, final List<Procezz> newProcezzList)
+      throws ProcezzGenericException, GenericNoConnectionException {
+    for (final Procezz p : newProcezzList) {
+      p.setId(prefix + "-" + counter.incrementAndGet());
+    }
   }
 
   public void getIdsForProcezzes(final List<Procezz> newProcezzList)

@@ -107,7 +107,8 @@ public final class RegistrationService {
 
       // get new Ids for potential already discovered procezzes
       try {
-        procezzUtility.getIdsForProcezzes(internalRepository.getProcezzList());
+        procezzUtility.createUniqureIdsForProcezzes(internalRepository.agentObject.getId(),
+            internalRepository.getProcezzList());
         registrationDone.set(true);
         startUpdateService();
       } catch (ProcezzGenericException | GenericNoConnectionException e) {
