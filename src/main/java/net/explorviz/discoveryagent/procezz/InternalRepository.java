@@ -19,6 +19,7 @@ import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
+import net.explorviz.discoveryagent.services.BroadcastService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +31,16 @@ public final class InternalRepository {
 
   private final ProcezzUtility procezzUtility;
   private final ProcezzManagementTypeFactory procezzMngTypeFactory;
+  private final BroadcastService broadcastService;
 
 
   @Inject
   public InternalRepository(final ProcezzUtility procezzUtility,
-      final ProcezzManagementTypeFactory procezzMngTypeFactory) {
+      final ProcezzManagementTypeFactory procezzMngTypeFactory,
+      final BroadcastService broadcastService) {
     this.procezzUtility = procezzUtility;
     this.procezzMngTypeFactory = procezzMngTypeFactory;
+    this.broadcastService = broadcastService;
   }
 
   public List<Procezz> getProcezzList() {
@@ -133,8 +137,14 @@ public final class InternalRepository {
       updateStoppedProcezzes(stoppedProcezzes, newProcezzListNoDuplicates);
 
       // finally, add new-found (= remaining) procezzes to the internal storage
-      procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(),
-          newProcezzListNoDuplicates, internalProcezzList);
+      procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(), newProcezzListNoDuplicates,
+          internalProcezzList);
+
+      agentObject.setProcezzes(internalProcezzList);
+
+      if (stoppedProcezzes.size() > 0 || newProcezzListNoDuplicates.size() > 0) {
+        broadcastService.broadcastMessage(agentObject);
+      }
 
     }
 

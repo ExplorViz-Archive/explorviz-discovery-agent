@@ -5,6 +5,8 @@ import javax.inject.Singleton;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
+import net.explorviz.discoveryagent.server.resources.AgentBroadcastSubResource;
+import net.explorviz.discoveryagent.services.BroadcastService;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.discoveryagent.services.RegistrationService;
 import net.explorviz.discoveryagent.services.UpdateProcezzListService;
@@ -26,5 +28,9 @@ public class DependencyInjectionBinder extends AbstractBinder {
     this.bind(RegistrationService.class).to(RegistrationService.class).in(Singleton.class);
     this.bind(UpdateProcezzListService.class).to(UpdateProcezzListService.class)
         .in(Singleton.class);
+
+    // Broadcast Mechanism
+    this.bind(BroadcastService.class).to(BroadcastService.class).in(Singleton.class);
+    this.bind(AgentBroadcastSubResource.class).to(AgentBroadcastSubResource.class);
   }
 }

@@ -10,7 +10,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.sse.Sse;
 import net.explorviz.discovery.exceptions.agent.AgentNotFoundException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
@@ -66,7 +68,15 @@ public class AgentResource {
     } else {
       throw new AgentNotFoundException("Bla", new Exception());
     }
-
   }
 
+  @Path("/broadcast")
+  public AgentBroadcastSubResource getAgentBroadcastResource(@Context final Sse sse,
+      @Context final AgentBroadcastSubResource agentBroadcastSubResource) {
+
+    // curl -v -X GET http://localhost:8084/v1/agents/broadcast/ -H
+    // "Content-Type: text/event-stream"'
+
+    return agentBroadcastSubResource;
+  }
 }

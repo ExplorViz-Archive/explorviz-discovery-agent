@@ -27,10 +27,12 @@ configurations.all {
 dependencies {
   
   // Common discovery files (e.g. model classes)
-  compile 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
+  implementation 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
   //compile project(':explorviz-discovery-common')
   
   // Shared utility classes for ExplorViz, e.g., PropertyHelper
-  compile 'com.github.ExplorViz.explorviz-backend:shared:dev-1-SNAPSHOT'
+  implementation 'com.github.ExplorViz.explorviz-backend:shared:dev-1-SNAPSHOT'
   
+  // SSE context for injection
+  implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'  
 }
