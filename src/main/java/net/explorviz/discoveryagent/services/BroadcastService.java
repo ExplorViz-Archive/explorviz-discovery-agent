@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.services;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Singleton;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -22,6 +23,7 @@ public class BroadcastService {
 
   private final Sse sse;
   private final SseBroadcaster broadcaster;
+  private final AtomicBoolean newRegistration = new AtomicBoolean(false);
 
   public BroadcastService(@Context final Sse sse) {
     this.sse = sse;
@@ -41,6 +43,7 @@ public class BroadcastService {
 
   public void register(final SseEventSink eventSink) {
     this.broadcaster.register(eventSink);
+    this.newRegistration.set(true);
   }
 
   private void onCloseOperation(final SseEventSink sink) { // NOPMD
@@ -51,6 +54,14 @@ public class BroadcastService {
     LOGGER.error(
         "Broadcasting to a SseEventSink failed. This may not be a problem, since there is no way to unregister.",
         e);
+  }
+
+  public AtomicBoolean getNewRegistration() {
+    return newRegistration;
+  }
+
+  public void setNewRegistrationFlag(final boolean newValue) {
+    this.newRegistration.set(newValue);
   }
 
 }

@@ -142,7 +142,9 @@ public final class InternalRepository {
 
       agentObject.setProcezzes(internalProcezzList);
 
-      if (stoppedProcezzes.size() > 0 || newProcezzListNoDuplicates.size() > 0) {
+      if (broadcastService.getNewRegistration().get() || stoppedProcezzes.size() > 0
+          || newProcezzListNoDuplicates.size() > 0) {
+        broadcastService.setNewRegistrationFlag(false);
         broadcastService.broadcastMessage(agentObject);
       }
 
