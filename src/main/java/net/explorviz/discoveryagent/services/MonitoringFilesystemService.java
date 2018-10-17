@@ -89,8 +89,6 @@ public final class MonitoringFilesystemService {
 
   public void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
 
-    createMonitoringConfigsFolder();
-
     final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
 
     final File folderOfPassedId = new File(folderOfPassedIdString);
