@@ -10,6 +10,7 @@ import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzStartMapper;
 import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzStopMapper;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.model.Procezz;
+import net.explorviz.discoveryagent.server.filters.CorsResponseFilter;
 import net.explorviz.discoveryagent.services.TypeService;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -26,6 +27,8 @@ public class Application extends ResourceConfig {
     register(new DependencyInjectionBinder());
 
     register(SetupApplicationListener.class);
+
+    register(CorsResponseFilter.class);
 
     // Exception Mapper
     register(ProcezzGenericMapper.class);
