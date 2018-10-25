@@ -1,4 +1,4 @@
-# ExploViz Discovery Agent
+# ExplorViz Discovery Agent
 
 The ExploViz Discovery Agent facilitates the monitoring setup and monitoring configuration of applications for ExplorViz.
 Therefore, users do not need to manually start applications with monitoring parameters or handle monitoring configuration 
