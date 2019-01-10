@@ -47,7 +47,7 @@ jar.enabled = false
 jar {
   manifest {
     attributes(
-      'Main-Class': 'net.explorviz.discoveryagent.main.Main'
+      'Main-Class': 'net.explorviz.discoveryagent.server.main.Main'
     )
   }
 }
