@@ -1,6 +1,8 @@
 apply from: 'https://raw.githubusercontent.com/ExplorViz/gradle-script-plugins/master/microservice.gradle'
 apply plugin: 'com.github.spotbugs'
 apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 buildscript {
   repositories {
@@ -12,6 +14,8 @@ buildscript {
 
   dependencies {
     classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.6.3"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+  	
   }
 }
 
@@ -36,3 +40,75 @@ dependencies {
   // SSE context for injection
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'  
 }
+
+assemble.dependsOn shadowJar
+jar.enabled = false
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'net.explorviz.discoveryagent.main.Main'
+    )
+  }
+}
+
+shadowJar {
+  archiveName = "explorviz-${project.name}.${extension}"
+}
+
+spotbugs {
+  excludeFilter = file("conf/spotbugs-exclude-filter.xml")
+  reportLevel = "low"
+  effort = "max"
+  ignoreFailures = true
+  toolVersion = '3.1.7'
+}
+
+// Per default XML reports for SpotBugs are generated
+// Include this to generate HTML reports
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
+  reports {
+    // Either HTML or XML reports can be activated
+    html.enabled true
+    xml.enabled false
+  }
+}
+
+task spotbugs {
+  group 'Quality Assurance'
+  description 'Run SpotBugs'
+  
+  dependsOn 'spotbugsMain'
+  dependsOn 'spotbugsTest'
+}
+
+pmd {
+    ruleSets = []
+    ruleSetFiles = files("conf/pmd.xml")
+    ignoreFailures = true
+    toolVersion = "6.7.0"
+  }
+	
+  checkstyle {
+    configDir = file("conf")
+    configFile = file("conf/checkstyle.xml")
+    maxWarnings = 0
+    ignoreFailures = true
+    toolVersion = "8.12"
+  }	
+	
+  task checkstyle {
+    group 'Quality Assurance'
+    description 'Run Checkstyle'
+    
+    dependsOn 'checkstyleMain'
+    dependsOn 'checkstyleTest'
+  }
+	
+  task pmd {
+    group 'Quality Assurance'
+    description 'Run PMD'
+    
+    dependsOn 'pmdMain'
+    dependsOn 'pmdTest'
+  }
