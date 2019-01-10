@@ -7,11 +7,11 @@ DIRECTORY="$(basename "$PWD")"
 echo $DOCKER_PW | docker login -u $DOCKER_LOGIN --password-stdin
 
 if [[ "$TRAVIS_BRANCH" == 'dev-1' ]]; then
-  docker build -t explorviz/explorviz-backend-$DIRECTORY:dev .
-  docker push explorviz/explorviz-backend-$DIRECTORY:dev
+  docker build -t explorviz/explorviz-discovery-agent:dev .
+  docker push explorviz/explorviz-discovery-agent:dev
 elif [[ "$TRAVIS_BRANCH" == 'master' ]]; then
-  docker build -t explorviz/explorviz-backend-$DIRECTORY:latest .
-  docker push explorviz/explorviz-backend-$DIRECTORY:latest
+  docker build -t explorviz/explorviz-discovery-agent:latest .
+  docker push explorviz/explorviz-discovery-agent:latest
 else
   echo "Unknown branch for Docker image."
 fi
