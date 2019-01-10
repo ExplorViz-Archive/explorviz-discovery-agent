@@ -1,0 +1,34 @@
+language: java
+
+services:
+  - mongodb
+  - docker
+
+jobs:
+  fast_finish: true
+  allow_failures:
+    - jdk: oraclejdk8
+  include:
+    - jdk: openjdk8
+    - jdk: oraclejdk8
+    - stage: deploy
+      name: "Docker Image: Discovery Agent"
+      if: (branch = dev-1) OR (branch = master)
+      jdk: openjdk8
+      script: .travis/docker_push.sh
+
+before_script:
+  - chmod +x .travis/docker_push.sh
+
+#before_script:
+#  - chmod +x .travis/push.sh
+#  - chmod +x .travis/javadoc-push.sh
+
+#after_success:
+#  - .travis/javadoc-push.sh
+#  - .travis/push.sh
+
+branches:
+  only:
+  - master
+  - dev-1
