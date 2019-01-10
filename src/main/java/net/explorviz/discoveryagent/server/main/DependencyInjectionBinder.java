@@ -11,11 +11,23 @@ import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.discoveryagent.services.RegistrationService;
 import net.explorviz.discoveryagent.services.UpdateProcezzListService;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
+import net.explorviz.shared.annotations.ConfigValues;
+import net.explorviz.shared.annotations.injection.ConfigInjectionResolver;
+import net.explorviz.shared.annotations.injection.ConfigValuesInjectionResolver;
+import org.glassfish.hk2.api.InjectionResolver;
+import org.glassfish.hk2.api.TypeLiteral;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 public class DependencyInjectionBinder extends AbstractBinder {
   @Override
   public void configure() {
+
+    // Injectable config properties
+    this.bind(new ConfigInjectionResolver())
+        .to(new TypeLiteral<InjectionResolver<ConfigValues>>() {});
+    this.bind(new ConfigValuesInjectionResolver())
+        .to(new TypeLiteral<InjectionResolver<ConfigValues>>() {});
+
     this.bindFactory(ResourceConverterFactory.class).to(ResourceConverter.class)
         .in(Singleton.class);
 

@@ -10,11 +10,11 @@ import net.explorviz.discovery.exceptions.GenericNoConnectionException;
 import net.explorviz.discovery.exceptions.procezz.ProcezzGenericException;
 import net.explorviz.discovery.model.Agent;
 import net.explorviz.discovery.services.ClientService;
-import net.explorviz.discovery.services.PropertyService;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
 import net.explorviz.discoveryagent.server.provider.JSONAPIProvider;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
+import net.explorviz.shared.annotations.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +22,31 @@ public final class RegistrationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
-  private static final long REGISTRATION_TIMER_RATE =
-      PropertyService.getIntegerProperty("registrationTimerRate");
-  private static final long UPDATE_TIMER_RATE =
-      PropertyService.getIntegerProperty("updateTimerRate");
+  private final String httpPrefix = "http://";
+
+  @Config("registrationTimerRate")
+  private int registrationTimerRate;
+
+  @Config("updateTimerRate")
+  private int updateTimerRate;
+
+  @Config("server.ip")
+  private String ip;
+
+  @Config("server.port")
+  private String port;
+
+  @Config("backendBaseURL")
+  private String backendBaseUrl;
+
+  @Config("backendAgentPath")
+  private String backendAgentResourcePath;
+
+  @Config("backendIP")
+  private String backendIp;
+
+  @Config("backendPort")
+  private String backendPort;
 
   private static AtomicBoolean registrationDone = new AtomicBoolean(false);
 
@@ -67,12 +88,8 @@ public final class RegistrationService {
     clientService.registerProviderReader(new JSONAPIProvider<>(converter));
     clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-    final String ip = PropertyService.getStringProperty("server.ip");
-    final String port = PropertyService.getStringProperty("server.port");
-
-    explorVizUrl = PropertyService.getExplorVizBackendServerURL()
-        + PropertyService.getStringProperty("backendBaseURL")
-        + PropertyService.getStringProperty("backendAgentPath");
+    explorVizUrl =
+        httpPrefix + backendIp + ":" + backendPort + backendBaseUrl + backendAgentResourcePath;
 
     agent = new Agent(ip, port);
     agent.setId("placeholder");
@@ -88,7 +105,7 @@ public final class RegistrationService {
       LOGGER.info(
           "Couldn't register agent at time: {}. Will retry in one minute. Backend offline or wrong backend IP? Check explorviz.properties file. Error: {}",
           new Date(System.currentTimeMillis()), e.toString());
-      runRegistrationTimer(REGISTRATION_TIMER_RATE);
+      runRegistrationTimer(registrationTimerRate);
       return;
     }
 
@@ -163,7 +180,7 @@ public final class RegistrationService {
         new UpdateProcezzListService(this, internalRepository);
 
     // refresh internal ProcessList every minute
-    updateTimer.scheduleAtFixedRate(updateService, 0, UPDATE_TIMER_RATE);
+    updateTimer.scheduleAtFixedRate(updateService, 0, updateTimerRate);
   }
 
 }

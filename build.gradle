@@ -53,7 +53,7 @@ jar {
 }
 
 shadowJar {
-  archiveName = "explorviz-${project.name}.${extension}"
+  archiveName = "${project.name}.${extension}"
 }
 
 spotbugs {

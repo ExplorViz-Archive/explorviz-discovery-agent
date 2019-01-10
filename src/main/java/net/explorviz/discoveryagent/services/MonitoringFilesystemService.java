@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
 import net.explorviz.discovery.model.Procezz;
-import net.explorviz.discovery.services.PropertyService;
+import net.explorviz.shared.annotations.Config;
 
 public final class MonitoringFilesystemService {
 
@@ -25,6 +25,9 @@ public final class MonitoringFilesystemService {
   private static final String KIEKER_JAR_FILENAME = "kieker-1.14-SNAPSHOT-aspectj.jar";
 
   private Path configsPath;
+
+  @Config("backendIP")
+  private String backendIp;
 
   public void createMonitoringConfigsFolder() throws IOException {
 
@@ -74,11 +77,9 @@ public final class MonitoringFilesystemService {
     final Path kiekerConfigPath =
         Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME);
 
-    final String backendUrl = PropertyService.getStringProperty("backendIP");
-
     final List<String> kiekerConfigNewContent = Files.lines(kiekerConfigPath).map(line -> {
       if (line.startsWith(KIEKER_TCP_HOSTNAME_PROPERTY)) {
-        return KIEKER_TCP_HOSTNAME_PROPERTY + backendUrl;
+        return KIEKER_TCP_HOSTNAME_PROPERTY + backendIp;
       } else {
         return line;
       }
