@@ -88,8 +88,8 @@ public final class RegistrationService {
     clientService.registerProviderReader(new JSONAPIProvider<>(converter));
     clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-    explorVizUrl =
-        httpPrefix + backendIp + ":" + backendPort + backendBaseUrl + backendAgentResourcePath;
+    explorVizUrl = httpPrefix + backendIp + ":" + backendPort + backendBaseUrl
+        + backendAgentResourcePath + "/";
 
     agent = new Agent(ip, port);
     agent.setId("placeholder");
