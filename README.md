@@ -1,5 +1,12 @@
-# ExplorViz Discovery Agent
+<p align="center">
+  <img width="60%" src="https://raw.githubusercontent.com/ExplorViz/Docs/master/images/explorviz-logo.png">
+</p>
 
+___
+
+[![Build Status](https://travis-ci.org/ExplorViz/explorviz-discovery-agent.svg?branch=master)](https://travis-ci.org/ExplorViz/explorviz-discovery-agent)
+
+## Project Description
 The ExplorViz Discovery Agent facilitates the monitoring setup and monitoring configuration of applications for ExplorViz.
 Therefore, users do not need to manually start applications with monitoring parameters or handle monitoring configuration 
 files.
@@ -10,11 +17,8 @@ files.
 - Accessible (network) [ExplorViz Backend](https://github.com/ExplorViz/explorviz-backend)
 
 ## Setup
-1. Download or clone repository
-2. Modify `src/main/webapp/WEB-INF/classes/explorviz.properties` file
-3. Build war file with `gradlew build` and deploy in e.g. [Apache Tomcat](http://tomcat.apache.org/) **OR** 
-use the embedded [Gretty web server](http://akhikhl.github.io/gretty-doc/Feature-overview.html) with 
-`gradlew appStart` / `gradlew appStop`
+1. Download the `explorviz-discovery-agent.jar` from the [release page](https://github.com/ExplorViz/explorviz-discovery-agent/releases) 
+2. Modify `backendIP` and `server.ip` in the contained `explorviz.properties` file
 
 ## Usage
 If agent and backend are connected, data will be continuously exchanged in the modifiable time interval of 30 seconds.
