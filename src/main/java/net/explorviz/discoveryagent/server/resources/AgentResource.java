@@ -13,9 +13,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.sse.Sse;
-import net.explorviz.discovery.exceptions.agent.AgentNotFoundException;
-import net.explorviz.discovery.model.Agent;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.shared.discovery.exceptions.agent.AgentNotFoundException;
+import net.explorviz.shared.discovery.model.Agent;
 
 @Path("")
 public class AgentResource {

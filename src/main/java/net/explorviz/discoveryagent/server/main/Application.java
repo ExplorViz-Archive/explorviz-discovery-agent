@@ -1,17 +1,17 @@
 package net.explorviz.discoveryagent.server.main;
 
 import javax.ws.rs.ApplicationPath;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzGenericMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeIncompatibleMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzManagementTypeNotFoundMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzMonitoringSettingsMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzNotFoundMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzStartMapper;
-import net.explorviz.discovery.exceptions.mapper.procezz.ProcezzStopMapper;
-import net.explorviz.discovery.model.Agent;
-import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.server.filters.CorsResponseFilter;
 import net.explorviz.discoveryagent.services.TypeService;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzGenericMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzManagementTypeIncompatibleMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzManagementTypeNotFoundMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzMonitoringSettingsMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzNotFoundMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzStartMapper;
+import net.explorviz.shared.discovery.exceptions.mapper.procezz.ProcezzStopMapper;
+import net.explorviz.shared.discovery.model.Agent;
+import net.explorviz.shared.discovery.model.Procezz;
 import org.glassfish.jersey.server.ResourceConfig;
 
 @ApplicationPath("")

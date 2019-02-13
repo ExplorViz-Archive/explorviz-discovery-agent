@@ -1,9 +1,9 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
 import java.util.Locale;
-import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
+import net.explorviz.shared.discovery.model.Procezz;
 
 public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 

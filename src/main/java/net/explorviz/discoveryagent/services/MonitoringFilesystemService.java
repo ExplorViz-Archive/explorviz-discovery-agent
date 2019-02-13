@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
-import net.explorviz.discovery.model.Procezz;
-import net.explorviz.shared.annotations.Config;
+import net.explorviz.shared.config.annotations.Config;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
+import net.explorviz.shared.discovery.model.Procezz;
 
 public final class MonitoringFilesystemService {
 

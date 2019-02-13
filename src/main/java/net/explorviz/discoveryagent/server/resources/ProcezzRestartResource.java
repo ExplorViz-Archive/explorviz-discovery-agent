@@ -2,13 +2,13 @@ package net.explorviz.discoveryagent.server.resources;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
-import net.explorviz.discovery.exceptions.mapper.ResponseUtil;
-import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.shared.discovery.exceptions.mapper.ResponseUtil;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStopException;
 
 public class ProcezzRestartResource {
 

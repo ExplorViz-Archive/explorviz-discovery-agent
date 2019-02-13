@@ -8,14 +8,14 @@ import javax.ws.rs.PATCH;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
-import net.explorviz.discovery.model.Procezz;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzMonitoringSettingsException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStopException;
+import net.explorviz.shared.discovery.model.Procezz;
 
 public class ProcezzResource {
 

@@ -1,12 +1,12 @@
 package net.explorviz.discoveryagent.procezz.management;
 
 import java.util.List;
-import net.explorviz.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzNotFoundException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStartException;
-import net.explorviz.discovery.exceptions.procezz.ProcezzStopException;
-import net.explorviz.discovery.model.Agent;
-import net.explorviz.discovery.model.Procezz;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzNotFoundException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStartException;
+import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStopException;
+import net.explorviz.shared.discovery.model.Agent;
+import net.explorviz.shared.discovery.model.Procezz;
 
 /**
  * Implementations of the ProcezzManagementType interface are used to collect data of running

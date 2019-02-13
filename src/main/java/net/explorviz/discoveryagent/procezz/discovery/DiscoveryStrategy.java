@@ -1,6 +1,6 @@
 package net.explorviz.discoveryagent.procezz.discovery;
 
-import net.explorviz.discovery.model.Procezz;
+import net.explorviz.shared.discovery.model.Procezz;
 
 public interface DiscoveryStrategy {
 

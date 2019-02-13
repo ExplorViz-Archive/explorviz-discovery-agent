@@ -28,14 +28,12 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-dependencies {
-  
+dependencies {  
   // Common discovery files (e.g. model classes)
-  implementation 'com.github.ExplorViz:explorviz-discovery-common:master-SNAPSHOT'
-  //compile project(':explorviz-discovery-common')
+  implementation 'com.github.explorviz.explorviz-backend-shared:discovery-common:master-SNAPSHOT'
   
-  // Shared utility classes for ExplorViz, e.g., PropertyHelper
-  implementation 'com.github.ExplorViz.explorviz-backend:shared:dev-1-SNAPSHOT'
+  // Shared utility classes for ExplorViz, e.g., config injection
+  implementation 'com.github.explorviz.explorviz-backend-shared:config-injection:master-SNAPSHOT'
   
   // SSE context for injection
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'  
