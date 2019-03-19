@@ -28,12 +28,18 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
+ext {
+  // Version tag for the Explorviz-Backend-Shared project dependency
+  // https://github.com/ExplorViz/explorviz-backend-shared
+  explorvizSharedVersion = 'v1.3.1'
+}
+
 dependencies {  
   // Common discovery files (e.g. model classes)
-  implementation 'com.github.explorviz.explorviz-backend-shared:discovery-common:master-SNAPSHOT'
+  implementation "com.github.explorviz.explorviz-backend-shared:discovery-common:${explorvizSharedVersion}"
   
   // Shared utility classes for ExplorViz, e.g., config injection
-  implementation 'com.github.explorviz.explorviz-backend-shared:config-injection:master-SNAPSHOT'
+  implementation "com.github.explorviz.explorviz-backend-shared:config-injection:${explorvizSharedVersion}"
   
   // SSE context for injection
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'  
