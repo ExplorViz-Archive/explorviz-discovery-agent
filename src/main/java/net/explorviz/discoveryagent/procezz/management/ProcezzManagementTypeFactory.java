@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import net.explorviz.discoveryagent.procezz.management.types.JavaCLIManagementType;
+import net.explorviz.discoveryagent.procezz.management.types.WinJavaManagementType;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.shared.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
@@ -25,9 +26,15 @@ public final class ProcezzManagementTypeFactory {
   private void createManagementTypes() {
 
     if (managementTypes.isEmpty()) {
-
+      // Check on which OS the agent is working
       final ProcezzManagementType type = new JavaCLIManagementType(monitoringFsService);
-      managementTypes.put(type.getManagementTypeDescriptor(), type);
+      if (checkOs(type.getOsType())) {
+        managementTypes.put(type.getManagementTypeDescriptor(), type);
+      }
+      final ProcezzManagementType typeWin = new WinJavaManagementType(monitoringFsService);
+      if (checkOs(typeWin.getOsType())) {
+        managementTypes.put(typeWin.getManagementTypeDescriptor(), typeWin);
+      }
     }
 
   }
@@ -62,6 +69,11 @@ public final class ProcezzManagementTypeFactory {
 
     return list;
 
+  }
+
+  public boolean checkOs(final String OS) {
+
+    return System.getProperty("os.name").toLowerCase().contains(OS);
   }
 
 }

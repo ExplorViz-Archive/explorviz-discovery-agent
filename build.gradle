@@ -42,7 +42,15 @@ dependencies {
   implementation "com.github.explorviz.explorviz-backend-shared:config-injection:${explorvizSharedVersion}"
   
   // SSE context for injection
-  implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'  
+  implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'
+
+  // https://mvnrepository.com/artifact/org.jprocesses/jProcesses
+  compile group: 'org.jprocesses', name: 'jProcesses', version: '1.6.5'
+  
+  // https://mvnrepository.com/artifact/com.profesorfalken/jPowerShell
+  compile group: 'com.profesorfalken', name: 'jPowerShell', version: '3.1.0'
+  
+
 }
 
 assemble.dependsOn shadowJar

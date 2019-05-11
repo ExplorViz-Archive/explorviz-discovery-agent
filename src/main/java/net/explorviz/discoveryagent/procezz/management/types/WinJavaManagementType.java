@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
-import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
+import net.explorviz.discoveryagent.procezz.management.util.WinAbstraction;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.shared.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
@@ -18,9 +18,9 @@ import net.explorviz.shared.discovery.model.Procezz;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JavaCLIManagementType implements ProcezzManagementType {
+public class WinJavaManagementType implements ProcezzManagementType {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(JavaCLIManagementType.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WinJavaManagementType.class);
   private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
   private static final String SPACE_SYMBOL = " ";
@@ -33,52 +33,58 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
   private final MonitoringFilesystemService monitoringFsService;
 
-  public JavaCLIManagementType(final MonitoringFilesystemService monitoringFsService) {
+  public WinJavaManagementType(final MonitoringFilesystemService monitoringFsService) {
     this.monitoringFsService = monitoringFsService;
   }
 
   @Override
   public List<Procezz> getProcezzListFromOs() {
-    return getOSProcezzList(null);
+
+    return getProcezzListFromOsAndSetAgent(null);
   }
 
   @Override
   public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
-    return getOSProcezzList(agent);
+    return getOsProcezzList(agent);
   }
 
-  private List<Procezz> getOSProcezzList(final Agent possibleAgent) {
+  private List<Procezz> getOsProcezzList(final Agent agent) {
     final List<Procezz> procezzList = new ArrayList<Procezz>();
 
     final AtomicLong placeholderId = new AtomicLong(0);
 
     try {
-      CLIAbstraction.findProzzeses().forEach((pid, execCMD) -> {
-        if (!execCMD.contains(CLIAbstraction.GET_ALL_PROCESSES) && !"grep java".equals(execCMD)) {
-          final Procezz p = new Procezz(pid, execCMD);
+      WinAbstraction.findProzzeses().forEach((pid, execCMD) -> {
+        final Procezz p = new Procezz(pid, execCMD);
 
-          // default id for serialization / deserialization by JSON API converter
-          p.setId(String.valueOf(placeholderId.incrementAndGet()));
+        p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
-          setWorkingDirectory(p);
-          setProgrammingLanguage(p);
+        setWorkingDirectory(p);
+        setProgrammingLanguage(p);
 
-          if (possibleAgent != null) {
-            p.setAgent(possibleAgent);
-          }
-
-          // Descriptor is needed for procezz to get the correct
-          // procezzManagementType for starting, killing, restarting
-          p.setProcezzManagementType(getManagementTypeDescriptor());
-
-          procezzList.add(p);
+        if (agent != null) {
+          p.setAgent(agent);
         }
+
+        // Descriptor is needed for procezz to get the correct
+        // procezzManagementType for starting, killing, restarting
+        p.setProcezzManagementType(getManagementTypeDescriptor());
+
+        procezzList.add(p);
+
       });
     } catch (final IOException e) {
       LOGGER.error("Error when finding procezzes: {}", e);
       return new ArrayList<Procezz>();
     }
+
     return procezzList;
+  }
+
+  @Override
+  public void setWorkingDirectory(final Procezz procezz) {
+    // TODO Auto-generated method stub
+
   }
 
   @Override
@@ -88,54 +94,43 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
 
     try {
-      CLIAbstraction.startProcessByCMD(procezz.getAgentExecutionCommand());
+      WinAbstraction.executePowerShellCommand(procezz.getAgentExecutionCommand());
     } catch (final IOException e) {
       LOGGER.error("Error during procezz start. Exception: {}", e);
       throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START, e, procezz);
     }
-
   }
 
   @Override
   public void killProcezz(final Procezz procezz) throws ProcezzStopException {
     try {
-      CLIAbstraction.killProcessByPID(procezz.getPid());
+      WinAbstraction.killProcessByPID(procezz.getPid());
     } catch (final IOException e) {
-      throw new ProcezzStopException(ResponseUtil.ERROR_PROCEZZ_STOP, e, procezz);
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
 
-  }
-
-  @Override
-  public void setWorkingDirectory(final Procezz procezz) {
-    // add pwdx (working directory) output to procezz object
-
-    String workingDir = "";
-
-    try {
-      workingDir = CLIAbstraction.findWorkingDirectoryForPID(procezz.getPid());
-    } catch (final IOException e) {
-      LOGGER.error("Error when finding working directory for procezz with PID {}: {}",
-          procezz.getPid(), e);
-    }
-
-    procezz.setWorkingDirectory(workingDir);
   }
 
   @Override
   public String getManagementTypeDescriptor() {
-    return "JavaCLI";
+    return "WinJava";
   }
-
-  @Override
-  public String getProgrammingLanguage() {
-    return "Java";
-  }
-
 
   @Override
   public void setProgrammingLanguage(final Procezz procezz) {
     procezz.setProgrammingLanguage(getProgrammingLanguage());
+
+  }
+
+  @Override
+  public String getProgrammingLanguage() {
+    return "java";
+  }
+
+  @Override
+  public String getOsType() {
+    return "windows";
   }
 
   @Override
@@ -147,62 +142,36 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
     final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
 
-    // remove potential old flag
-    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+    // TODO Auto-generated method stub
 
-    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
-
-    try {
-      final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
-
-      final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
-
-      procezz.setAgentExecutionCommand(newExecCommand);
-    } catch (final IndexOutOfBoundsException | MalformedURLException e) {
-      throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
-    }
   }
 
   @Override
   public void injectProcezzIdentificationProperty(final Procezz procezz)
       throws ProcezzStartException {
+
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-    final String execPath =
-        useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
+    final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
 
-    // remove potential old flag
-    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+    // TODO Auto-generated method stub
 
-    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
-
-    try {
-      final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
-      procezz.setAgentExecutionCommand(newExecCommand);
-    } catch (final IndexOutOfBoundsException e) {
-      throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
-    }
   }
 
   @Override
   public void removeMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
+
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-    final String execPath =
-        useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
+    final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
 
-    // remove potential old flag
-    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-    procezz.setAgentExecutionCommand(execPathWithoutAgentFlag);
+    // TODO Auto-generated method stub
 
   }
-
 
   private String prepareMonitoringJVMArguments(final String entityID) throws MalformedURLException {
 
@@ -213,6 +182,8 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
+
+    // hier nicht sicher wegen der Fileausgabe mit ://
     final String aopConfigPart =
         "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopConfigPath;
 
@@ -231,12 +202,6 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
     return p2.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + p1.getId());
 
-  }
-
-  @Override
-  public String getOsType() {
-
-    return "linux";
   }
 
 }
