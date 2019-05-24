@@ -40,15 +40,15 @@ public class WinJavaManagementType implements ProcezzManagementType {
   @Override
   public List<Procezz> getProcezzListFromOs() {
 
-    return getProcezzListFromOsAndSetAgent(null);
+    return getOSProcezzList(null);
   }
 
   @Override
   public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
-    return getOsProcezzList(agent);
+    return getOSProcezzList(agent);
   }
 
-  private List<Procezz> getOsProcezzList(final Agent agent) {
+  private List<Procezz> getOSProcezzList(final Agent agent) {
     final List<Procezz> procezzList = new ArrayList<Procezz>();
 
     final AtomicLong placeholderId = new AtomicLong(0);
@@ -93,12 +93,14 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
 
+
     try {
-      WinAbstraction.executePowerShellCommand(procezz.getAgentExecutionCommand());
+      WinAbstraction.startProcessByCMD(procezz.getAgentExecutionCommand());
     } catch (final IOException e) {
       LOGGER.error("Error during procezz start. Exception: {}", e);
       throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START, e, procezz);
     }
+
   }
 
   @Override
@@ -106,7 +108,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
     try {
       WinAbstraction.killProcessByPID(procezz.getPid());
     } catch (final IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -149,12 +150,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
   @Override
   public void injectProcezzIdentificationProperty(final Procezz procezz)
       throws ProcezzStartException {
-
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-    final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
+    final String execPath =
+        useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
 
     // TODO Auto-generated method stub
 
@@ -167,9 +168,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 
-    final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
+    final String execPath =
+        useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
 
-    // TODO Auto-generated method stub
+    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+    procezz.setAgentExecutionCommand(execPathWithoutAgentFlag);
+
 
   }
 

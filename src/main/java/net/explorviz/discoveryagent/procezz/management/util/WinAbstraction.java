@@ -1,20 +1,30 @@
 package net.explorviz.discoveryagent.procezz.management.util;
 
-import com.profesorfalken.jpowershell.PowerShell;
-import com.profesorfalken.jpowershell.PowerShellResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.jutils.jprocesses.JProcesses;
 import org.jutils.jprocesses.model.ProcessInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WinAbstraction {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
 
   private WinAbstraction() {
 
+  }
+
+  public static void startProcessByCMD(final String fullCMD) throws IOException {
+
+    // Redirect stderr and stdout to /dev/null
+    // Sometimes procecces hang if they are spawned
+    // without reading their output
+    final String[] splittedCMD = fullCMD.split("\\s+");
+    executePowerShellCommand(splittedCMD);
   }
 
   public static Map<Long, String> findProzzeses() throws IOException {
@@ -22,8 +32,8 @@ public class WinAbstraction {
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
     // Delete all Processes, that don't contain java or are executed by jProcesses.
     // jProcesses
-    inf.removeIf(a -> !a.getCommand().contains("java") || a.getCommand().contains("wmi4java")
-        || a.getCommand().contains("WMI4java"));
+    inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
+        || !a.getCommand().toLowerCase().contains("java"));
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
 
@@ -35,13 +45,18 @@ public class WinAbstraction {
 
   public static String executeAndReadPowerShellCommand(final String cmd) throws IOException {
 
-    final PowerShellResponse response = PowerShell.executeSingleCommand(cmd);
 
-    return response.toString();
+
+    return null;
   }
 
-  public static void executePowerShellCommand(final String cmd) throws IOException {
-    PowerShell.executeSingleCommand(cmd);
+  public static void executePowerShellCommand(final String... cmd) {
+    try {
+      new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start();
+    } catch (final IOException e) {
+      LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
+          String.join(" ", cmd), e.toString());
+    }
   }
 
   public static String findWorkingDirectoryForPID(final long pid) throws IOException {
