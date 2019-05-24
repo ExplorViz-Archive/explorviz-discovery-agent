@@ -51,7 +51,8 @@ public final class MonitoringFilesystemService {
 
   private void copyDefaultKiekerProperties() throws IOException {
     /*
-     * Maybe we have to difference here in Windows and Linux
+     * Maybe we have to difference here in Windows and Linux The paths have to be returned in URI
+     * for windows and for Linux to getFile Look at master and change it.
      */
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -64,10 +65,15 @@ public final class MonitoringFilesystemService {
 
     final URL urlToDefaultKiekerJar =
         classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_JAR_FILENAME);
-    System.out.println(urlToDefaultKiekerProps);
     Path kiekerDefaultConfigPath;
     try {
       kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.toURI());
+      /*
+       * System.out.println(kiekerDefaultConfigPath);
+       * System.out.println(urlToDefaultKiekerProps.toURI());
+       * System.out.println(urlToDefaultKiekerProps.getFile()); System.out
+       * .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+       */
       Files.copy(kiekerDefaultConfigPath,
           Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
     } catch (final URISyntaxException e) {
