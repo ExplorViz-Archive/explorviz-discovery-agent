@@ -1,7 +1,9 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -83,7 +85,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void setWorkingDirectory(final Procezz procezz) {
-    // TODO Auto-generated method stub
+    if (procezz.getOsExecutionCommand().toLowerCase().contains("sampleApplication")) {
+      procezz.setWorkingDirectory("");
+    } else {
+      procezz.setWorkingDirectory("");
+    }
 
   }
 
@@ -144,6 +150,20 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String execPath = useUserExecCMD ? userExecCMD : procezz.getOsExecutionCommand();
 
     // TODO Auto-generated method stub
+    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+
+    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+
+    try {
+      final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
+
+      final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+
+      procezz.setAgentExecutionCommand(newExecCommand);
+    } catch (final IndexOutOfBoundsException | MalformedURLException e) {
+      throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
+    }
 
   }
 
@@ -158,6 +178,18 @@ public class WinJavaManagementType implements ProcezzManagementType {
         useUserExecCMD ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
 
     // TODO Auto-generated method stub
+    final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+
+    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+
+    try {
+      final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+
+      procezz.setAgentExecutionCommand(newExecCommand);
+    } catch (final IndexOutOfBoundsException e) {
+      throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
+    }
 
   }
 
@@ -186,10 +218,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
-
+    final File uriconv = new File(aopConfigPath);
+    final URI aopConfigPathuri = uriconv.toURI();
     // hier nicht sicher wegen der Fileausgabe mit ://
     final String aopConfigPart =
-        "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopConfigPath;
+        "-Dorg.aspectj.weaver.loadtime.configuration=" + aopConfigPathuri.toString();
 
     return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopConfigPart
         + SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;

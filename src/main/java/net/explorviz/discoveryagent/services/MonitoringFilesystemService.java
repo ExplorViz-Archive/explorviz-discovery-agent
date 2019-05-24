@@ -2,6 +2,7 @@ package net.explorviz.discoveryagent.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,7 +33,7 @@ public final class MonitoringFilesystemService {
   public void createMonitoringConfigsFolder() throws IOException {
 
     // Create temporary folder in temp directory of this OS
-
+    // In return, we get te
     final Path tempPathToDir = Files.createTempDirectory("explorviz-discovery-agent");
 
     final File tempDir = tempPathToDir.toFile();
@@ -41,6 +42,7 @@ public final class MonitoringFilesystemService {
 
     configsPath = Files.createDirectory(Paths.get(configsFolderPath));
 
+
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
 
@@ -48,28 +50,50 @@ public final class MonitoringFilesystemService {
   }
 
   private void copyDefaultKiekerProperties() throws IOException {
-
+    /*
+     * Maybe we have to difference here in Windows and Linux
+     */
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-    final URL urlToDefaultKiekerProps = classLoader
-        .getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_PROPS_FILENAME);
+    final URL urlToDefaultKiekerProps =
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_PROPS_FILENAME);
+
 
     final URL urlToDefaultAopProps =
-        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + AOP_PROPS_FILENAME);
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + AOP_PROPS_FILENAME);
 
-    final URL urlToDefaultKiekerJar = classLoader
-        .getResource(MONITORING_DEFAULT_CONF_PATH + File.separator + KIEKER_JAR_FILENAME);
+    final URL urlToDefaultKiekerJar =
+        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_JAR_FILENAME);
+    System.out.println(urlToDefaultKiekerProps);
+    Path kiekerDefaultConfigPath;
+    try {
+      kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.toURI());
+      Files.copy(kiekerDefaultConfigPath,
+          Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+    } catch (final URISyntaxException e) {
+      System.out.println("something went wrong");
+      e.printStackTrace();
+    }
+    Path kiekerDefaultAopPath;
+    try {
+      kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.toURI());
+      Files.copy(kiekerDefaultAopPath,
+          Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
+    } catch (final URISyntaxException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    Path kiekerDefaultJarPath;
+    try {
+      kiekerDefaultJarPath = Paths.get(urlToDefaultKiekerJar.toURI());
+      Files.copy(kiekerDefaultJarPath,
+          Paths.get(configsPath.toString() + File.separator + KIEKER_JAR_FILENAME));
+    } catch (final URISyntaxException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-    final Path kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.getFile());
-    final Path kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.getFile());
-    final Path kiekerDefaultJarPath = Paths.get(urlToDefaultKiekerJar.getFile());
 
-    Files.copy(kiekerDefaultConfigPath,
-        Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
-    Files.copy(kiekerDefaultAopPath,
-        Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
-    Files.copy(kiekerDefaultJarPath,
-        Paths.get(configsPath.toString() + File.separator + KIEKER_JAR_FILENAME));
 
   }
 
@@ -132,7 +156,7 @@ public final class MonitoringFilesystemService {
   public void updateAopFileContentForProcezz(final Procezz procezz)
       throws ProcezzMonitoringSettingsException {
     final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
-    final Path aopPath = Paths.get(folderOfPassedIdString + "/aop.xml");
+    final Path aopPath = Paths.get(folderOfPassedIdString + "/" + "aop.xml");
 
     try {
       Files.write(aopPath, procezz.getAopContent().getBytes());
@@ -148,7 +172,7 @@ public final class MonitoringFilesystemService {
       throws ProcezzMonitoringSettingsException {
     final String folderOfPassedIdString = configsPath + "/" + procezzInCache.getId();
     final Path kiekerConfigPath =
-        Paths.get(folderOfPassedIdString + "/kieker.monitoring.properties");
+        Paths.get(folderOfPassedIdString + "/" + "kieker.monitoring.properties");
 
     final String appName =
         procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid())

@@ -14,6 +14,8 @@ public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
 
+  private static final int SINGLE_COMMAND_LENGTH = 1;
+
   private WinAbstraction() {
 
   }
@@ -32,8 +34,10 @@ public class WinAbstraction {
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
     // Delete all Processes, that don't contain java or are executed by jProcesses.
     // jProcesses
+    // Maybe put this check into a method?
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
-        || !a.getCommand().toLowerCase().contains("java"));
+        || !a.getCommand().toLowerCase().contains("java")
+        || !a.getCommand().toLowerCase().contains("taskkill"));
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
 
@@ -43,16 +47,19 @@ public class WinAbstraction {
 
   }
 
-  public static String executeAndReadPowerShellCommand(final String cmd) throws IOException {
-
-
-
-    return null;
-  }
 
   public static void executePowerShellCommand(final String... cmd) {
+
+    /*
+     * start process and redirect output to NUL
+     */
     try {
-      new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start();
+      if (cmd.length == SINGLE_COMMAND_LENGTH) {
+        new ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new File("NUL"))
+            .start();
+      } else {
+        new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start();
+      }
     } catch (final IOException e) {
       LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
           String.join(" ", cmd), e.toString());
@@ -60,6 +67,7 @@ public class WinAbstraction {
   }
 
   public static String findWorkingDirectoryForPID(final long pid) throws IOException {
+
     return null;
   }
 
