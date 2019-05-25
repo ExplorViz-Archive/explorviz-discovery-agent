@@ -37,6 +37,7 @@ public final class ProcezzManagementTypeFactory {
       final ProcezzManagementType typeWin = new WinJavaManagementType(monitoringFsService);
       if (checkOs(typeWin.getOsType())) {
         managementTypes.put(typeWin.getManagementTypeDescriptor(), typeWin);
+        System.out.println("Windows started");
       }
 
     }
