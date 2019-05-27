@@ -32,16 +32,21 @@ public class WinAbstraction {
   public static Map<Long, String> findProzzeses() throws IOException {
     // Receive List of Processes
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
+
     // Delete all Processes, that don't contain java or are executed by jProcesses.
     // jProcesses
     // Maybe put this check into a method?
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
         || !a.getCommand().toLowerCase().contains("java")
-        || !a.getCommand().toLowerCase().contains("taskkill"));
+        || a.getCommand().toLowerCase().contains("taskkill"));
+
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
+    // VIelleicht müssen die escapes entfernt werden?
 
-    inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()), proc.getCommand()));
+    inf.forEach(proc -> {
+      pidAndProcessPairs.put(Long.valueOf(proc.getPid()), proc.getCommand().replaceAll("\"", ""));
+    });
 
     return pidAndProcessPairs;
 

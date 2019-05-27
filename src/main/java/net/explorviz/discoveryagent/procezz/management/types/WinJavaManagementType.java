@@ -45,6 +45,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
     return getOSProcezzList(null);
   }
 
+
   @Override
   public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
     return getOSProcezzList(agent);
@@ -58,8 +59,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCMD) -> {
         final Procezz p = new Procezz(pid, execCMD);
-
-        p.setId(String.valueOf(placeholderId.incrementAndGet()));
+        final String test = String.valueOf(placeholderId.incrementAndGet());
+        System.out.println("PID: " + pid + " ID: " + test);
+        p.setId(test);
 
         setWorkingDirectory(p);
         setProgrammingLanguage(p);
@@ -142,7 +144,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
-
+    System.out.println("injectMonitoringAgentInProcezz used");
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
@@ -170,6 +172,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   @Override
   public void injectProcezzIdentificationProperty(final Procezz procezz)
       throws ProcezzStartException {
+    System.out.println("injectProcezzIdentificationProperty used");
     final String userExecCMD = procezz.getUserExecutionCommand();
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
@@ -220,7 +223,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
     final File uriconv = new File(aopConfigPath);
     final URI aopConfigPathuri = uriconv.toURI();
-    // hier nicht sicher wegen der Fileausgabe mit ://
+    // hier nicht sicher wegen der Fileausgabe mit ://, erstelle dementsprechend URI.
     final String aopConfigPart =
         "-Dorg.aspectj.weaver.loadtime.configuration=" + aopConfigPathuri.toString();
 

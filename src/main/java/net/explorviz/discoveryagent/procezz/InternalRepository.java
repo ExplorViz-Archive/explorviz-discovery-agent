@@ -128,6 +128,7 @@ public final class InternalRepository {
 
       LOGGER.info("Updating procezzList at: {}", new Date());
 
+
       // Check if already obtained PIDs are still in the new obtained procezzList
       final List<Procezz> stoppedProcezzes =
           getStoppedProcezzesOfInternalList(newProcezzListNoDuplicates);

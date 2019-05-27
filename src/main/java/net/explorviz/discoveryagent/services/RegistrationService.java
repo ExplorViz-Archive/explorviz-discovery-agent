@@ -126,6 +126,8 @@ public final class RegistrationService {
       try {
         procezzUtility.createUniqureIdsForProcezzes(internalRepository.agentObject.getId(),
             internalRepository.getProcezzList());
+        internalRepository.getProcezzList().forEach(a -> System.out.println(a.getOsExecutionCommand()));
+        System.out.println("Ist meine Liste etwa leer? :" + internalRepository.getProcezzList().isEmpty());
         registrationDone.set(true);
         startUpdateService();
       } catch (ProcezzGenericException | GenericNoConnectionException e) {
