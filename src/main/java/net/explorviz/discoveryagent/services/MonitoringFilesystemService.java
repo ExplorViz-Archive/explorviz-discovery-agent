@@ -30,6 +30,8 @@ public final class MonitoringFilesystemService {
   @Config("backendIP")
   private String backendIp;
 
+  private static MonitoringFilesystemService fileSys;
+
   public void createMonitoringConfigsFolder() throws IOException {
 
     // Create temporary folder in temp directory of this OS
@@ -47,8 +49,12 @@ public final class MonitoringFilesystemService {
 
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
-
+    fileSys = this;
     tempDir.deleteOnExit();
+  }
+
+  public static MonitoringFilesystemService getref() {
+    return fileSys;
   }
 
   private void copyDefaultKiekerProperties() throws IOException {

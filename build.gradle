@@ -35,6 +35,14 @@ ext {
 }
 
 dependencies {  
+
+// https://mvnrepository.com/artifact/org.jeasy/easy-rules-mvel
+compile group: 'org.jeasy', name: 'easy-rules-mvel', version: '3.3.0'
+
+
+// https://mvnrepository.com/artifact/org.jeasy/easy-rules-core
+compile group: 'org.jeasy', name: 'easy-rules-core', version: '3.3.0'
+
   // Common discovery files (e.g. model classes)
   implementation "com.github.explorviz.explorviz-backend-shared:discovery-common:${explorvizSharedVersion}"
   
