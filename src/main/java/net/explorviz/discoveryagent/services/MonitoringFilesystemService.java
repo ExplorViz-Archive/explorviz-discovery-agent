@@ -42,6 +42,8 @@ public final class MonitoringFilesystemService {
 
     configsPath = Files.createDirectory(Paths.get(configsFolderPath));
 
+    System.out.println("From Path: " + configsPath.toUri());
+    // final URI aopConfigPathuri = uriconv.toURI();
 
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
@@ -68,12 +70,15 @@ public final class MonitoringFilesystemService {
     Path kiekerDefaultConfigPath;
     try {
       kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.toURI());
-      /*
-       * System.out.println(kiekerDefaultConfigPath);
-       * System.out.println(urlToDefaultKiekerProps.toURI());
-       * System.out.println(urlToDefaultKiekerProps.getFile()); System.out
-       * .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
-       */
+
+      System.out.println("From classloader: " + urlToDefaultKiekerProps);
+      System.out.println(
+          "Paths with uri + to file: " + Paths.get(urlToDefaultKiekerProps.toURI()).toFile());
+      System.out.println("getURI output: " + urlToDefaultKiekerProps.toURI());
+      System.out.println("getFile output: " + urlToDefaultKiekerProps.getFile());
+      System.out
+          .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+
       Files.copy(kiekerDefaultConfigPath,
           Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
     } catch (final URISyntaxException e) {
@@ -120,7 +125,7 @@ public final class MonitoringFilesystemService {
 
   public void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
 
-    final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
+    final String folderOfPassedIdString = configsPath + File.separator + procezz.getId();
 
     final File folderOfPassedId = new File(folderOfPassedIdString);
 
@@ -136,18 +141,18 @@ public final class MonitoringFilesystemService {
     final Path sourceAopPath = Paths.get(aopPathString);
 
     final Path targetKiekerConfigPath =
-        Paths.get(folderOfPassedIdString + "/" + sourceKiekerConfigPath.getFileName());
+        Paths.get(folderOfPassedIdString + File.separator + sourceKiekerConfigPath.getFileName());
     final Path targetAopPath =
-        Paths.get(folderOfPassedIdString + "/" + sourceAopPath.getFileName());
+        Paths.get(folderOfPassedIdString + File.separator + sourceAopPath.getFileName());
 
     if (!targetKiekerConfigPath.toFile().exists()) {
-      Files.copy(sourceKiekerConfigPath,
-          Paths.get(folderOfPassedIdString + "/" + sourceKiekerConfigPath.getFileName()));
+      Files.copy(sourceKiekerConfigPath, Paths
+          .get(folderOfPassedIdString + File.separator + sourceKiekerConfigPath.getFileName()));
     }
 
     if (!targetAopPath.toFile().exists()) {
       Files.copy(sourceAopPath,
-          Paths.get(folderOfPassedIdString + "/" + sourceAopPath.getFileName()));
+          Paths.get(folderOfPassedIdString + File.separator + sourceAopPath.getFileName()));
     }
 
     final String aopFileContent = new String(Files.readAllBytes(targetAopPath));
@@ -176,9 +181,9 @@ public final class MonitoringFilesystemService {
 
   public void updateKiekerConfigForProcezz(final Procezz procezzInCache, final String hostname)
       throws ProcezzMonitoringSettingsException {
-    final String folderOfPassedIdString = configsPath + "/" + procezzInCache.getId();
+    final String folderOfPassedIdString = configsPath + File.separator + procezzInCache.getId();
     final Path kiekerConfigPath =
-        Paths.get(folderOfPassedIdString + "/" + "kieker.monitoring.properties");
+        Paths.get(folderOfPassedIdString + File.separator + "kieker.monitoring.properties");
 
     final String appName =
         procezzInCache.getName() == null ? String.valueOf(procezzInCache.getPid())

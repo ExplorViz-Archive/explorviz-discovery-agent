@@ -25,7 +25,16 @@ public class WinAbstraction {
     // Redirect stderr and stdout to /dev/null
     // Sometimes procecces hang if they are spawned
     // without reading their output
-    final String[] splittedCMD = fullCMD.split("\\s+");
+    String[] splittedCMD = fullCMD.split("\\s+");
+    if (!splittedCMD[0].contains(".exe")) {
+      final String[] newSplit = new String[splittedCMD.length - 1];
+      newSplit[0] = splittedCMD[0] + " " + splittedCMD[1];
+
+      for (int i = 2; i < splittedCMD.length; i++) {
+        newSplit[i - 1] = splittedCMD[i];
+      }
+      splittedCMD = newSplit;
+    }
     executePowerShellCommand(splittedCMD);
   }
 

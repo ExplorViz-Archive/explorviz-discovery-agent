@@ -1,9 +1,7 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -59,9 +57,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCMD) -> {
         final Procezz p = new Procezz(pid, execCMD);
-        final String test = String.valueOf(placeholderId.incrementAndGet());
-        System.out.println("PID: " + pid + " ID: " + test);
-        p.setId(test);
+
+        p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
         setWorkingDirectory(p);
         setProgrammingLanguage(p);
@@ -154,8 +151,19 @@ public class WinJavaManagementType implements ProcezzManagementType {
     // TODO Auto-generated method stub
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+    String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
 
+    if (!execPathFragments[0].contains(".exe")) {
+      final String[] splittedCMD = execPathWithoutAgentFlag.split("\\s+");
+      final String[] newSplit = new String[splittedCMD.length - 1];
+      newSplit[0] = splittedCMD[0] + " " + splittedCMD[1];
+
+      for (int i = 2; i < splittedCMD.length; i++) {
+        newSplit[i - 1] = splittedCMD[i];
+      }
+
+      execPathFragments = newSplit;
+    }
     try {
       final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
@@ -183,7 +191,19 @@ public class WinJavaManagementType implements ProcezzManagementType {
     // TODO Auto-generated method stub
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-    final String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+    String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
+
+    if (!execPathFragments[0].contains(".exe")) {
+      final String[] splittedCMD = execPathWithoutAgentFlag.split("\\s+");
+      final String[] newSplit = new String[splittedCMD.length - 1];
+      newSplit[0] = splittedCMD[0] + " " + splittedCMD[1];
+
+      for (int i = 2; i < splittedCMD.length; i++) {
+        newSplit[i - 1] = splittedCMD[i];
+      }
+
+      execPathFragments = newSplit;
+    }
 
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
@@ -221,11 +241,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
-    final File uriconv = new File(aopConfigPath);
-    final URI aopConfigPathuri = uriconv.toURI();
-    // hier nicht sicher wegen der Fileausgabe mit ://, erstelle dementsprechend URI.
+
+    // System.out.println("From Path: " + uriconv.toUri()); // hier nicht sicher wegen der
+    // Fileausgabe mit ://, erstelle dementsprechend URI über uriconv.
     final String aopConfigPart =
-        "-Dorg.aspectj.weaver.loadtime.configuration=" + aopConfigPathuri.toString();
+        "-Dorg.aspectj.weaver.loadtime.configuration=file:///" + aopConfigPath;
 
     return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopConfigPart
         + SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
