@@ -44,7 +44,7 @@ public final class MonitoringFilesystemService {
 
     configsPath = Files.createDirectory(Paths.get(configsFolderPath));
 
-    System.out.println("From Path: " + configsPath.toUri());
+
     // final URI aopConfigPathuri = uriconv.toURI();
 
     copyDefaultKiekerProperties();
@@ -58,12 +58,13 @@ public final class MonitoringFilesystemService {
   }
 
   private void copyDefaultKiekerProperties() throws IOException {
+
+
     /*
      * Maybe we have to difference here in Windows and Linux The paths have to be returned in URI
      * for windows and for Linux to getFile Look at master and change it.
      */
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
     final URL urlToDefaultKiekerProps =
         classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_PROPS_FILENAME);
 
@@ -76,15 +77,13 @@ public final class MonitoringFilesystemService {
     Path kiekerDefaultConfigPath;
     try {
       kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.toURI());
-
-      System.out.println("From classloader: " + urlToDefaultKiekerProps);
-      System.out.println(
-          "Paths with uri + to file: " + Paths.get(urlToDefaultKiekerProps.toURI()).toFile());
-      System.out.println("getURI output: " + urlToDefaultKiekerProps.toURI());
-      System.out.println("getFile output: " + urlToDefaultKiekerProps.getFile());
-      System.out
-          .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
-
+      /*
+       * System.out.println("From classloader: " + urlToDefaultKiekerProps); System.out.println(
+       * "Paths with uri + to file: " + Paths.get(urlToDefaultKiekerProps.toURI()).toFile());
+       * System.out.println("getURI output: " + urlToDefaultKiekerProps.toURI());
+       * System.out.println("getFile output: " + urlToDefaultKiekerProps.getFile()); System.out
+       * .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+       */
       Files.copy(kiekerDefaultConfigPath,
           Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
     } catch (final URISyntaxException e) {
@@ -94,8 +93,13 @@ public final class MonitoringFilesystemService {
     Path kiekerDefaultAopPath;
     try {
       kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.toURI());
+
+      // System.out.println(Paths.get(configsPath.toString() + File.separator +
+      // AOP_PROPS_FILENAME).toFile().canRead());
       Files.copy(kiekerDefaultAopPath,
           Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
+      System.out.println(Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME)
+          .toFile().canWrite());
     } catch (final URISyntaxException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -131,7 +135,7 @@ public final class MonitoringFilesystemService {
 
   public void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
 
-    final String folderOfPassedIdString = configsPath + File.separator + procezz.getId();
+    final String folderOfPassedIdString = configsPath.toString() + File.separator + procezz.getId();
 
     final File folderOfPassedId = new File(folderOfPassedIdString);
 
@@ -139,9 +143,9 @@ public final class MonitoringFilesystemService {
       Files.createDirectory(Paths.get(folderOfPassedIdString));
     }
 
-    final String configPathString = configsPath + File.separator + KIEKER_PROPS_FILENAME;
+    final String configPathString = configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME;
 
-    final String aopPathString = configsPath + File.separator + AOP_PROPS_FILENAME;
+    final String aopPathString = configsPath.toString() + File.separator + AOP_PROPS_FILENAME;
 
     final Path sourceKiekerConfigPath = Paths.get(configPathString);
     final Path sourceAopPath = Paths.get(aopPathString);
@@ -167,13 +171,18 @@ public final class MonitoringFilesystemService {
 
     procezz.setAopContent(aopFileContent);
     procezz.setKiekerConfigContent(kiekerConfigFileContent);
+    System.out.println("Finished to create");
 
   }
 
   public void updateAopFileContentForProcezz(final Procezz procezz)
       throws ProcezzMonitoringSettingsException {
     final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
-    final Path aopPath = Paths.get(folderOfPassedIdString + "/" + "aop.xml");
+    final Path aopPath = Paths.get(folderOfPassedIdString + "/aop.xml");
+    System.out.println("This is my user: " + System.getProperty("user.name"));
+    System.out.println("This is the String: " + aopPath.toString());
+    System.out.println("WHat: " + aopPath);
+
 
     try {
       Files.write(aopPath, procezz.getAopContent().getBytes());
@@ -183,6 +192,7 @@ public final class MonitoringFilesystemService {
               + procezz.getId() + ")",
           e, procezz);
     }
+
   }
 
   public void updateKiekerConfigForProcezz(final Procezz procezzInCache, final String hostname)
