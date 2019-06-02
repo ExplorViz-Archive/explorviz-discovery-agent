@@ -35,9 +35,12 @@ ext {
 }
 
 dependencies {  
+  // https://mvnrepository.com/artifact/org.json/json
+  compile group: 'org.json', name: 'json', version: '20180813'
 
-// https://mvnrepository.com/artifact/org.jeasy/easy-rules-mvel
-compile group: 'org.jeasy', name: 'easy-rules-mvel', version: '3.3.0'
+
+  // https://mvnrepository.com/artifact/org.jeasy/easy-rules-mvel
+  compile group: 'org.jeasy', name: 'easy-rules-mvel', version: '3.3.0'
 
 
 // https://mvnrepository.com/artifact/org.jeasy/easy-rules-core

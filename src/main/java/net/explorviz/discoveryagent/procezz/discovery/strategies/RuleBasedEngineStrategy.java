@@ -1,7 +1,5 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Timer;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.services.UpdateRuleListService;
@@ -12,8 +10,6 @@ import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
-import org.jeasy.rules.mvel.MVELRuleFactory;
-import org.jeasy.rules.support.YamlRuleDefinitionReader;
 
 public class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
@@ -22,9 +18,12 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
       new RulesEngineParameters().skipOnFirstAppliedRule(true);
   private Facts facts;
   private Rules rules;
-  @Config("watch.timer")
+
   private final Timer updateTimer;
   private boolean exec = false;
+
+  @Config("updateRulesTimeRate")
+  private final int timer = 15000;
 
 
   public boolean isExec() {
@@ -40,7 +39,7 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
     updateTimer = new Timer(true);
     final UpdateRuleListService service = new UpdateRuleListService(this);
 
-    // updateTimer.scheduleAtFixedRate(service, 0, time);
+    updateTimer.scheduleAtFixedRate(service, 0, timer);
 
   }
 
@@ -58,31 +57,23 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   @Override
   public boolean applyEntireStrategy(final Procezz newProcezz) {
+    if (rules == null || rules.isEmpty()) {
+      System.out.println("Noch keine Regeln");
+      return false;
+    }
     exec = false;
     // Create Facts
     facts = new Facts();
     facts.put("processInfo", new InfoContainer(this, newProcezz));
     // System.out.println(newProcezz.getOsExecutionCommand());
-    final MVELRuleFactory ruleFactory = new MVELRuleFactory(new YamlRuleDefinitionReader());
-    // System.out.println(newProcezz.getId());
-
-    try {
-      rules = ruleFactory.createRules(new FileReader("rules2.yml"));
-    } catch (final FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (final Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
 
     final RulesEngine rulesEngine = new DefaultRulesEngine(parameters);
-    rulesEngine.fire(rules, facts);
-
-    System.out.println("YEAH YEAH: " + exec);
-
+    synchronized (rules) {
+      rulesEngine.fire(rules, facts);
+    }
+    System.out.println("Die Strategie wird verwendet: " + exec);
     return exec;
+
 
 
   }
@@ -102,9 +93,9 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   public void updateRuleList(final Rules rules) {
-    synchronized (this.rules) {
-      this.rules = rules;
-    }
+
+    this.rules = rules;
+    rules.forEach(a -> System.out.println("Dass ist die Regel: " + a.getName()));
   }
 
 }

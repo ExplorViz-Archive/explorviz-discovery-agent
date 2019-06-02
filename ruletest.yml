@@ -1,6 +1,6 @@
 
 ---
-name: rules2
+name: ruletest
 description: when age is greater then 18, then mark as adult
 priority: 1
 condition: "processInfo.getProc().getOsExecutionCommand().toLowerCase().contains(\"sample\");"

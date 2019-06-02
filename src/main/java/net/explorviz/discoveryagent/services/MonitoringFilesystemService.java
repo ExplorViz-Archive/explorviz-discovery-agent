@@ -94,12 +94,8 @@ public final class MonitoringFilesystemService {
     try {
       kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.toURI());
 
-      // System.out.println(Paths.get(configsPath.toString() + File.separator +
-      // AOP_PROPS_FILENAME).toFile().canRead());
       Files.copy(kiekerDefaultAopPath,
           Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
-      System.out.println(Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME)
-          .toFile().canWrite());
     } catch (final URISyntaxException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -171,17 +167,13 @@ public final class MonitoringFilesystemService {
 
     procezz.setAopContent(aopFileContent);
     procezz.setKiekerConfigContent(kiekerConfigFileContent);
-    System.out.println("Finished to create");
 
   }
 
   public void updateAopFileContentForProcezz(final Procezz procezz)
       throws ProcezzMonitoringSettingsException {
-    final String folderOfPassedIdString = configsPath + "/" + procezz.getId();
-    final Path aopPath = Paths.get(folderOfPassedIdString + "/aop.xml");
-    System.out.println("This is my user: " + System.getProperty("user.name"));
-    System.out.println("This is the String: " + aopPath.toString());
-    System.out.println("WHat: " + aopPath);
+    final String folderOfPassedIdString = configsPath + File.separator + procezz.getId();
+    final Path aopPath = Paths.get(folderOfPassedIdString + File.separator + "aop.xml");
 
 
     try {
