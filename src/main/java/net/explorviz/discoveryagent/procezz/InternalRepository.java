@@ -273,7 +273,7 @@ public final class InternalRepository {
   public Procezz handleProcezzPatchRequest(final Procezz procezz) throws ProcezzNotFoundException,
       ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
       ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
-
+    System.out.println("restart by Patch");
     synchronized (internalProcezzList) {
 
       final Procezz procezzInCache = findProcezzByID(procezz.getId());
@@ -290,14 +290,17 @@ public final class InternalRepository {
       }
 
       if (procezz.isErrorOccured()) {
+        System.out.println("Error has occured? : " + procezz.isErrorOccured());
         procezzInCache.setErrorOccured(true);
         procezzInCache.setErrorMessage(procezz.getErrorMessage());
+
       }
 
       if (procezzInCache.isRestart()) {
+        System.out.println("procezz is restarted? : " + procezzInCache.isRestart());
         return updateRestartedProcezz(procezzUtility.handleRestart(procezzInCache));
       }
-
+      System.out.println("return procezzInCache");
       return procezzInCache;
     }
   }
@@ -319,7 +322,7 @@ public final class InternalRepository {
     synchronized (internalProcezzList) {
 
       final Procezz procezzInCache = findProcezzByID(id);
-
+      System.out.println("restart by id");
       updateRestartedProcezz(procezzUtility.handleRestart(procezzInCache));
     }
   }

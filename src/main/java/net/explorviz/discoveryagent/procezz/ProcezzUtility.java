@@ -64,6 +64,7 @@ public final class ProcezzUtility {
     managementType.killProcezz(procezz);
 
     if (procezz.isStopped()) {
+      System.out.println("Procezz is stopped");
       throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START_STOPPED, new Exception(),
           procezz);
     } else {
@@ -71,11 +72,13 @@ public final class ProcezzUtility {
       if (procezz.isMonitoredFlag()) {
         // restart with monitoring
         managementType.injectMonitoringAgentInProcezz(procezz);
+        System.out.println("with monitoring");
 
       } else {
         // restart without monitoring
         managementType.removeMonitoringAgentInProcezz(procezz);
         managementType.injectProcezzIdentificationProperty(procezz);
+
       }
 
       managementType.startProcezz(procezz);
@@ -133,6 +136,9 @@ public final class ProcezzUtility {
     // Finally, add the new procezzes to the internalProcezzList
     synchronized (internalProcezzList) {
       for (final Procezz newProcezz : newProcezzListFromOS) {
+        applyStrategiesOnProcezz(newProcezz);
+
+        newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
         try {
           filesystemService.createConfigFolderForProcezz(newProcezz);
@@ -140,11 +146,6 @@ public final class ProcezzUtility {
           LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
               e.getMessage());
         }
-        applyStrategiesOnProcezz(newProcezz);
-
-        newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
-
-
 
         internalProcezzList.add(newProcezz);
       }

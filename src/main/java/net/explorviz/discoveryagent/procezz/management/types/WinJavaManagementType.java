@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -152,7 +153,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
     String[] execPathFragments = execPathWithoutAgentFlag.split("\\s+", 2);
-
+    // Space in path
     if (!execPathFragments[0].contains(".exe")) {
       final String[] splittedCMD = execPathWithoutAgentFlag.split("\\s+");
       final String[] newSplit = new String[splittedCMD.length - 1];
@@ -168,13 +169,26 @@ public class WinJavaManagementType implements ProcezzManagementType {
       final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
-
-      procezz.setAgentExecutionCommand(newExecCommand);
+          + procezz.getId() + SPACE_SYMBOL;
+      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
+      final String newExecCommandWd = newExecCommand + injectedPath;
+      procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
 
+  }
+
+  public String injectWorkingDirectory(final String path, final Procezz procezz) {
+    final String workingDir = procezz.getWorkingDirectory();
+    final String[] execPathFragmentsWork = path.split("\\s+");
+    String injectedString = execPathFragmentsWork[0];
+    for (int i = 1; i < execPathFragmentsWork.length - 1; i++) {
+      injectedString += SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL;
+    }
+    injectedString += workingDir.trim() + File.separator
+        + execPathFragmentsWork[execPathFragmentsWork.length - 1];
+    return injectedString;
   }
 
   @Override
@@ -207,9 +221,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
-
-      procezz.setAgentExecutionCommand(newExecCommand);
+          + procezz.getId() + SPACE_SYMBOL;
+      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
+      final String newExecCommandWd = newExecCommand + injectedPath;
+      procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
@@ -243,7 +258,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
 
     // System.out.println("From Path: " + uriconv.toUri()); // hier nicht sicher wegen der
-    // Fileausgabe mit ://, erstelle dementsprechend URI über uriconv.
+    // Fileausgabe mit ://, erstelle dementsprechend URI ï¿½ber uriconv.
     final String aopConfigPart =
         "-Dorg.aspectj.weaver.loadtime.configuration=file:///" + aopConfigPath;
 

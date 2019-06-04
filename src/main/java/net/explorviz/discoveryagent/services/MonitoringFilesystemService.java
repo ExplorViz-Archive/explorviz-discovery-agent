@@ -35,7 +35,6 @@ public final class MonitoringFilesystemService {
   public void createMonitoringConfigsFolder() throws IOException {
 
     // Create temporary folder in temp directory of this OS
-    // In return, we get te
     final Path tempPathToDir = Files.createTempDirectory("explorviz-discovery-agent");
 
     final File tempDir = tempPathToDir.toFile();
@@ -44,8 +43,6 @@ public final class MonitoringFilesystemService {
 
     configsPath = Files.createDirectory(Paths.get(configsFolderPath));
 
-
-    // final URI aopConfigPathuri = uriconv.toURI();
 
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
@@ -59,11 +56,6 @@ public final class MonitoringFilesystemService {
 
   private void copyDefaultKiekerProperties() throws IOException {
 
-
-    /*
-     * Maybe we have to difference here in Windows and Linux The paths have to be returned in URI
-     * for windows and for Linux to getFile Look at master and change it.
-     */
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     final URL urlToDefaultKiekerProps =
         classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_PROPS_FILENAME);
@@ -87,7 +79,6 @@ public final class MonitoringFilesystemService {
       Files.copy(kiekerDefaultConfigPath,
           Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
     } catch (final URISyntaxException e) {
-      System.out.println("something went wrong");
       e.printStackTrace();
     }
     Path kiekerDefaultAopPath;

@@ -36,7 +36,6 @@ public class InfoContainer {
     try {
       fileSystem.updateAopFileContentForProcezz(proc);
     } catch (final ProcezzMonitoringSettingsException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

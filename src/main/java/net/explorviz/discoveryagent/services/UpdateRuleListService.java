@@ -1,12 +1,9 @@
 package net.explorviz.discoveryagent.services;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.TimerTask;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import net.explorviz.discoveryagent.procezz.discovery.strategies.RuleBasedEngineStrategy;
 import net.explorviz.shared.config.annotations.Config;
 import net.explorviz.shared.discovery.services.ClientService;
@@ -15,8 +12,12 @@ import org.jeasy.rules.mvel.MVELRuleFactory;
 import org.jeasy.rules.support.JsonRuleDefinitionReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateRuleListService extends TimerTask {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateRuleListService.class);
   String url = "http://localhost:8085/v1/extension/dummy/test/rulelist";
   private final RuleBasedEngineStrategy strat;
 
@@ -30,38 +31,36 @@ public class UpdateRuleListService extends TimerTask {
 
   private static final String MediaType = "application/vnd.api+json";
 
-  MVELRuleFactory ruleFactoryJSON = new MVELRuleFactory(new JsonRuleDefinitionReader());
+  private static final MVELRuleFactory ruleFactoryJSON =
+      new MVELRuleFactory(new JsonRuleDefinitionReader());
 
 
 
-  public UpdateRuleListService(final RuleBasedEngineStrategy strat2) {
-    strat = strat2;
+  public UpdateRuleListService(final RuleBasedEngineStrategy strat) {
+    this.strat = strat;
   }
 
 
 
   @Override
   public void run() {
-    final Client client = ClientBuilder.newClient();
-    final String response = client.target(url).request(MediaType).get(String.class);
-
     final ClientService clienttest = new ClientService();
     // TODO registration of reader and writer maybe?
     final String s = clienttest.doGETRequest(String.class, url, null);
 
-    try {
-      strat.updateRuleList(stringToRules(s));
-    } catch (final FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (final Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    final Rules ruleList = stringToRules(s);
+    if (!ruleList.isEmpty()) {
+      strat.updateRuleList(ruleList);
     }
   }
 
-  public Rules stringToRules(final String s) throws FileNotFoundException, Exception {
-    final JSONObject jObj = new JSONObject(s);
+  /**
+   *
+   * @param ruleString List of rules in json representation
+   * @return returns a List of rules in Rules-Objects
+   */
+  public Rules stringToRules(final String ruleString) {
+    final JSONObject jObj = new JSONObject(ruleString);
     final JSONArray dataObj =
         jObj.getJSONObject("data").getJSONObject("attributes").getJSONArray("ruleList");
 
@@ -71,11 +70,16 @@ public class UpdateRuleListService extends TimerTask {
       file.write(dataObj.toString());
       file.flush();
     } catch (final IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.info("Problems getting into the file for the json. Please check ruleList.json.");
     }
 
-    return ruleFactoryJSON.createRules(new FileReader("ruleList.json"));
+    try {
+      return ruleFactoryJSON.createRules(new FileReader("ruleList.json"));
+    } catch (final Exception e) {
+      LOGGER.info("Received faulty rulelist from Updater.");
+
+      return null;
+    }
 
   }
 

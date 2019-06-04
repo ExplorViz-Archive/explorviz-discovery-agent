@@ -58,23 +58,18 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
   @Override
   public boolean applyEntireStrategy(final Procezz newProcezz) {
     if (rules == null || rules.isEmpty()) {
-      System.out.println("Noch keine Regeln");
       return false;
     }
     exec = false;
     // Create Facts
     facts = new Facts();
     facts.put("processInfo", new InfoContainer(this, newProcezz));
-    // System.out.println(newProcezz.getOsExecutionCommand());
 
     final RulesEngine rulesEngine = new DefaultRulesEngine(parameters);
     synchronized (rules) {
       rulesEngine.fire(rules, facts);
     }
-    System.out.println("Die Strategie wird verwendet: " + exec);
     return exec;
-
-
 
   }
 
@@ -93,9 +88,7 @@ public class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   public void updateRuleList(final Rules rules) {
-
     this.rules = rules;
-    rules.forEach(a -> System.out.println("Dass ist die Regel: " + a.getName()));
   }
 
 }

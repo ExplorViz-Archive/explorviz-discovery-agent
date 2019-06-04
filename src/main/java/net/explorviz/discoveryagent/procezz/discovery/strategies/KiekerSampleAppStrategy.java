@@ -66,7 +66,6 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
       final String proposedExecCMD =
           splittetAtJarFlag[0] + delimeter + workingDir.trim() + "/" + splittetAtJarFlag[1].trim();
-
       newProcezz.setProposedExecutionCommand(proposedExecCMD);
 
     }
