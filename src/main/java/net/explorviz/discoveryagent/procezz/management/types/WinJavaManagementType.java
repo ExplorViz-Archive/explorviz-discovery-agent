@@ -57,7 +57,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCMD) -> {
-        final Procezz p = new Procezz(pid, execCMD);
+        System.out.println(execCMD.replace(".\\", ""));
+        final Procezz p = new Procezz(pid, execCMD.replace(".\\", ""));
 
         p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
@@ -85,8 +86,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void setWorkingDirectory(final Procezz procezz) {
-    if (procezz.getOsExecutionCommand().toLowerCase().contains("sampleApplication")) {
-      procezz.setWorkingDirectory("");
+    if (procezz.getOsExecutionCommand().toLowerCase().contains("sample")) {
+      procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop");
     } else {
       procezz.setWorkingDirectory("");
     }
