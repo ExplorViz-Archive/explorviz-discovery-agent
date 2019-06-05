@@ -136,16 +136,17 @@ public final class ProcezzUtility {
     // Finally, add the new procezzes to the internalProcezzList
     synchronized (internalProcezzList) {
       for (final Procezz newProcezz : newProcezzListFromOS) {
-        applyStrategiesOnProcezz(newProcezz);
-
-        newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
-
         try {
           filesystemService.createConfigFolderForProcezz(newProcezz);
         } catch (final IOException e) {
           LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
               e.getMessage());
         }
+        applyStrategiesOnProcezz(newProcezz);
+
+        newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
+
+
 
         internalProcezzList.add(newProcezz);
       }

@@ -187,7 +187,6 @@ public class JavaCLIManagementType implements ProcezzManagementType {
           + procezz.getId() + SPACE_SYMBOL;
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
       final String newExecCommandWd = newExecCommand + injectedPath;
-      System.out.println(newExecCommandWd);
       procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
