@@ -158,7 +158,7 @@ public final class MonitoringFilesystemService {
 
     procezz.setAopContent(aopFileContent);
     procezz.setKiekerConfigContent(kiekerConfigFileContent);
-
+    System.out.println("Created Folders for process" + procezz.getOsExecutionCommand());
   }
 
   public void updateAopFileContentForProcezz(final Procezz procezz)
@@ -218,17 +218,17 @@ public final class MonitoringFilesystemService {
   }
 
   public String getKiekerConfigPathForProcezzID(final String entityID) {
-    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
+
+    return configsPath.toAbsolutePath().toString() + entityID + File.separator
         + KIEKER_PROPS_FILENAME;
   }
 
   public String getAopConfigPath() {
-    return configsPath.toAbsolutePath().toString() + File.separator + AOP_PROPS_FILENAME;
+    return configsPath.toAbsolutePath().toUri() + AOP_PROPS_FILENAME;
   }
 
   public String getAopConfigPathForProcezzID(final String entityID) {
-    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
-        + AOP_PROPS_FILENAME;
+    return configsPath.toAbsolutePath().toUri() + "/" + entityID + "/" + AOP_PROPS_FILENAME;
   }
 
   /*

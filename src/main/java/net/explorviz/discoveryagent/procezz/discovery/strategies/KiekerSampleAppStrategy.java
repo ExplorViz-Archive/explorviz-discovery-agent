@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
+import java.io.File;
 import java.util.Locale;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
@@ -64,8 +65,8 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
       final String[] splittetAtJarFlag = osExecCmd.split(delimeter, 2);
 
-      final String proposedExecCMD =
-          splittetAtJarFlag[0] + delimeter + workingDir.trim() + "/" + splittetAtJarFlag[1].trim();
+      final String proposedExecCMD = splittetAtJarFlag[0] + delimeter + workingDir.trim()
+          + File.separator + splittetAtJarFlag[1].trim();
       newProcezz.setProposedExecutionCommand(proposedExecCMD);
 
     }

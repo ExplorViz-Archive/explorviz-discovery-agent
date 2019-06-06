@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class UpdateRuleListService extends TimerTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateRuleListService.class);
-  String url = "http://localhost:8085/v1/extension/dummy/test/rulelist";
+  String url = "http://192.168.48.234:8085/v1/extension/dummy/test/rulelist";
   private final RuleBasedEngineStrategy strat;
 
   private static final String httpBase = "http://";

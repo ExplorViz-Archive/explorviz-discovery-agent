@@ -63,7 +63,9 @@ public class WinAbstraction {
 
 
   public static void executePowerShellCommand(final String... cmd) {
-
+    for (int i = 0; i < cmd.length; i++) {
+      System.out.println(cmd[i]);
+    }
     /*
      * start process and redirect output to NUL
      */

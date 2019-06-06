@@ -57,7 +57,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCMD) -> {
-        System.out.println(execCMD.replace(".\\", ""));
         final Procezz p = new Procezz(pid, execCMD.replace(".\\", ""));
 
         p.setId(String.valueOf(placeholderId.incrementAndGet()));
@@ -173,6 +172,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
           + procezz.getId() + SPACE_SYMBOL;
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
       final String newExecCommandWd = newExecCommand + injectedPath;
+      System.out.println("is used" + newExecCommandWd);
       procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
@@ -257,11 +257,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
-
+    System.out.println("the aopConfigPath: " + aopConfigPath);
     // System.out.println("From Path: " + uriconv.toUri()); // hier nicht sicher wegen der
     // Fileausgabe mit ://, erstelle dementsprechend URI �ber uriconv.
-    final String aopConfigPart =
-        "-Dorg.aspectj.weaver.loadtime.configuration=file:///" + aopConfigPath;
+    final String aopConfigPart = "-Dorg.aspectj.weaver.loadtime.configuration=" + aopConfigPath;
 
     return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopConfigPart
         + SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
