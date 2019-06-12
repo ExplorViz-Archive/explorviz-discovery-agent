@@ -41,6 +41,7 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
     if (isDesiredApplication(newProcezz)) {
       newProcezz.setName("KiekerSampleApp");
+      System.out.println(newProcezz.getId());
     }
 
   }

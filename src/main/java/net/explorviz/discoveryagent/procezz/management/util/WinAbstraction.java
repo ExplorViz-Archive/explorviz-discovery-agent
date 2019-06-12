@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
-
+  private static final String BASH_PREFIX = "cmd.exe";
+  private static final String BASH_SUFFIX = "&";
+  private static final String BASH_FLAG = "/c";
   private static final int SINGLE_COMMAND_LENGTH = 1;
 
   private WinAbstraction() {
@@ -25,7 +27,8 @@ public class WinAbstraction {
     // Redirect stderr and stdout to /dev/null
     // Sometimes procecces hang if they are spawned
     // without reading their output
-    String[] splittedCMD = fullCMD.split("\\s+");
+    final String fullCMDExt = BASH_PREFIX + " " + BASH_FLAG + " " + fullCMD;
+    String[] splittedCMD = fullCMDExt.split("\\s+");
     if (!splittedCMD[0].contains(".exe")) {
       final String[] newSplit = new String[splittedCMD.length - 1];
       newSplit[0] = splittedCMD[0] + " " + splittedCMD[1];

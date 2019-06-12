@@ -43,7 +43,7 @@ public final class MonitoringFilesystemService {
 
     configsPath = Files.createDirectory(Paths.get(configsFolderPath));
 
-
+    System.out.println(configsPath);
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
     fileSys = this;
@@ -218,17 +218,17 @@ public final class MonitoringFilesystemService {
   }
 
   public String getKiekerConfigPathForProcezzID(final String entityID) {
-
-    return configsPath.toAbsolutePath().toString() + entityID + File.separator
+    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
         + KIEKER_PROPS_FILENAME;
   }
 
   public String getAopConfigPath() {
-    return configsPath.toAbsolutePath().toUri() + AOP_PROPS_FILENAME;
+    return configsPath.toAbsolutePath().toString() + File.separator + AOP_PROPS_FILENAME;
   }
 
   public String getAopConfigPathForProcezzID(final String entityID) {
-    return configsPath.toAbsolutePath().toUri() + "/" + entityID + "/" + AOP_PROPS_FILENAME;
+    return configsPath.toAbsolutePath().toString() + File.separator + entityID + File.separator
+        + AOP_PROPS_FILENAME;
   }
 
   /*

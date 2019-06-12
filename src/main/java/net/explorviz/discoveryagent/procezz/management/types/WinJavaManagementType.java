@@ -257,10 +257,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
     final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
-    System.out.println("the aopConfigPath: " + aopConfigPath);
-    // System.out.println("From Path: " + uriconv.toUri()); // hier nicht sicher wegen der
-    // Fileausgabe mit ://, erstelle dementsprechend URI �ber uriconv.
-    final String aopConfigPart = "-Dorg.aspectj.weaver.loadtime.configuration=" + aopConfigPath;
+    final String aopConfigPart =
+        "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopConfigPath;
 
     return javaagentPart + SPACE_SYMBOL + kiekerConfigPart + SPACE_SYMBOL + aopConfigPart
         + SPACE_SYMBOL + SKIP_DEFAULT_AOP + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG;
