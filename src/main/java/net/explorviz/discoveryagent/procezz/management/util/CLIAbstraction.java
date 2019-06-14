@@ -46,6 +46,7 @@ public final class CLIAbstraction {
     // Redirect stderr and stdout to /dev/null
     // Sometimes procecces hang if they are spawned
     // without reading their output
+
     final String[] splittedCMD = fullCMD.split("\\s+");
     executeShellCommand(splittedCMD);
   }

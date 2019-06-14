@@ -14,7 +14,6 @@ public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
   private static final String BASH_PREFIX = "cmd.exe";
-  private static final String BASH_SUFFIX = "&";
   private static final String BASH_FLAG = "/c";
   private static final int SINGLE_COMMAND_LENGTH = 1;
 
@@ -23,6 +22,7 @@ public class WinAbstraction {
   }
 
   public static void startProcessByCMD(final String fullCMD) throws IOException {
+    System.out.println(fullCMD);
 
     // Redirect stderr and stdout to /dev/null
     // Sometimes procecces hang if they are spawned
