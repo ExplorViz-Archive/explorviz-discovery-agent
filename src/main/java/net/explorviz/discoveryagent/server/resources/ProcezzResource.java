@@ -31,7 +31,6 @@ public class ProcezzResource {
   @GET
   @Produces(MEDIA_TYPE)
   public List<Procezz> getAllProcezzes() {
-    internalRepo.getProcezzList().forEach(a -> System.out.println("MIST MIST: " + a.getPid()));
     return internalRepo.getProcezzList();
   }
 

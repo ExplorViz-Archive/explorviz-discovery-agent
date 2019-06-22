@@ -4,12 +4,15 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import javax.inject.Singleton;
 import net.explorviz.discoveryagent.procezz.InternalRepository;
 import net.explorviz.discoveryagent.procezz.ProcezzUtility;
+import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategyFactory;
+import net.explorviz.discoveryagent.procezz.discovery.strategies.RuleBasedEngineStrategy;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementTypeFactory;
 import net.explorviz.discoveryagent.server.resources.AgentBroadcastSubResource;
 import net.explorviz.discoveryagent.services.BroadcastService;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.discoveryagent.services.RegistrationService;
 import net.explorviz.discoveryagent.services.UpdateProcezzListService;
+import net.explorviz.discoveryagent.services.UpdateRuleListService;
 import net.explorviz.discoveryagent.util.ResourceConverterFactory;
 import net.explorviz.shared.config.annotations.ConfigValues;
 import net.explorviz.shared.config.annotations.injection.ConfigInjectionResolver;
@@ -23,10 +26,11 @@ public class DependencyInjectionBinder extends AbstractBinder {
   public void configure() {
 
     // Injectable config properties
-    this.bind(new ConfigInjectionResolver())
-        .to(new TypeLiteral<InjectionResolver<ConfigValues>>() {});
+    this.bind(new ConfigInjectionResolver()).to(new TypeLiteral<InjectionResolver<ConfigValues>>() {
+    });
     this.bind(new ConfigValuesInjectionResolver())
-        .to(new TypeLiteral<InjectionResolver<ConfigValues>>() {});
+        .to(new TypeLiteral<InjectionResolver<ConfigValues>>() {
+        });
 
     this.bindFactory(ResourceConverterFactory.class).to(ResourceConverter.class)
         .in(Singleton.class);
@@ -40,7 +44,10 @@ public class DependencyInjectionBinder extends AbstractBinder {
     this.bind(RegistrationService.class).to(RegistrationService.class).in(Singleton.class);
     this.bind(UpdateProcezzListService.class).to(UpdateProcezzListService.class)
         .in(Singleton.class);
-
+    this.bind(DiscoveryStrategyFactory.class).to(DiscoveryStrategyFactory.class)
+        .in(Singleton.class);
+    this.bind(RuleBasedEngineStrategy.class).to(RuleBasedEngineStrategy.class).in(Singleton.class);
+    this.bind(UpdateRuleListService.class).to(UpdateRuleListService.class).in(Singleton.class);
     // Broadcast Mechanism
     this.bind(BroadcastService.class).to(BroadcastService.class).in(Singleton.class);
     this.bind(AgentBroadcastSubResource.class).to(AgentBroadcastSubResource.class);

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
-import net.explorviz.discoveryagent.procezz.management.util.CLIAbstraction;
+import net.explorviz.discoveryagent.procezz.management.types.util.CLIAbstraction;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.shared.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeIncompatibleException;
@@ -55,9 +55,9 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     final AtomicLong placeholderId = new AtomicLong(0);
 
     try {
-      CLIAbstraction.findProzzeses().forEach((pid, execCMD) -> {
-        if (!execCMD.contains(CLIAbstraction.GET_ALL_PROCESSES) && !"grep java".equals(execCMD)) {
-          final Procezz p = new Procezz(pid, execCMD);
+      CLIAbstraction.findProzzeses().forEach((pid, execCmd) -> {
+        if (!execCmd.contains(CLIAbstraction.GET_ALL_PROCESSES) && !"grep java".equals(execCmd)) {
+          final Procezz p = new Procezz(pid, execCmd);
 
           // default id for serialization / deserialization by JSON API converter
           p.setId(String.valueOf(placeholderId.incrementAndGet()));

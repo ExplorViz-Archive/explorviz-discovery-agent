@@ -30,6 +30,8 @@ public class SetupApplicationListener implements ApplicationEventListener {
   @Inject
   private RegistrationService registrationService;
 
+
+
   @Override
   public void onEvent(final ApplicationEvent event) {
 

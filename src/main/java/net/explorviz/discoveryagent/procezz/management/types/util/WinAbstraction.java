@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.procezz.management.util;
+package net.explorviz.discoveryagent.procezz.management.types.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,54 +21,63 @@ public class WinAbstraction {
 
   }
 
-  public static void startProcessByCMD(final String fullCMD) throws IOException {
-    System.out.println(fullCMD);
+  /**
+   * starts a process by cmd.
+   *
+   * @param fullCmd String, containing Command that has to be executed.
+   * @throws IOException by String mistakes.
+   */
+  public static void startProcessCmd(final String fullCmd) throws IOException {
+    System.out.println(fullCmd);
 
     // Redirect stderr and stdout to /dev/null
     // Sometimes procecces hang if they are spawned
     // without reading their output
-    final String fullCMDExt = BASH_PREFIX + " " + BASH_FLAG + " " + fullCMD;
-    String[] splittedCMD = fullCMDExt.split("\\s+");
-    if (!splittedCMD[0].contains(".exe")) {
-      final String[] newSplit = new String[splittedCMD.length - 1];
-      newSplit[0] = splittedCMD[0] + " " + splittedCMD[1];
+    final String fullCmdExt = BASH_PREFIX + " " + BASH_FLAG + " " + fullCmd;
+    String[] splittedCmd = fullCmdExt.split("\\s+");
+    if (!splittedCmd[0].contains(".exe")) {
+      final String[] newSplit = new String[splittedCmd.length - 1];
+      newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
 
-      for (int i = 2; i < splittedCMD.length; i++) {
-        newSplit[i - 1] = splittedCMD[i];
+      for (int i = 2; i < splittedCmd.length; i++) {
+        newSplit[i - 1] = splittedCmd[i];
       }
-      splittedCMD = newSplit;
+      splittedCmd = newSplit;
     }
-    executePowerShellCommand(splittedCMD);
+    executeShellCommand(splittedCmd);
   }
 
+  /**
+   * Returns list of running Process in the OS.
+   *
+   * @return list of Processes.
+   * @throws IOException by invalid method usage.
+   */
   public static Map<Long, String> findProzzeses() throws IOException {
     // Receive List of Processes
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
 
-    // Delete all Processes, that don't contain java or are executed by jProcesses.
-    // jProcesses
-    // Maybe put this check into a method?
+    // Delete all Processes, that don't contain java or are executed by this process.
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
         || !a.getCommand().toLowerCase().contains("java")
         || a.getCommand().toLowerCase().contains("taskkill"));
 
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
-    // VIelleicht müssen die escapes entfernt werden?
 
-    inf.forEach(proc -> {
-      pidAndProcessPairs.put(Long.valueOf(proc.getPid()), proc.getCommand().replaceAll("\"", ""));
-    });
+    inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
+        proc.getCommand().replaceAll("\"", "")));
 
     return pidAndProcessPairs;
 
   }
 
-
-  public static void executePowerShellCommand(final String... cmd) {
-    for (int i = 0; i < cmd.length; i++) {
-      System.out.println(cmd[i]);
-    }
+  /**
+   * Executes Shell CMD.
+   *
+   * @param cmd that gets executed.
+   */
+  public static void executeShellCommand(final String... cmd) {
     /*
      * start process and redirect output to NUL
      */
@@ -85,12 +94,12 @@ public class WinAbstraction {
     }
   }
 
-  public static String findWorkingDirectoryForPID(final long pid) throws IOException {
+  public static String findWdforPid(final long pid) throws IOException {
 
     return null;
   }
 
-  public static void killProcessByPID(final long pid) throws IOException {
+  public static void killProcessPid(final long pid) throws IOException {
     JProcesses.killProcess((int) pid);
   }
 

@@ -24,6 +24,7 @@ public final class RegistrationService {
 
   private final String httpPrefix = "http://";
 
+
   @Config("registrationTimerRate")
   private int registrationTimerRate;
 
@@ -64,11 +65,13 @@ public final class RegistrationService {
   private final InternalRepository internalRepository;
   private final ProcezzUtility procezzUtility;
 
+
   @Inject
   public RegistrationService(final InternalRepository internalRepository,
       final ProcezzUtility procezzUtility) {
     this.internalRepository = internalRepository;
     this.procezzUtility = procezzUtility;
+
   }
 
   public boolean isRegistrationDone() {
@@ -126,8 +129,8 @@ public final class RegistrationService {
       try {
         procezzUtility.createUniqureIdsForProcezzes(internalRepository.agentObject.getId(),
             internalRepository.getProcezzList());
-        internalRepository.getProcezzList().forEach(a -> System.out.println(a.getOsExecutionCommand()));
-        System.out.println("Ist meine Liste etwa leer? :" + internalRepository.getProcezzList().isEmpty());
+        internalRepository.getProcezzList()
+            .forEach(a -> System.out.println(a.getOsExecutionCommand()));
         registrationDone.set(true);
         startUpdateService();
       } catch (ProcezzGenericException | GenericNoConnectionException e) {
@@ -183,6 +186,8 @@ public final class RegistrationService {
 
     // refresh internal ProcessList every minute
     updateTimer.scheduleAtFixedRate(updateService, 0, updateTimerRate);
+
+
   }
 
 }

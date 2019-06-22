@@ -32,12 +32,17 @@ public final class ProcezzUtility {
 
   private final MonitoringFilesystemService filesystemService;
   private final ProcezzManagementTypeFactory procezzMngTypeFactory;
+  private final DiscoveryStrategyFactory stratFactory;
+
 
   @Inject
   public ProcezzUtility(final MonitoringFilesystemService filesystemService,
-      final ProcezzManagementTypeFactory procezzMngTypeFactory) {
+      final ProcezzManagementTypeFactory procezzMngTypeFactory,
+      final DiscoveryStrategyFactory stratFactory) {
     this.filesystemService = filesystemService;
     this.procezzMngTypeFactory = procezzMngTypeFactory;
+    this.stratFactory = stratFactory;
+
   }
 
   public void handleStop(final Procezz procezzInCache)
@@ -160,8 +165,9 @@ public final class ProcezzUtility {
     }
   }
 
+
   public void applyStrategiesOnProcezz(final Procezz newProcezz) {
-    final List<DiscoveryStrategy> strategies = DiscoveryStrategyFactory.giveAllStrategies();
+    final List<DiscoveryStrategy> strategies = stratFactory.giveAllStrategies();
 
     for (final DiscoveryStrategy strategy : strategies) {
       final boolean isDesiredApp = strategy.applyEntireStrategy(newProcezz);

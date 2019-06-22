@@ -32,6 +32,12 @@ public final class MonitoringFilesystemService {
 
   private static MonitoringFilesystemService fileSys;
 
+
+  /**
+   * Creates folder for entire Monitoring.
+   *
+   * @throws IOException should there be a mistake in the created Paths.
+   */
   public void createMonitoringConfigsFolder() throws IOException {
 
     // Create temporary folder in temp directory of this OS
@@ -120,6 +126,12 @@ public final class MonitoringFilesystemService {
     Files.write(kiekerConfigPath, kiekerConfigNewContent);
   }
 
+  /**
+   * Creates folder Processes, containing configuration-files.
+   *
+   * @param procezz that gets a config-folder.
+   * @throws IOException should there be a mistake in the created Paths.
+   */
   public void createConfigFolderForProcezz(final Procezz procezz) throws IOException {
 
     final String folderOfPassedIdString = configsPath.toString() + File.separator + procezz.getId();
@@ -158,9 +170,15 @@ public final class MonitoringFilesystemService {
 
     procezz.setAopContent(aopFileContent);
     procezz.setKiekerConfigContent(kiekerConfigFileContent);
-    System.out.println("Created Folders for process" + procezz.getOsExecutionCommand());
+
   }
 
+  /**
+   * updates the aop.xml of a Process with the aop.xml-String in the procezz-Object.
+   *
+   * @param procezz that aop.xml get updated.
+   * @throws ProcezzMonitoringSettingsException when there is a problem while updating the aop.xml.
+   */
   public void updateAopFileContentForProcezz(final Procezz procezz)
       throws ProcezzMonitoringSettingsException {
     final String folderOfPassedIdString = configsPath + File.separator + procezz.getId();
@@ -178,6 +196,14 @@ public final class MonitoringFilesystemService {
 
   }
 
+  /**
+   * Updates the kiekerconfigfile of a given process.
+   *
+   * @param procezzInCache given process.
+   * @param hostname getting updated.
+   * @throws ProcezzMonitoringSettingsException should there be a problem while the file gets
+   *         updated.
+   */
   public void updateKiekerConfigForProcezz(final Procezz procezzInCache, final String hostname)
       throws ProcezzMonitoringSettingsException {
     final String folderOfPassedIdString = configsPath + File.separator + procezzInCache.getId();

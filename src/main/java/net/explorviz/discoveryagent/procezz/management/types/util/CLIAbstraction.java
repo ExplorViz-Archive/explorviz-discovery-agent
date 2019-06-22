@@ -1,4 +1,4 @@
-package net.explorviz.discoveryagent.procezz.management.util;
+package net.explorviz.discoveryagent.procezz.management.types.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,9 +70,7 @@ public final class CLIAbstraction {
   }
 
   public static void executeShellCommand(final String... cmd) throws IOException {
-    for (int i = 0; i < cmd.length; i++) {
-      System.out.println(cmd[i]);
-    }
+
     // Some command line tools don't work as parameter for /bin/sh
     // Alternatively, we can execute them with a different exec command
     // as self-contained command line tools. Therefore, we need the

@@ -2,8 +2,10 @@ package net.explorviz.discoveryagent.procezz.discovery;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.explorviz.discoveryagent.procezz.discovery.strategies.KiekerSampleAppStrategy;
-import net.explorviz.discoveryagent.procezz.discovery.strategies.TomcatStrategy;
+import javax.inject.Inject;
+import net.explorviz.discoveryagent.procezz.discovery.strategies.RuleBasedEngineStrategy;
+import net.explorviz.shared.config.annotations.Config;
+
 
 public final class DiscoveryStrategyFactory {
 
@@ -11,18 +13,32 @@ public final class DiscoveryStrategyFactory {
 
   private static List<DiscoveryStrategy> strategies = new ArrayList<DiscoveryStrategy>();
 
-  private DiscoveryStrategyFactory() {
-    // no need to instantiate
+  @Config("updateRulesTimeRate")
+  private int time;
+
+  private final RuleBasedEngineStrategy ruleStrat;
+
+
+  @Inject
+  public DiscoveryStrategyFactory(final RuleBasedEngineStrategy ruleStrat) {
+
+    this.ruleStrat = ruleStrat;
+    ruleStrat.startRuleFetch();
   }
 
-  public static List<DiscoveryStrategy> giveAllStrategies() {
+  /**
+   * Returns a list of all strategies.
+   *
+   * @return all strategies.
+   */
 
+  public List<DiscoveryStrategy> giveAllStrategies() {
     synchronized (strategies) {
 
       if (strategies.isEmpty()) {
-        strategies.add(new KiekerSampleAppStrategy());
-        strategies.add(new TomcatStrategy());
-        // strategies.add(new RuleBasedEngineStrategy());
+        // strategies.add(new KiekerSampleAppStrategy());
+        // strategies.add(new TomcatStrategy());
+        strategies.add(ruleStrat);
       }
 
     }
