@@ -1,5 +1,6 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
+import java.util.Map;
 import java.util.Timer;
 import javax.inject.Inject;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
@@ -23,7 +24,6 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   private Facts facts;
   private Rules rules;
   private Timer updateTimer;
-  private boolean exec = false;
   private static final String httpBase = "http://";
   @Config("updateIP")
   private String iP;
@@ -58,13 +58,6 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   }
 
-  public boolean isExec() {
-    return exec;
-  }
-
-  public void setExec(final boolean exec) {
-    this.exec = exec;
-  }
 
 
   @Override
@@ -84,17 +77,22 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     if (rules == null || rules.isEmpty()) {
       return false;
     }
-    exec = false;
     // Create Facts
     facts = new Facts();
     facts.put("processInfo", newProcezz);
-    facts.put("updateExec", new ExecObject(this, fileSystem));
+    facts.put("updateExec", new ExecObject(fileSystem));
 
     final RulesEngine rulesEngine = new DefaultRulesEngine(parameters);
+    boolean check = false;
     synchronized (rules) {
+
+      final Map<org.jeasy.rules.api.Rule, Boolean> checkUp = rulesEngine.check(rules, facts);
+      check = checkUp.containsValue(true);
+      System.out
+          .println("The check val is: " + check + "for " + newProcezz.getOsExecutionCommand());
       rulesEngine.fire(rules, facts);
     }
-    return exec;
+    return check;
 
   }
 

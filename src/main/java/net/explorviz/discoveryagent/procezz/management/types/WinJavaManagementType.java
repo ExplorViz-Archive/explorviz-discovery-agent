@@ -27,11 +27,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
   private static final String SPACE_SYMBOL = " ";
   private static final String SKIP_DEFAULT_AOP =
       "-Dkieker.monitoring.skipDefaultAOPConfiguration=true";
-  // private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
-  // "\\s\\-Dexplorviz\\.agent\\.model\\.id=([^\\s]+)";
   private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
   private static final String REGEX = "\\s+";
+  private static final String EXEC = ".exe";
 
   private final MonitoringFilesystemService monitoringFsService;
 
@@ -147,26 +146,25 @@ public class WinJavaManagementType implements ProcezzManagementType {
     System.out.println("injectMonitoringAgentInProcezz used");
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
+    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
 
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
 
     // TODO Auto-generated method stub
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-    String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
-    // Space in path
-    if (!execPathFragments[0].contains(".exe")) {
-      final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX);
-      final String[] newSplit = new String[splittedCmd.length - 1];
-      newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-
-      for (int i = 2; i < splittedCmd.length; i++) {
-        newSplit[i - 1] = splittedCmd[i];
-      }
-
-      execPathFragments = newSplit;
-    }
+    final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
+    execPathFragments[0] = execPathFragments[0] + EXEC;
+    /*
+     * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
+     * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
+     * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
+     * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+     *
+     * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
+     *
+     * execPathFragments = newSplit; }
+     */
     try {
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
@@ -206,26 +204,24 @@ public class WinJavaManagementType implements ProcezzManagementType {
       throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useuserExecCmd = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
+    final boolean useuserExecCmd = userExecCmd != null && userExecCmd.length() > 0;
 
     final String execPath =
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-
-    String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
-
-    if (!execPathFragments[0].contains(".exe")) {
-      final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX);
-      final String[] newSplit = new String[splittedCmd.length - 1];
-      newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-
-      for (int i = 2; i < splittedCmd.length; i++) {
-        newSplit[i - 1] = splittedCmd[i];
-      }
-
-      execPathFragments = newSplit;
-    }
-
+    final String[] execPathFragments = execPathWithoutAgentFlag.split(".exe", 2);
+    execPathFragments[0] = execPathFragments[0] + EXEC;
+    /*
+     * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
+     *
+     * if (!execPathFragments[0].contains(".exe")) { final String[] splittedCmd =
+     * execPathWithoutAgentFlag.split(REGEX); final String[] newSplit = new
+     * String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+     *
+     * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
+     *
+     * execPathFragments = newSplit; }
+     */
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
           + procezz.getId() + SPACE_SYMBOL;
@@ -243,7 +239,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
+    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
 
     final String execPath =
         useUserExec ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
