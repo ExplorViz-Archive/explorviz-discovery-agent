@@ -30,9 +30,6 @@ public final class MonitoringFilesystemService {
   @Config("backendIP")
   private String backendIp;
 
-  private static MonitoringFilesystemService fileSys;
-
-
   /**
    * Creates folder for entire Monitoring.
    *
@@ -52,12 +49,8 @@ public final class MonitoringFilesystemService {
     System.out.println(configsPath);
     copyDefaultKiekerProperties();
     updateDefaultKiekerProperties();
-    fileSys = this;
-    tempDir.deleteOnExit();
-  }
 
-  public static MonitoringFilesystemService getref() {
-    return fileSys;
+    tempDir.deleteOnExit();
   }
 
   private void copyDefaultKiekerProperties() throws IOException {

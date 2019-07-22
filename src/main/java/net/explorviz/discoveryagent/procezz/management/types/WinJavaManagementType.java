@@ -140,6 +140,16 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public String getOsType() {
     return "windows";
   }
+  /*
+   * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
+   * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
+   * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
+   * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
+   *
+   * execPathFragments = newSplit; }
+   */
 
   @Override
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
@@ -155,16 +165,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
     execPathFragments[0] = execPathFragments[0] + EXEC;
-    /*
-     * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
-     * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
-     * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
-     * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-     *
-     * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
-     *
-     * execPathFragments = newSplit; }
-     */
+
     try {
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
@@ -250,6 +251,14 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   }
 
+  /**
+   * Prepares String with the paths to the kieker-jar, kieker-config-file and aop.xml.
+   *
+   * @param entityID of a process.
+   * @returns preparted String.
+   * @throws MalformedURLException in case, that the kieker-config-file or the aop-xml does not
+   *         exist for a given entityID
+   */
   private String prepareMonitoringJvmarguments(final String entityID) throws MalformedURLException {
 
     final String kiekerJarPath = monitoringFsService.getKiekerJarPath();

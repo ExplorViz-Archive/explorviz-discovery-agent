@@ -21,32 +21,33 @@ public class WinAbstraction {
 
   }
 
+  /*
+   * for startprocesscmd String[] splittedCmd = fullCmdExt.split("\\s+"); if
+   * (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length -
+   * 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
+   * = newSplit; }
+   */
   /**
-   * starts a process by cmd.
+   * Starts a process by cmd.
    *
    * @param fullCmd String, containing Command that has to be executed.
    * @throws IOException by String mistakes.
    */
   public static void startProcessCmd(final String fullCmd) throws IOException {
-    System.out.println(fullCmd);
-
-    // Redirect stderr and stdout to /dev/null
-    // Sometimes procecces hang if they are spawned
-    // without reading their output
     final String fullCmdExt = BASH_PREFIX + " " + BASH_FLAG + " " + fullCmd;
-    String[] splittedCmd = fullCmdExt.split("\\s+");
-    if (!splittedCmd[0].contains(".exe")) {
-      final String[] newSplit = new String[splittedCmd.length - 1];
-      newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-
-      for (int i = 2; i < splittedCmd.length; i++) {
-        newSplit[i - 1] = splittedCmd[i];
-      }
-      splittedCmd = newSplit;
-    }
+    final String[] splittedCmd = fullCmdExt.split(".exe", 2);
     executeShellCommand(splittedCmd);
   }
 
+  /*
+   * if (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length
+   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
+   * = newSplit; }
+   */
   /**
    * Returns list of running Process in the OS.
    *
@@ -61,6 +62,7 @@ public class WinAbstraction {
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
         || !a.getCommand().toLowerCase().contains("java")
         || a.getCommand().toLowerCase().contains("taskkill"));
+
 
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
