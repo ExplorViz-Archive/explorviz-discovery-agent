@@ -61,7 +61,8 @@ public class WinAbstraction {
     // Delete all Processes, that don't contain java or are executed by this process.
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
         || !a.getCommand().toLowerCase().contains("java")
-        || a.getCommand().toLowerCase().contains("taskkill"));
+        || a.getCommand().toLowerCase().contains("taskkill")
+        || a.getCommand().toLowerCase().contains("zookeeper"));
 
 
 

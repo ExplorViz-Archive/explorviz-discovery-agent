@@ -68,7 +68,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
         if (agent != null) {
           p.setAgent(agent);
         }
-
         // Descriptor is needed for procezz to get the correct
         // procezzManagementType for starting, killing, restarting
         p.setProcezzManagementType(getManagementTypeDescriptor());
@@ -159,8 +158,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
 
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
-
-    // TODO Auto-generated method stub
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
     final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
