@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 public final class InternalRepository {
 
   public Agent agentObject;
-  private final Logger LOGGER = LoggerFactory.getLogger(InternalRepository.class);
-  private final List<Procezz> internalProcezzList = new ArrayList<Procezz>();
+  private static final Logger LOGGER = LoggerFactory.getLogger(InternalRepository.class);
+  private final List<Procezz> internalProcezzList = new ArrayList<>();
 
   private final ProcezzUtility procezzUtility;
   private final ProcezzManagementTypeFactory procezzMngTypeFactory;
@@ -106,7 +106,7 @@ public final class InternalRepository {
       return new ArrayList<Procezz>();
     }
 
-    final List<Procezz> newOSProcezzList = new ArrayList<Procezz>();
+    final List<Procezz> newOSProcezzList = new ArrayList<>();
 
     // Take every managementType and let them fetch the procezzLists
     for (final ProcezzManagementType managementType : this.procezzMngTypeFactory
@@ -143,8 +143,8 @@ public final class InternalRepository {
 
       agentObject.setProcezzes(internalProcezzList);
 
-      if (broadcastService.getNewRegistration().get() || stoppedProcezzes.size() > 0
-          || newProcezzListNoDuplicates.size() > 0) {
+      if (broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
+          || !newProcezzListNoDuplicates.isEmpty()) {
         broadcastService.setNewRegistrationFlag(false);
         broadcastService.broadcastMessage(agentObject);
       }
@@ -198,7 +198,7 @@ public final class InternalRepository {
 
   private List<Procezz> getStoppedProcezzesOfInternalList(final List<Procezz> newProcezzList) {
 
-    final List<Procezz> stoppedProcezzes = new ArrayList<Procezz>();
+    final List<Procezz> stoppedProcezzes = new ArrayList<>();
 
     synchronized (internalProcezzList) {
 
@@ -237,7 +237,7 @@ public final class InternalRepository {
     throw new ProcezzNotFoundException(ResponseUtil.PROCEZZ_NOT_FOUND_IN_LIST, new Exception());
   }
 
-  private Procezz findProcezzInListByPID(final long PID, final List<Procezz> procezzList) {
+  private Procezz findProcezzInListByPID(final long pid, final List<Procezz> procezzList) {
 
     synchronized (internalProcezzList) {
 
@@ -245,7 +245,7 @@ public final class InternalRepository {
 
         final long tempPID = possibleProcezz.getPid();
 
-        if (PID == tempPID) {
+        if (pid == tempPID) {
           return possibleProcezz;
         }
 
@@ -273,7 +273,6 @@ public final class InternalRepository {
   public Procezz handleProcezzPatchRequest(final Procezz procezz) throws ProcezzNotFoundException,
       ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
       ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
-    System.out.println("restart by Patch");
     synchronized (internalProcezzList) {
 
       final Procezz procezzInCache = findProcezzByID(procezz.getId());
@@ -290,17 +289,14 @@ public final class InternalRepository {
       }
 
       if (procezz.isErrorOccured()) {
-        System.out.println("Error has occured? : " + procezz.isErrorOccured());
         procezzInCache.setErrorOccured(true);
         procezzInCache.setErrorMessage(procezz.getErrorMessage());
 
       }
 
       if (procezzInCache.isRestart()) {
-        System.out.println("procezz is restarted? : " + procezzInCache.isRestart());
         return updateRestartedProcezz(procezzUtility.handleRestart(procezzInCache));
       }
-      System.out.println("return procezzInCache");
       return procezzInCache;
     }
   }
@@ -322,7 +318,6 @@ public final class InternalRepository {
     synchronized (internalProcezzList) {
 
       final Procezz procezzInCache = findProcezzByID(id);
-      System.out.println("restart by id");
       updateRestartedProcezz(procezzUtility.handleRestart(procezzInCache));
     }
   }

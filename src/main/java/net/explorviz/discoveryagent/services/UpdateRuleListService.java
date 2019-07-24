@@ -20,15 +20,20 @@ import org.slf4j.LoggerFactory;
 
 public class UpdateRuleListService extends TimerTask {
 
+  private static final MVELRuleFactory RULEFACTORY =
+      new MVELRuleFactory(new JsonRuleDefinitionReader());
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateRuleListService.class);
   private final String url;
   private final RuleBasedEngineStrategy strat;
-  private static ResourceConverter converter;
 
-  private static final MVELRuleFactory ruleFactoryJSON =
-      new MVELRuleFactory(new JsonRuleDefinitionReader());
-
+  /**
+   * Creates a Updater for the rules.
+   * 
+   * @param strat that receives the rules.
+   * @param url to reach the Update-Service via HTTP-Request.
+   */
   public UpdateRuleListService(final RuleBasedEngineStrategy strat, final String url) {
+    super();
     this.strat = strat;
     this.url = url;
   }
@@ -36,22 +41,20 @@ public class UpdateRuleListService extends TimerTask {
   @Override
   public void run() {
     final ClientService clientService = new ClientService();
-    converter = new ResourceConverterFactory().provide();
+    final ResourceConverter converter = new ResourceConverterFactory().provide();
 
     clientService.registerProviderReader(new JSONAPIProvider<>(converter));
     clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-    // TODO registration of reader and writer maybe?
-    final String ruleString;
+
+    String ruleString;
     try {
       ruleString = clientService.doGETRequest(String.class, url, null);
       final Rules ruleList = stringToRules(ruleString);
-      if (!ruleList.isEmpty() || ruleList != null) {
+      if (!ruleList.isEmpty()) {
         strat.updateRuleList(ruleList);
       }
-    } catch (final ProcessingException e) {
-      LOGGER.info("Connection with the URL " + url + " failed in UpdateRuleListService.");
-    } catch (final WebApplicationException w) {
+    } catch (ProcessingException | WebApplicationException w) {
       LOGGER.info("Connection with the URL " + url + " failed in UpdateRuleListService.");
     }
   }
@@ -63,7 +66,7 @@ public class UpdateRuleListService extends TimerTask {
    * @return returns a List of rules in Rules-Objects. Returns @null by faulty String.
    */
   public Rules stringToRules(final String ruleString) {
-    final JSONObject jObj;
+    JSONObject jObj;
     JSONArray dataObj = new JSONArray();
     try {
       jObj = new JSONObject(ruleString);
@@ -72,7 +75,7 @@ public class UpdateRuleListService extends TimerTask {
       LOGGER.info("Received faulty JSON-File from Update-Service.");
     }
     try {
-      return ruleFactoryJSON.createRules(new StringReader(dataObj.toString()));
+      return RULEFACTORY.createRules(new StringReader(dataObj.toString()));
     } catch (final Exception e) {
       LOGGER.info("Received faulty rulelist from Updater.");
 

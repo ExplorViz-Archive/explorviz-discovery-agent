@@ -4,24 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import net.explorviz.discoveryagent.procezz.discovery.strategies.RuleBasedEngineStrategy;
-import net.explorviz.shared.config.annotations.Config;
 
 
 public final class DiscoveryStrategyFactory {
 
   public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
 
-  private static List<DiscoveryStrategy> strategies = new ArrayList<DiscoveryStrategy>();
+  private static List<DiscoveryStrategy> strategies = new ArrayList<>();
 
-  @Config("updateRulesTimeRate")
-  private int time;
 
   private final RuleBasedEngineStrategy ruleStrat;
 
 
   @Inject
   public DiscoveryStrategyFactory(final RuleBasedEngineStrategy ruleStrat) {
-
     this.ruleStrat = ruleStrat;
     ruleStrat.startRuleFetch();
   }

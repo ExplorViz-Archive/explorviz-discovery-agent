@@ -15,22 +15,23 @@ import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
 
+/**
+ * Strategy based on rule based engine.
+ */
 public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
-  private String url;
+  private static final String HTTPBASE = "http://";
   // Configuration of RuleEngine
   private final RulesEngineParameters parameters =
       new RulesEngineParameters().skipOnFirstAppliedRule(true);
-  final RulesListenerExtend ruleListener = new RulesListenerExtend();
+
+  private final RulesListenerExtend ruleListener = new RulesListenerExtend();
 
   // Parts of the rule based Engine
-  private Facts facts;
   private Rules rules;
 
-  private Timer updateTimer;
-  private static final String httpBase = "http://";
   @Config("updateIP")
-  private String iP;
+  private String ip;
 
   @Config("updatePort")
   private String port;
@@ -39,7 +40,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   private int timer;
 
   @Config("updateURL")
-  private String uRL;
+  private String url;
 
 
   private final MonitoringFilesystemService fileSystem;
@@ -54,10 +55,9 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
    */
 
   public void startRuleFetch() {
-    url = httpBase + iP + ":" + port + "/" + uRL;
-    System.out.println(url);
-    updateTimer = new Timer(true);
-    final UpdateRuleListService service = new UpdateRuleListService(this, url);
+    final String urlComplete = HTTPBASE + ip + ":" + port + "/" + url;
+    final Timer updateTimer = new Timer(true);
+    final UpdateRuleListService service = new UpdateRuleListService(this, urlComplete);
     updateTimer.scheduleAtFixedRate(service, 0, timer);
 
   }
@@ -82,7 +82,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
       return false;
     }
     // Create Facts
-    facts = new Facts();
+    final Facts facts = new Facts();
     facts.put("processInfo", newProcezz);
     facts.put("updateExec", new ExecObject(fileSystem));
     final DefaultRulesEngine rulesEngine = new DefaultRulesEngine(parameters);
@@ -91,15 +91,11 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     synchronized (rules) {
       final Map<org.jeasy.rules.api.Rule, Boolean> checkUp = rulesEngine.check(rules, facts);
       check = checkUp.containsValue(true);
-      System.out
-          .println("The check val is: " + check + " for " + newProcezz.getOsExecutionCommand());
       rulesEngine.fire(rules, facts);
     }
     return check;
 
   }
-
-
 
   @Override
   public void detectAndSetProposedExecCMD(final Procezz newProcezz) {

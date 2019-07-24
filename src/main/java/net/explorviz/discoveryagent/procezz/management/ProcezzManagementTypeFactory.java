@@ -2,6 +2,7 @@ package net.explorviz.discoveryagent.procezz.management;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
@@ -10,8 +11,12 @@ import net.explorviz.discoveryagent.procezz.management.types.WinJavaManagementTy
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.shared.discovery.exceptions.mapper.ResponseUtil;
 import net.explorviz.shared.discovery.exceptions.procezz.ProcezzManagementTypeNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ProcezzManagementTypeFactory {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcezzManagementTypeFactory.class);
 
   private static ConcurrentMap<String, ProcezzManagementType> managementTypes =
       new ConcurrentHashMap<>();
@@ -30,14 +35,13 @@ public final class ProcezzManagementTypeFactory {
       final ProcezzManagementType type = new JavaCLIManagementType(monitoringFsService);
       if (checkOs(type.getOsType())) {
         managementTypes.put(type.getManagementTypeDescriptor(), type);
-        System.out.println("Linux started");
-
+        LOGGER.info("Linux PMT created.");
       }
 
       final ProcezzManagementType typeWin = new WinJavaManagementType(monitoringFsService);
       if (checkOs(typeWin.getOsType())) {
         managementTypes.put(typeWin.getManagementTypeDescriptor(), typeWin);
-        System.out.println("Windows started");
+        LOGGER.info("Windows PMT created.");
       }
 
     }
@@ -76,9 +80,9 @@ public final class ProcezzManagementTypeFactory {
 
   }
 
-  public boolean checkOs(final String OS) {
+  public boolean checkOs(final String os) {
 
-    return System.getProperty("os.name").toLowerCase().contains(OS);
+    return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains(os);
   }
 
 }

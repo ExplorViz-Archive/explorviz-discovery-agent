@@ -41,7 +41,6 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
 
     if (isDesiredApplication(newProcezz)) {
       newProcezz.setName("KiekerSampleApp");
-      System.out.println(newProcezz.getId());
     }
 
   }
@@ -56,7 +55,7 @@ public class KiekerSampleAppStrategy implements DiscoveryStrategy {
     final String osExecCmd = newProcezz.getOsExecutionCommand();
     final String workingDir = newProcezz.getWorkingDirectory();
 
-    if (osExecCmd.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
+    if (osExecCmd != null && osExecCmd.contains(EXPLORVIZ_MODEL_ID_FLAG)) {
       // was already restarted by agent, probably correct os exec path
       newProcezz.setProposedExecutionCommand(DiscoveryStrategyFactory.USE_OS_FLAG);
 

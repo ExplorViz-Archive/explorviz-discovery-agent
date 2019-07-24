@@ -6,8 +6,11 @@ import org.jeasy.rules.api.RuleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Extension of the rule Engine, for sending a extra message for potential Invalid rules.
+ */
 public class RulesListenerExtend implements RuleListener {
-  private final Logger LOGGER = LoggerFactory.getLogger(RulesListenerExtend.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RulesListenerExtend.class);
 
   @Override
   public boolean beforeEvaluate(final Rule rule, final Facts facts) {
@@ -27,8 +30,7 @@ public class RulesListenerExtend implements RuleListener {
   }
 
   @Override
-  public void onSuccess(final Rule rule, final Facts facts) {
-  }
+  public void onSuccess(final Rule rule, final Facts facts) {}
 
   @Override
   public void onFailure(final Rule rule, final Facts facts, final Exception exception) {

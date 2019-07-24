@@ -21,9 +21,17 @@ import org.slf4j.LoggerFactory;
 public final class RegistrationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
-
-  private final String httpPrefix = "http://";
-
+  private static final String HTTPPREFIX = "http://";
+  private static AtomicBoolean registrationDone = new AtomicBoolean(false);
+  private static boolean isHttpRequestSetupDone;
+  private static Timer registrationTimer;
+  private static Timer updateTimer;
+  private static String explorVizUrl;
+  private static ResourceConverter converter;
+  private static ClientService clientService;
+  private static Agent agent;
+  private final InternalRepository internalRepository;
+  private final ProcezzUtility procezzUtility;
 
   @Config("registrationTimerRate")
   private int registrationTimerRate;
@@ -48,23 +56,6 @@ public final class RegistrationService {
 
   @Config("backendPort")
   private String backendPort;
-
-  private static AtomicBoolean registrationDone = new AtomicBoolean(false);
-
-  private static boolean isHttpRequestSetupDone;
-
-  private static Timer registrationTimer;
-  private static Timer updateTimer;
-
-  private static String explorVizUrl;
-  private static ResourceConverter converter;
-  private static ClientService clientService;
-
-  private static Agent agent;
-
-  private final InternalRepository internalRepository;
-  private final ProcezzUtility procezzUtility;
-
 
   @Inject
   public RegistrationService(final InternalRepository internalRepository,
@@ -91,7 +82,7 @@ public final class RegistrationService {
     clientService.registerProviderReader(new JSONAPIProvider<>(converter));
     clientService.registerProviderWriter(new JSONAPIProvider<>(converter));
 
-    explorVizUrl = httpPrefix + backendIp + ":" + backendPort + backendBaseUrl
+    explorVizUrl = HTTPPREFIX + backendIp + ":" + backendPort + backendBaseUrl
         + backendAgentResourcePath + "/";
 
     agent = new Agent(ip, port);

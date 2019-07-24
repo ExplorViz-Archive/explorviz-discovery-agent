@@ -50,7 +50,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   }
 
   private List<Procezz> getOSProcezzList(final Agent possibleAgent) {
-    final List<Procezz> procezzList = new ArrayList<Procezz>();
+    final List<Procezz> procezzList = new ArrayList<>();
 
     final AtomicLong placeholderId = new AtomicLong(0);
 
@@ -160,7 +160,6 @@ public class JavaCLIManagementType implements ProcezzManagementType {
           + procezz.getId() + SPACE_SYMBOL;
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
       final String newExecCommandWd = newExecCommand + injectedPath;
-      System.out.println(newExecCommandWd);
       procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
@@ -198,10 +197,11 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     final String[] execPathFragmentsWork = path.split("\\s+");
     String injectedString = execPathFragmentsWork[0];
     for (int i = 1; i < execPathFragmentsWork.length - 1; i++) {
-      injectedString += SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL;
+      injectedString =
+          injectedString.concat(SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL);
     }
-    injectedString += workingDir.trim() + File.separator
-        + execPathFragmentsWork[execPathFragmentsWork.length - 1];
+    injectedString = injectedString.concat(workingDir.trim() + File.separator
+        + execPathFragmentsWork[execPathFragmentsWork.length - 1]);
     return injectedString;
   }
 

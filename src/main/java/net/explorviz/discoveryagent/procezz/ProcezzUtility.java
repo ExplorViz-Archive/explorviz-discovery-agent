@@ -69,7 +69,6 @@ public final class ProcezzUtility {
     managementType.killProcezz(procezz);
 
     if (procezz.isStopped()) {
-      System.out.println("Procezz is stopped");
       throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START_STOPPED, new Exception(),
           procezz);
     } else {
@@ -77,7 +76,6 @@ public final class ProcezzUtility {
       if (procezz.isMonitoredFlag()) {
         // restart with monitoring
         managementType.injectMonitoringAgentInProcezz(procezz);
-        System.out.println("with monitoring");
 
       } else {
         // restart without monitoring
