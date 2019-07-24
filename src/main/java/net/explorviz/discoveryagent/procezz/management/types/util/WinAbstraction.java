@@ -13,22 +13,12 @@ import org.slf4j.LoggerFactory;
 public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
-  private static final String BASH_PREFIX = "cmd.exe";
-  private static final String BASH_FLAG = "/c";
   private static final int SINGLE_COMMAND_LENGTH = 1;
 
   private WinAbstraction() {
 
   }
 
-  /*
-   * for startprocesscmd String[] splittedCmd = fullCmdExt.split("\\s+"); if
-   * (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length -
-   * 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
-   * = newSplit; }
-   */
   /**
    * Starts a process by cmd.
    *
@@ -36,18 +26,9 @@ public class WinAbstraction {
    * @throws IOException by String mistakes.
    */
   public static void startProcessCmd(final String fullCmd) throws IOException {
-    final String fullCmdExt = BASH_PREFIX + " " + BASH_FLAG + " " + fullCmd;
-    final String[] splittedCmd = fullCmdExt.split(".exe", 2);
-    executeShellCommand(splittedCmd);
+    executeShellCommand(fullCmd.split("\\s+"));
   }
 
-  /*
-   * if (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length
-   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
-   * = newSplit; }
-   */
   /**
    * Returns list of running Process in the OS.
    *
@@ -58,13 +39,11 @@ public class WinAbstraction {
     // Receive List of Processes
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
 
-    // Delete all Processes, that don't contain java or are executed by this process.
+    // Delete all Processes, that don't contain java or are not necessary to be watched.
     inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
         || !a.getCommand().toLowerCase().contains("java")
         || a.getCommand().toLowerCase().contains("taskkill")
         || a.getCommand().toLowerCase().contains("zookeeper"));
-
-
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
 
@@ -72,7 +51,6 @@ public class WinAbstraction {
         proc.getCommand().replaceAll("\"", "")));
 
     return pidAndProcessPairs;
-
   }
 
   /**
@@ -102,9 +80,20 @@ public class WinAbstraction {
     return null;
   }
 
-  public static void killProcessPid(final long pid) throws IOException {
+  /**
+   * Kills process for given pid.
+   *
+   * @param pid of Process.
+   */
+  public static void killProcessPid(final long pid) {
     JProcesses.killProcess((int) pid);
   }
-
+  /*
+   * if (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length
+   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
+   * = newSplit; }
+   */
 
 }

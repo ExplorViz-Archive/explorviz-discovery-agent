@@ -57,7 +57,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCmd) -> {
-        // Remove potentiell relativ path at start.
+        // Remove potentiell relativ path-start.
         final Procezz p = new Procezz(pid, execCmd.replace(".\\", ""));
 
         p.setId(String.valueOf(placeholderId.incrementAndGet()));
@@ -98,8 +98,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
       throws ProcezzStartException, ProcezzNotFoundException {
 
     LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
-
-
     try {
       WinAbstraction.startProcessCmd(procezz.getAgentExecutionCommand());
     } catch (final IOException e) {
@@ -111,12 +109,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void killProcezz(final Procezz procezz) throws ProcezzStopException {
-    try {
-      WinAbstraction.killProcessPid(procezz.getPid());
-    } catch (final IOException e) {
-      e.printStackTrace();
-    }
 
+    WinAbstraction.killProcessPid(procezz.getPid());
   }
 
   @Override
@@ -139,16 +133,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public String getOsType() {
     return "windows";
   }
-  /*
-   * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
-   * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
-   * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
-   * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
-   *
-   * execPathFragments = newSplit; }
-   */
+
 
   @Override
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
@@ -207,19 +192,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String execPath =
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
+    //
     final String[] execPathFragments = execPathWithoutAgentFlag.split(".exe", 2);
     execPathFragments[0] = execPathFragments[0] + EXEC;
-    /*
-     * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
-     *
-     * if (!execPathFragments[0].contains(".exe")) { final String[] splittedCmd =
-     * execPathWithoutAgentFlag.split(REGEX); final String[] newSplit = new
-     * String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-     *
-     * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
-     *
-     * execPathFragments = newSplit; }
-     */
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
           + procezz.getId() + SPACE_SYMBOL;
@@ -249,12 +224,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
   }
 
   /**
-   * Prepares String with the paths to the kieker-jar, kieker-config-file and aop.xml.
+   * Prepares String with the paths to the kieker-jar, kieker.monitoring.properties and aop.xml.
    *
    * @param entityID of a process.
    * @returns preparted String.
-   * @throws MalformedURLException in case, that the kieker-config-file or the aop-xml does not
-   *         exist for a given entityID
+   * @throws MalformedURLException in case, that the kieker.monitoring.properties or the aop.xml
+   *         does not exist for a given entityID.
    */
   private String prepareMonitoringJvmarguments(final String entityID) throws MalformedURLException {
 
@@ -280,9 +255,29 @@ public class WinJavaManagementType implements ProcezzManagementType {
       throw new ProcezzManagementTypeIncompatibleException(
           ResponseUtil.ERROR_PROCEZZ_TYPE_INCOMPATIBLE_COMP, new Exception());
     }
-
     return p2.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + p1.getId());
 
   }
+  /*
+   * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
+   *
+   * if (!execPathFragments[0].contains(".exe")) { final String[] splittedCmd =
+   * execPathWithoutAgentFlag.split(REGEX); final String[] newSplit = new String[splittedCmd.length
+   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
+   *
+   * execPathFragments = newSplit; }
+   */
 
+  /*
+   * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
+   * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
+   * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
+   * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
+   *
+   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
+   *
+   * execPathFragments = newSplit; }
+   */
 }
