@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.types.util.WinAbstraction;
@@ -19,6 +20,11 @@ import net.explorviz.shared.discovery.model.Procezz;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * PMT implementation for compabilitiy with windows.
+ *
+ *
+ */
 public class WinJavaManagementType implements ProcezzManagementType {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WinJavaManagementType.class);
@@ -51,7 +57,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   }
 
   private List<Procezz> getOsProcezzlist(final Agent agent) {
-    final List<Procezz> procezzList = new ArrayList<Procezz>();
+    final List<Procezz> procezzList = new ArrayList<>();
 
     final AtomicLong placeholderId = new AtomicLong(0);
 
@@ -85,7 +91,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void setWorkingDirectory(final Procezz procezz) {
-    if (procezz.getOsExecutionCommand().toLowerCase().contains("sample")) {
+    if (procezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("sample")) {
       procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop");
     } else {
       procezz.setWorkingDirectory("");
@@ -137,7 +143,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
-    System.out.println("injectMonitoringAgentInProcezz used");
     final String userExecCmd = procezz.getUserExecutionCommand();
 
     final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
@@ -155,7 +160,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
           + procezz.getId() + SPACE_SYMBOL;
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
       final String newExecCommandWd = newExecCommand + injectedPath;
-      System.out.println("is used" + newExecCommandWd);
       procezz.setAgentExecutionCommand(newExecCommandWd);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
@@ -175,10 +179,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String[] execPathFragmentsWork = path.split(REGEX);
     String injectedString = execPathFragmentsWork[0];
     for (int i = 1; i < execPathFragmentsWork.length - 1; i++) {
-      injectedString += SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL;
+      injectedString =
+          injectedString.concat(SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL);
     }
-    injectedString += workingDir.trim() + File.separator
-        + execPathFragmentsWork[execPathFragmentsWork.length - 1];
+    injectedString = injectedString.concat(workingDir.trim() + File.separator
+        + execPathFragmentsWork[execPathFragmentsWork.length - 1]);
     return injectedString;
   }
 
@@ -193,7 +198,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
     //
-    final String[] execPathFragments = execPathWithoutAgentFlag.split(".exe", 2);
+    final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
     execPathFragments[0] = execPathFragments[0] + EXEC;
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
@@ -231,15 +236,15 @@ public class WinJavaManagementType implements ProcezzManagementType {
    * @throws MalformedURLException in case, that the kieker.monitoring.properties or the aop.xml
    *         does not exist for a given entityID.
    */
-  private String prepareMonitoringJvmarguments(final String entityID) throws MalformedURLException {
+  private String prepareMonitoringJvmarguments(final String entityId) throws MalformedURLException {
 
     final String kiekerJarPath = monitoringFsService.getKiekerJarPath();
     final String javaagentPart = "-javaagent:" + kiekerJarPath;
 
-    final String kiekerConfigPath = monitoringFsService.getKiekerConfigPathForProcezzID(entityID);
+    final String kiekerConfigPath = monitoringFsService.getKiekerConfigPathForProcezzID(entityId);
     final String kiekerConfigPart = "-Dkieker.monitoring.configuration=" + kiekerConfigPath;
 
-    final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityID);
+    final String aopConfigPath = monitoringFsService.getAopConfigPathForProcezzID(entityId);
     final String aopConfigPart =
         "-Dorg.aspectj.weaver.loadtime.configuration=file://" + aopConfigPath;
 

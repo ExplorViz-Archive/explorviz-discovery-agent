@@ -4,13 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import org.jutils.jprocesses.JProcesses;
 import org.jutils.jprocesses.model.ProcessInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WinAbstraction {
+/**
+ * Class for communication with the Windows.
+ *
+ */
+
+public final class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
   private static final int SINGLE_COMMAND_LENGTH = 1;
@@ -40,12 +46,12 @@ public class WinAbstraction {
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
 
     // Delete all Processes, that don't contain java or are not necessary to be watched.
-    inf.removeIf(a -> a.getCommand().toLowerCase().contains("wmi4java")
-        || !a.getCommand().toLowerCase().contains("java")
-        || a.getCommand().toLowerCase().contains("taskkill")
-        || a.getCommand().toLowerCase().contains("zookeeper"));
+    inf.removeIf(a -> a.getCommand().toLowerCase(Locale.ENGLISH).contains("wmi4java")
+        || !a.getCommand().toLowerCase(Locale.ENGLISH).contains("java")
+        || a.getCommand().toLowerCase(Locale.ENGLISH).contains("taskkill")
+        || a.getCommand().toLowerCase(Locale.ENGLISH).contains("zookeeper"));
 
-    final Map<Long, String> pidAndProcessPairs = new HashMap<Long, String>();
+    final Map<Long, String> pidAndProcessPairs = new HashMap<>();
 
     inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
         proc.getCommand().replaceAll("\"", "")));
