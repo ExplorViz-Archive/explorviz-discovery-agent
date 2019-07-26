@@ -44,7 +44,7 @@ dependencies {
 
 
   // https://mvnrepository.com/artifact/org.jeasy/easy-rules
-  compile group: 'org.jeasy', name: 'easy-rules', version: '3.3.0', ext: 'pom'
+  compile group: 'org.jeasy', name: 'easy-rules-core', version: '3.3.0'
 
 
   // Common discovery files (e.g. model classes)

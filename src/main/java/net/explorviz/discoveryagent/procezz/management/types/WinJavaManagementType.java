@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 /**
  * PMT implementation for compabilitiy with windows.
  *
- *
  */
 public class WinJavaManagementType implements ProcezzManagementType {
 
@@ -157,10 +156,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + SPACE_SYMBOL;
-      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + injectedPath;
-      procezz.setAgentExecutionCommand(newExecCommandWd);
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+      procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
@@ -202,10 +199,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
     execPathFragments[0] = execPathFragments[0] + EXEC;
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-          + procezz.getId() + SPACE_SYMBOL;
-      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + injectedPath;
-      procezz.setAgentExecutionCommand(newExecCommandWd);
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+      procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }

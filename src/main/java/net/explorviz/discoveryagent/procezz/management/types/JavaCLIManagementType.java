@@ -1,7 +1,6 @@
 
 package net.explorviz.discoveryagent.procezz.management.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -157,15 +156,8 @@ public class JavaCLIManagementType implements ProcezzManagementType {
       final String completeKiekerCommand = prepareMonitoringJVMArguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + SPACE_SYMBOL;
-      /*
-       * final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz); final
-       * String newExecCommandWd = newExecCommand + injectedPath;
-       */
-      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + execPathFragments[1];
-      procezz.setAgentExecutionCommand(newExecCommandWd);
-      System.out.println(newExecCommandWd);
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+      procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
@@ -188,31 +180,11 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-          + procezz.getId() + SPACE_SYMBOL;
-      /*
-       * final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz); final
-       * String newExecCommandWd = newExecCommand + injectedPath;
-       */
-      final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + execPathFragments[1];
-      procezz.setAgentExecutionCommand(newExecCommandWd);
-      System.out.println(newExecCommandWd);
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+      procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
-  }
-
-  public String injectWorkingDirectory(final String path, final Procezz procezz) {
-    final String workingDir = procezz.getWorkingDirectory();
-    final String[] execPathFragmentsWork = path.split("\\s+");
-    String injectedString = execPathFragmentsWork[0];
-    for (int i = 1; i < execPathFragmentsWork.length - 1; i++) {
-      injectedString =
-          injectedString.concat(SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL);
-    }
-    injectedString = injectedString.concat(workingDir.trim() + File.separator
-        + execPathFragmentsWork[execPathFragmentsWork.length - 1]);
-    return injectedString;
   }
 
   @Override

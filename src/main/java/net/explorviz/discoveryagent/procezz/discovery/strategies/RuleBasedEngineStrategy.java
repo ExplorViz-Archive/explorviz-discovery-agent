@@ -59,7 +59,6 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     final Timer updateTimer = new Timer(true);
     final UpdateRuleListService service = new UpdateRuleListService(this, urlComplete);
     updateTimer.scheduleAtFixedRate(service, 0, timer);
-
   }
 
 
@@ -89,9 +88,13 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     rulesEngine.registerRuleListener(ruleListener);
     boolean check = false;
     synchronized (rules) {
+      // Check for firing rules.
       final Map<org.jeasy.rules.api.Rule, Boolean> checkUp = rulesEngine.check(rules, facts);
       check = checkUp.containsValue(true);
-      rulesEngine.fire(rules, facts);
+      if (check) {
+        // Fire.
+        rulesEngine.fire(rules, facts);
+      }
     }
     return check;
 
