@@ -158,9 +158,14 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
           + procezz.getId() + SPACE_SYMBOL;
+      /*
+       * final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz); final
+       * String newExecCommandWd = newExecCommand + injectedPath;
+       */
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + injectedPath;
+      final String newExecCommandWd = newExecCommand + execPathFragments[1];
       procezz.setAgentExecutionCommand(newExecCommandWd);
+      System.out.println(newExecCommandWd);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
@@ -184,9 +189,14 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
           + procezz.getId() + SPACE_SYMBOL;
+      /*
+       * final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz); final
+       * String newExecCommandWd = newExecCommand + injectedPath;
+       */
       final String injectedPath = injectWorkingDirectory(execPathFragments[1], procezz);
-      final String newExecCommandWd = newExecCommand + injectedPath;
+      final String newExecCommandWd = newExecCommand + execPathFragments[1];
       procezz.setAgentExecutionCommand(newExecCommandWd);
+      System.out.println(newExecCommandWd);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
@@ -208,6 +218,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   @Override
   public void removeMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
     final String userExecCMD = procezz.getUserExecutionCommand();
+
 
     final boolean useUserExecCMD = userExecCMD != null && userExecCMD.length() > 0 ? true : false;
 

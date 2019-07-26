@@ -51,7 +51,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   /**
-   * Starts the updateService for the rules.
+   * Starts sending requests for receiving rules from the UpdateService the rules.
    */
 
   public void startRuleFetch() {
