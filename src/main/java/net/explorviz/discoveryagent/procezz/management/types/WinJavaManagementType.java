@@ -258,6 +258,21 @@ public class WinJavaManagementType implements ProcezzManagementType {
     return p2.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + p1.getId());
 
   }
+
+  public String[] splitter(final String splitCmd) {
+    // First two possibilities are for true java processes.
+    if (splitCmd.contains("javaw.exe")) {
+      final String[] execPathFragments = splitCmd.split("javaw.exe", 2);
+      execPathFragments[0] = execPathFragments[0] + "javaw.exe";
+      return execPathFragments;
+    } else if (splitCmd.contains("javaw.exe")) {
+      final String[] execPathFragments = splitCmd.split("java.exe", 2);
+      execPathFragments[0] = execPathFragments[0] + "java.exe";
+      return execPathFragments;
+    } else {
+      return splitCmd.split(REGEX, 2);
+    }
+  }
   /*
    * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
    *

@@ -1,11 +1,14 @@
 package net.explorviz.discoveryagent.procezz.management.types.util;
 
+import com.profesorfalken.jpowershell.PowerShell;
+import com.profesorfalken.jpowershell.PowerShellResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jutils.jprocesses.JProcesses;
 import org.jutils.jprocesses.model.ProcessInfo;
 import org.slf4j.Logger;
@@ -48,7 +51,8 @@ public final class WinAbstraction {
     inf.removeIf(a -> a.getCommand().toLowerCase(Locale.ENGLISH).contains("wmi4java")
         || !a.getCommand().toLowerCase(Locale.ENGLISH).contains("java")
         || a.getCommand().toLowerCase(Locale.ENGLISH).contains("taskkill")
-        || a.getCommand().toLowerCase(Locale.ENGLISH).contains("zookeeper"));
+        || a.getCommand().toLowerCase(Locale.ENGLISH).contains("zookeeper")
+        || !a.getUser().equalsIgnoreCase(getUser()));
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<>();
 
@@ -56,6 +60,12 @@ public final class WinAbstraction {
         proc.getCommand().replaceAll("\"", "")));
 
     return pidAndProcessPairs;
+  }
+
+  public static String getUser() {
+    final PowerShellResponse response = PowerShell.executeSingleCommand("whoami");
+    final String[] test = response.getCommandOutput().split(Pattern.quote(File.separator));
+    return test[test.length - 1];
   }
 
   /**
