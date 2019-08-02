@@ -34,7 +34,18 @@ public final class WinAbstraction {
    * @throws IOException by String mistakes.
    */
   public static void startProcessCmd(final String fullCmd) throws IOException {
-    executeShellCommand(fullCmd.split("\\s+"));
+    final String[] cmd = fullCmd.split("\\s+");
+    try {
+      if (cmd.length == SINGLE_COMMAND_LENGTH) {
+        new ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new File("NUL"))
+            .start();
+      } else {
+        new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start();
+      }
+    } catch (final IOException e) {
+      LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
+          String.join(" ", cmd), e.toString());
+    }
   }
 
   /**
@@ -72,23 +83,19 @@ public final class WinAbstraction {
    * Executes Shell CMD.
    *
    * @param cmd that gets executed.
+   *
+   *        public static void executeShellCommand(final String... cmd) { /* start process and
+   *        redirect output to NUL
+   *
+   *        try
+   *
+   *        { if (cmd.length == SINGLE_COMMAND_LENGTH) { new
+   *        ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new
+   *        File("NUL")).start(); } else { new
+   *        ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start(); }
+   *        }catch( final IOException e) { LOGGER.error("Single Procezz command not found: {}. Maybe
+   *        not available in this Distro?: {}", String.join(" ", cmd), e.toString()); } }
    */
-  public static void executeShellCommand(final String... cmd) {
-    /*
-     * start process and redirect output to NUL
-     */
-    try {
-      if (cmd.length == SINGLE_COMMAND_LENGTH) {
-        new ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new File("NUL"))
-            .start();
-      } else {
-        new ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start();
-      }
-    } catch (final IOException e) {
-      LOGGER.error("Single Procezz command not found: {}. Maybe not available in this Distro?: {}",
-          String.join(" ", cmd), e.toString());
-    }
-  }
 
   public static String findWdforPid(final long pid) throws IOException {
 

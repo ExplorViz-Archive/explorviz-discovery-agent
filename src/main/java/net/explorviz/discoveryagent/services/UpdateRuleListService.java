@@ -28,7 +28,7 @@ public class UpdateRuleListService extends TimerTask {
 
   /**
    * Creates a Updater for the rules.
-   * 
+   *
    * @param strat that receives the rules.
    * @param url to reach the Update-Service via HTTP-Request.
    */
@@ -55,7 +55,7 @@ public class UpdateRuleListService extends TimerTask {
         strat.updateRuleList(ruleList);
       }
     } catch (ProcessingException | WebApplicationException w) {
-      LOGGER.info("Connection with the URL " + url + " failed in UpdateRuleListService.");
+      LOGGER.warn("Connection with the URL " + url + " failed in UpdateRuleListService.");
     }
   }
 

@@ -17,8 +17,6 @@ import net.explorviz.shared.discovery.model.Procezz;
  */
 public interface ProcezzManagementType {
 
-  List<Procezz> getProcezzListFromOs();
-
   List<Procezz> getProcezzListFromOsAndSetAgent(Agent agent);
 
   void setWorkingDirectory(Procezz procezz);

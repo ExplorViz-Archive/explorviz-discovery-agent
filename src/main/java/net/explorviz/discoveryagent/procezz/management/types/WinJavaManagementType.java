@@ -43,19 +43,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
     this.monitoringFsService = monitoringFsService;
   }
 
-  @Override
-  public List<Procezz> getProcezzListFromOs() {
-
-    return getOsProcezzlist(null);
-  }
 
 
   @Override
   public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
-    return getOsProcezzlist(agent);
-  }
 
-  private List<Procezz> getOsProcezzlist(final Agent agent) {
     final List<Procezz> procezzList = new ArrayList<>();
 
     final AtomicLong placeholderId = new AtomicLong(0);

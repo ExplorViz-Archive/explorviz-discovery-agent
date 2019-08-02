@@ -38,17 +38,9 @@ public class JavaCLIManagementType implements ProcezzManagementType {
     this.monitoringFsService = monitoringFsService;
   }
 
-  @Override
-  public List<Procezz> getProcezzListFromOs() {
-    return getOSProcezzList(null);
-  }
 
   @Override
-  public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent agent) {
-    return getOSProcezzList(agent);
-  }
-
-  private List<Procezz> getOSProcezzList(final Agent possibleAgent) {
+  public List<Procezz> getProcezzListFromOsAndSetAgent(final Agent possibleAgent) {
     final List<Procezz> procezzList = new ArrayList<>();
 
     final AtomicLong placeholderId = new AtomicLong(0);

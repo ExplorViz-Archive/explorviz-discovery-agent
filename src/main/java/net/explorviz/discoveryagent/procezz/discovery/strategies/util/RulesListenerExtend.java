@@ -20,13 +20,12 @@ public class RulesListenerExtend implements RuleListener {
 
   @Override
   public void afterEvaluate(final Rule rule, final Facts facts, final boolean evaluationResult) {
-
+    LOGGER.info("AFTER EVAL GOT TRIGGERED");
   }
 
   @Override
   public void beforeExecute(final Rule rule, final Facts facts) {
     // TODO Auto-generated method stub
-
   }
 
   @Override
