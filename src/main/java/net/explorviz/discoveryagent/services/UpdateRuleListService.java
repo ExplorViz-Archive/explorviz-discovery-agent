@@ -51,9 +51,7 @@ public class UpdateRuleListService extends TimerTask {
     try {
       ruleString = clientService.doGETRequest(String.class, url, null);
       final Rules ruleList = stringToRules(ruleString);
-      if (!ruleList.isEmpty()) {
-        strat.updateRuleList(ruleList);
-      }
+      strat.updateRuleList(ruleList);
     } catch (ProcessingException | WebApplicationException w) {
       LOGGER.warn("Connection with the URL " + url + " failed in UpdateRuleListService.");
     }
@@ -71,17 +69,14 @@ public class UpdateRuleListService extends TimerTask {
     try {
       jObj = new JSONObject(ruleString);
       dataObj = jObj.getJSONObject("data").getJSONObject("attributes").getJSONArray("ruleList");
+      return RULEFACTORY.createRules(new StringReader(dataObj.toString()));
     } catch (final JSONException e) {
       LOGGER.info("Received faulty JSON-File from Update-Service.");
-    }
-    try {
-      return RULEFACTORY.createRules(new StringReader(dataObj.toString()));
     } catch (final Exception e) {
       LOGGER.info("Received faulty rulelist from Updater.");
-
       return null;
     }
-
+    return null;
   }
 
 

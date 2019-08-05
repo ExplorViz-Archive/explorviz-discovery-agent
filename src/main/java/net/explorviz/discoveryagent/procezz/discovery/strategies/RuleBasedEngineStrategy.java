@@ -1,6 +1,5 @@
 package net.explorviz.discoveryagent.procezz.discovery.strategies;
 
-import java.util.Map;
 import java.util.Timer;
 import javax.inject.Inject;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
@@ -85,12 +84,11 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     facts.put("processInfo", newProcezz);
     facts.put("updateExec", new ExecObject(fileSystem));
     final DefaultRulesEngine rulesEngine = new DefaultRulesEngine(parameters);
-    rulesEngine.registerRuleListener(ruleListener);
+    // rulesEngine.registerRuleListener(ruleListener);
     boolean check = false;
     synchronized (rules) {
       // Check for firing rules.
-      final Map<org.jeasy.rules.api.Rule, Boolean> checkUp = rulesEngine.check(rules, facts);
-      check = checkUp.containsValue(true);
+      check = rulesEngine.check(rules, facts).containsValue(true);
       if (check) {
         // Fire.
         rulesEngine.fire(rules, facts);
