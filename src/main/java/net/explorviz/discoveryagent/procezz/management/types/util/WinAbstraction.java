@@ -1,9 +1,9 @@
 package net.explorviz.discoveryagent.procezz.management.types.util;
 
-import com.profesorfalken.jpowershell.PowerShell;
-import com.profesorfalken.jpowershell.PowerShellResponse;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -22,6 +22,7 @@ public final class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static ArrayList<ProcessInfo> inf;
   private static final int SINGLE_COMMAND_LENGTH = 1;
+  private static String userName = getUserName();
 
   private WinAbstraction() {
 
@@ -55,7 +56,7 @@ public final class WinAbstraction {
    * @throws IOException by invalid method usage.
    */
   public static Map<Long, String> findProzzeses() throws IOException {
-    // Receive List of Processes
+
     inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
 
     // Delete all Processes, that don't contain java or are not necessary to be watched.
@@ -63,44 +64,48 @@ public final class WinAbstraction {
         || !a.getCommand().toLowerCase(Locale.ENGLISH).contains("java")
         || a.getCommand().toLowerCase(Locale.ENGLISH).contains("taskkill")
         || a.getCommand().toLowerCase(Locale.ENGLISH).contains("zookeeper")
-        || !a.getUser().equalsIgnoreCase(getUser()));
+        || !a.getUser().equalsIgnoreCase(userName));
 
     final Map<Long, String> pidAndProcessPairs = new HashMap<>();
 
     inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
         proc.getCommand().replaceAll("\"", "")));
-
     return pidAndProcessPairs;
   }
 
-  public static String getUser() {
-    final PowerShellResponse response = PowerShell.executeSingleCommand("whoami");
-    final String[] test = response.getCommandOutput().split(Pattern.quote(File.separator));
-    return test[test.length - 1];
+  public static String getUserName() {
+    try {
+
+      final Process process = new ProcessBuilder("cmd.exe", "/c", "whoami").start();
+
+      final StringBuilder output = new StringBuilder();
+
+      final BufferedReader reader =
+          new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        output.append(line + "\n");
+      }
+
+      final int exitVal = process.waitFor();
+      if (exitVal == 0) {
+        final String response = output.toString();
+        final String[] test = response.trim().split(Pattern.quote(File.separator));
+        return test[test.length - 1];
+      } else {
+        // abnormal...
+      }
+
+    } catch (final IOException e) {
+      e.printStackTrace();
+    } catch (final InterruptedException e) {
+      e.printStackTrace();
+    }
+    return "";
   }
 
-  /**
-   * Executes Shell CMD.
-   *
-   * @param cmd that gets executed.
-   *
-   *        public static void executeShellCommand(final String... cmd) { /* start process and
-   *        redirect output to NUL
-   *
-   *        try
-   *
-   *        { if (cmd.length == SINGLE_COMMAND_LENGTH) { new
-   *        ProcessBuilder(cmd[0]).redirectErrorStream(true).redirectOutput(new
-   *        File("NUL")).start(); } else { new
-   *        ProcessBuilder(cmd).redirectErrorStream(true).redirectOutput(new File("NUL")).start(); }
-   *        }catch( final IOException e) { LOGGER.error("Single Procezz command not found: {}. Maybe
-   *        not available in this Distro?: {}", String.join(" ", cmd), e.toString()); } }
-   */
 
-  public static String findWdforPid(final long pid) throws IOException {
-
-    return null;
-  }
 
   /**
    * Kills process for given pid.
@@ -110,12 +115,5 @@ public final class WinAbstraction {
   public static void killProcessPid(final long pid) {
     JProcesses.killProcess((int) pid);
   }
-  /*
-   * if (!splittedCmd[0].contains(".exe")) { final String[] newSplit = new String[splittedCmd.length
-   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; } splittedCmd
-   * = newSplit; }
-   */
 
 }
