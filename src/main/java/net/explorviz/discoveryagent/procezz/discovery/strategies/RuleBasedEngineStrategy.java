@@ -4,7 +4,6 @@ import java.util.Timer;
 import javax.inject.Inject;
 import net.explorviz.discoveryagent.procezz.discovery.DiscoveryStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.strategies.util.ExecObject;
-import net.explorviz.discoveryagent.procezz.discovery.strategies.util.RulesListenerExtend;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.discoveryagent.services.UpdateRuleListService;
 import net.explorviz.shared.config.annotations.Config;
@@ -24,7 +23,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   private final RulesEngineParameters parameters =
       new RulesEngineParameters().skipOnFirstAppliedRule(true);
 
-  private final RulesListenerExtend ruleListener = new RulesListenerExtend();
+  // private final RulesListenerExtend ruleListener = new RulesListenerExtend();
 
   // Parts of the rule based Engine
   private Rules rules;

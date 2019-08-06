@@ -55,6 +55,7 @@ public class UpdateRuleListService extends TimerTask {
     } catch (ProcessingException | WebApplicationException w) {
       LOGGER.warn("Connection with the URL " + url + " failed in UpdateRuleListService.");
     }
+
   }
 
   /**

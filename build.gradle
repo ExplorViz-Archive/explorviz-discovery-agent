@@ -18,7 +18,9 @@ buildscript {
   	
   }
 }
-
+dependencies {
+   runtime files(org.gradle.internal.jvm.Jvm.current().toolsJar)
+}
 repositories {
   jcenter()
   maven { url 'https://jitpack.io' }
