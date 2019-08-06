@@ -1,6 +1,5 @@
 package net.explorviz.discoveryagent.procezz.management.types;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -141,39 +140,20 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-    final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
-    execPathFragments[0] = execPathFragments[0] + EXEC;
+    final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
+    // execPathFragments[0] = execPathFragments[0] + EXEC;
 
     try {
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+          + procezz.getId() + execPathFragments[1];
       procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
 
-  }
 
-  /**
-   * Injects WD to given Path, to retrieve absolutPath.
-   *
-   * @param path getting the injecton.
-   * @param procezz to get the WD.
-   * @return a Path, containing absolutPath.
-   */
-  public String injectWorkingDirectory(final String path, final Procezz procezz) {
-    final String workingDir = procezz.getWorkingDirectory();
-    final String[] execPathFragmentsWork = path.split(REGEX);
-    String injectedString = execPathFragmentsWork[0];
-    for (int i = 1; i < execPathFragmentsWork.length - 1; i++) {
-      injectedString =
-          injectedString.concat(SPACE_SYMBOL + execPathFragmentsWork[i] + SPACE_SYMBOL);
-    }
-    injectedString = injectedString.concat(workingDir.trim() + File.separator
-        + execPathFragmentsWork[execPathFragmentsWork.length - 1]);
-    return injectedString;
   }
 
   @Override
@@ -187,11 +167,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
     //
-    final String[] execPathFragments = execPathWithoutAgentFlag.split(EXEC, 2);
-    execPathFragments[0] = execPathFragments[0] + EXEC;
+    final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
+    // execPathFragments[0] = execPathFragments[0] + EXEC;
     try {
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
-          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
+          + procezz.getId() + execPathFragments[1];
+
       procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException e) {
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
@@ -257,12 +238,14 @@ public class WinJavaManagementType implements ProcezzManagementType {
       final String[] execPathFragments = splitCmd.split("javaw.exe", 2);
       execPathFragments[0] = execPathFragments[0] + "javaw.exe";
       return execPathFragments;
-    } else if (splitCmd.contains("javaw.exe")) {
+    } else if (splitCmd.contains("java.exe")) {
       final String[] execPathFragments = splitCmd.split("java.exe", 2);
       execPathFragments[0] = execPathFragments[0] + "java.exe";
       return execPathFragments;
     } else {
-      return splitCmd.split(REGEX, 2);
+      final String[] execPathFragments = splitCmd.split(REGEX, 2);
+      execPathFragments[0] = execPathFragments[0] + REGEX;
+      return execPathFragments;
     }
   }
   /*
