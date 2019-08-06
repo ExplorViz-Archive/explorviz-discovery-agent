@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+
+/**
+ * Check path of sampleApplication
+ * 
+ * @author enes
+ *
+ */
 @ExtendWith(MockitoExtension.class)
 class WinAbstractionTest {
 
@@ -40,8 +47,7 @@ class WinAbstractionTest {
   public void startAndKillTestSucc() {
     if (checkOs("windows")) {
       try {
-        WinAbstraction.startProcessCmd(
-            "java -cp . -jar C:\\Users\\enes\\Desktop\\Discovery-Agent\\explorviz-discovery-agent\\src\\main\\java\\tests\\sampleApplication.jar");
+        WinAbstraction.startProcessCmd("java -cp . -jar sampleApplication.jar");
       } catch (final IOException e) {
         fail("Failed to start process");
       }
@@ -64,8 +70,7 @@ class WinAbstractionTest {
     if (checkOs("windows")) {
 
       try {
-        WinAbstraction.startProcessCmd(
-            "ja -cp . -jar C:\\Users\\\\Desktop\\Discovery-Agent\\explorviz-discovery-agent\\src\\main\\java\\tests\\sampleApplication.jar");
+        WinAbstraction.startProcessCmd("ja -cp . -jar sampleApplication.jar");
       } catch (final IOException e) {
         // assertTrue(true);
       }

@@ -2,10 +2,16 @@ package tests;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import net.explorviz.discoveryagent.procezz.management.types.WinJavaManagementType;
+import net.explorviz.discoveryagent.procezz.management.types.util.WinAbstraction;
 import net.explorviz.discoveryagent.services.MonitoringFilesystemService;
 import net.explorviz.shared.discovery.exceptions.procezz.ProcezzStartException;
 import net.explorviz.shared.discovery.model.Agent;
@@ -34,13 +40,29 @@ public class WinJavaManagementTypeTest {
   @Mock
   MonitoringFilesystemService service;
 
+  @Mock
+  WinAbstraction abs;
+
 
   Procezz procezz = new Procezz(1, CORRECT_CMD);
 
   WinJavaManagementType type;
 
 
+  /**
+   * We do not test start and kill process, because we delegate it to the nearly same methods in
+   * WinAbstraction
+   *
+   */
 
+  public boolean checkOs(final String os) {
+
+    return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains(os);
+  }
+
+  /**
+   * HIER NICHT SICHER MIT DEM MOCK DER WINABSTRACTION!
+   */
   @BeforeEach
   public void setUp() {
     type = new WinJavaManagementType(service);
@@ -48,12 +70,36 @@ public class WinJavaManagementTypeTest {
     procezz = new Procezz(1, CORRECT_CMD);
     procezz.setId("1");
     procezz.setAgentExecutionCommand(null);
+    final Map<Long, String> map = new HashMap<Long, String>();
+    map.put((long) 1, CORRECT_CMD);
+    map.put((long) 2, "TestCMD");
+    try {
+      Mockito.when(WinAbstraction.findProzzeses()).thenReturn(map);
+    } catch (final IOException e) {
+      fail("Failed to mock");
+    }
+
+    final ArrayList<Procezz> testList =
+        (ArrayList<Procezz>) type.getProcezzListFromOsAndSetAgent(agent);
+    testList.forEach(
+        proc -> assertTrue((proc.getPid() == 1 && proc.getOsExecutionCommand().equals(CORRECT_CMD))
+            || (proc.getPid() == 2 && proc.getOsExecutionCommand().equals("TestCMD"))));
   }
 
-  public boolean checkOs(final String os) {
+  @Test
+  public void validList() {
+    final Map<Long, String> map = new HashMap<Long, String>();
+    map.put((long) 1, CORRECT_CMD);
+    map.put((long) 2, "TestCMD");
+    try {
+      Mockito.when(WinAbstraction.findProzzeses()).thenReturn(map);
+    } catch (final IOException e) {
+      fail("Failed to mock");
+    }
 
-    return System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains(os);
+
   }
+
 
   @Test
   public void testIdentInject() {
