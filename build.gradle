@@ -61,13 +61,15 @@ dependencies {
   // https://mvnrepository.com/artifact/org.jprocesses/jProcesses
   compile group: 'org.jprocesses', name: 'jProcesses', version: '1.6.5'
   
-  // https://mvnrepository.com/artifact/com.profesorfalken/jPowerShell
-  compile group: 'com.profesorfalken', name: 'jPowerShell', version: '3.1.0'
-  
+ 
   // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
   
-  
+  testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.4.0'
+	testImplementation 'org.junit.platform:junit-platform-runner:1.4.0'
+	testImplementation group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.4.0'
+	testImplementation 'org.mockito:mockito-core:2.24.0'	
+	testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.27.0'
 
 }
 
