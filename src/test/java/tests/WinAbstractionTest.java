@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Check path of sampleApplication
- * 
+ *
  * @author enes
  *
  */
@@ -26,7 +26,7 @@ class WinAbstractionTest {
   }
 
   @Test
-  void test() {
+  void testList() {
     if (checkOs("windows")) {
       try {
         final Map<Long, String> map = WinAbstraction.findProzzeses();
@@ -51,7 +51,12 @@ class WinAbstractionTest {
       } catch (final IOException e) {
         fail("Failed to start process");
       }
-
+      try {
+        Thread.sleep(500);
+      } catch (final InterruptedException e1) {
+        // TODO Auto-generated catch block
+        fail("Failed to sleep after starting process.");
+      }
       try {
         WinAbstraction.findProzzeses().forEach((pid, cmd) -> {
           if (cmd.contains("sample")) {
@@ -72,12 +77,19 @@ class WinAbstractionTest {
       try {
         WinAbstraction.startProcessCmd("ja -cp . -jar sampleApplication.jar");
       } catch (final IOException e) {
-        // assertTrue(true);
+        // TODO Auto-generated catch block
+        fail("Failed to sleep after starting process.");
+      }
+      try {
+        Thread.sleep(500);
+      } catch (final InterruptedException e1) {
+        // TODO Auto-generated catch block
+        fail("Failed to sleep after starting process.");
       }
       try {
         WinAbstraction.findProzzeses().forEach((pid, cmd) -> {
           if (cmd.contains("sample")) {
-            fail("Process runs despite faulty cmd");
+            fail("Process runs despite faulty cmd.");
           }
         });
       } catch (final IOException e) {
