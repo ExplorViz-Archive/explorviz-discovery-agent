@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecObject {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RulesListenerExtend.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExecObject.class);
   private final MonitoringFilesystemService fileSystem;
 
   /**

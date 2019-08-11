@@ -51,7 +51,9 @@ public class UpdateRuleListService extends TimerTask {
     try {
       ruleString = clientService.doGETRequest(String.class, url, null);
       final Rules ruleList = stringToRules(ruleString);
-      strat.updateRuleList(ruleList);
+      if (ruleList != null) {
+        strat.updateRuleList(ruleList);
+      }
     } catch (ProcessingException | WebApplicationException w) {
       LOGGER.warn("Connection with the URL " + url + " failed in UpdateRuleListService.");
     }

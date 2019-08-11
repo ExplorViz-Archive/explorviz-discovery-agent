@@ -12,12 +12,15 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Strategy based on rule based engine.
  */
 public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(RuleBasedEngineStrategy.class);
   private static final String HTTPBASE = "http://";
   // Configuration of RuleEngine
   private final RulesEngineParameters parameters =
@@ -45,6 +48,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   @Inject
   public RuleBasedEngineStrategy(final MonitoringFilesystemService fileSystem) {
+
     this.fileSystem = fileSystem;
   }
 
@@ -53,6 +57,8 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
    */
 
   public void startRuleFetch() {
+
+
     final String urlComplete = HTTPBASE + ip + ":" + port + "/" + url;
     final Timer updateTimer = new Timer(true);
     final UpdateRuleListService service = new UpdateRuleListService(this, urlComplete);
@@ -110,7 +116,10 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   public void updateRuleList(final Rules rules) {
-    this.rules = rules;
+    synchronized (rules) {
+      this.rules = rules;
+    }
+
   }
 
 }
