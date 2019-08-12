@@ -35,6 +35,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
   private static final String REGEX = "\\s+";
   private static final String EXEC = ".exe";
+  public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
 
   private final MonitoringFilesystemService monitoringFsService;
 
@@ -54,7 +55,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCmd) -> {
         // Remove potentiell relativ path-start.
-        final Procezz p = new Procezz(pid, execCmd.replace(".\\", ""));
+        final Procezz p = new Procezz(pid, execCmd);
 
         p.setId(String.valueOf(placeholderId.incrementAndGet()));
 
@@ -134,8 +135,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
   @Override
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
+    LOGGER.info("the user exec cmd  : " + userExecCmd);
+    LOGGER.info("is equal?" + userExecCmd.equals(USE_OS_FLAG));
 
-    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
+    final boolean useUserExec =
+        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
+            : false;
 
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
@@ -147,9 +152,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
-          + procezz.getId() + execPathFragments[1];
+          + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
       procezz.setAgentExecutionCommand(newExecCommand);
     } catch (final IndexOutOfBoundsException | MalformedURLException e) {
+      LOGGER.info("the fail : MONITORING " + e.getClass());
       throw new ProcezzStartException(ResponseUtil.ERROR_AGENT_FLAG_DETAIL, e, procezz);
     }
 
@@ -161,7 +167,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
       throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useuserExecCmd = userExecCmd != null && userExecCmd.length() > 0;
+    final boolean useuserExecCmd =
+        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
+            : false;
 
     final String execPath =
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
@@ -185,7 +193,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0;
+    final boolean useUserExec =
+        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
+            : false;
 
     final String execPath =
         useUserExec ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
@@ -244,7 +254,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
       return execPathFragments;
     } else {
       final String[] execPathFragments = splitCmd.split(REGEX, 2);
-      execPathFragments[0] = execPathFragments[0] + REGEX;
+      execPathFragments[0] = execPathFragments[0];
       return execPathFragments;
     }
   }

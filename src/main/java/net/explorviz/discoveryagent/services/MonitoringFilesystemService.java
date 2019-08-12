@@ -15,7 +15,7 @@ import net.explorviz.shared.discovery.model.Procezz;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MonitoringFilesystemService {
+public final class MonitoringFilesystemService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringFilesystemService.class);
   private static final String MONITORING_CONFIGS_FOLDER_NAME = "monitoring-configurations";

@@ -1,9 +1,11 @@
 package net.explorviz.discoveryagent.procezz.management.types.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.jutils.jprocesses.JProcesses;
@@ -17,9 +19,9 @@ import org.slf4j.LoggerFactory;
  */
 public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
-  private static ArrayList<ProcessInfo> inf;
+
   private static final int SINGLE_COMMAND_LENGTH = 1;
-  private static String userName = System.getProperty("user.name").trim();;
+  private static String userName = System.getProperty("user.name");
 
   private WinAbstraction() {
 
@@ -46,6 +48,7 @@ public class WinAbstraction {
     }
   }
 
+
   /**
    * Returns list of running Process in the OS.
    *
@@ -54,20 +57,84 @@ public class WinAbstraction {
    */
   public static Map<Long, String> findProzzeses() throws IOException {
 
-    inf = (ArrayList<ProcessInfo>) JProcesses.getProcessList();
+    final List<ProcessInfo> inf = JProcesses.getProcessList();
+
 
     // Delete all Processes, that don't contain java or are not necessary to be watched.
     inf.removeIf(a -> a.getCommand().toLowerCase(Locale.ENGLISH).contains("wmi4java")
+        || a.getCommand().toLowerCase(Locale.ENGLISH).contains("tasklist")
         || !a.getCommand().toLowerCase(Locale.ENGLISH).contains("java")
         || a.getCommand().toLowerCase(Locale.ENGLISH).contains("taskkill")
         || a.getCommand().toLowerCase(Locale.ENGLISH).contains("zookeeper")
-        || !a.getUser().equalsIgnoreCase(userName));
-
+        || !testUser(a.getPid()));
+    /**
+     * We can't use the generated User of jProcezzes. In some iterations we get as user null. Its a
+     * known bug for jprocesses. Therefore we use our extra created Method testUser, that checks, if
+     * a process is from the user of the agent.
+     */
     final Map<Long, String> pidAndProcessPairs = new HashMap<>();
 
-    inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
-        proc.getCommand().replaceAll("\"", "")));
+    inf.forEach(proc -> {
+      if (proc.getCommand().startsWith("\"")) {
+        pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
+            proc.getCommand().replaceFirst("\"", "").replaceFirst("\"", ""));
+      } else {
+        pidAndProcessPairs.put(Long.valueOf(proc.getPid()), proc.getCommand());
+      }
+    });
+
+    // inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
+    // proc.getCommand().replaceAll("\"", "")));
     return pidAndProcessPairs;
+  }
+
+  public static boolean testUser(final String iD) {
+
+
+    final ProcessBuilder processBuilder = new ProcessBuilder();
+
+
+
+    processBuilder.command("cmd.exe", "/c", "tasklist", "/v", "/fi",
+        "\"USERNAME eq " + userName + "\"", "/fi", "\"PID eq " + iD + "\"");
+
+    try {
+
+      final Process process = processBuilder.start();
+
+      final StringBuilder output = new StringBuilder();
+
+      final BufferedReader reader =
+          new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        output.append(line + "\n");
+      }
+
+      final int exitVal = process.waitFor();
+      if (exitVal == 0) {
+        // System.out.println(output.toString());
+        if (output.toString().contains(userName)) {
+
+          return true;
+        } else {
+
+          return false;
+        }
+
+
+      } else {
+        return false;
+        // abnormal...
+      }
+
+    } catch (final IOException e) {
+      return false;
+
+    } catch (final InterruptedException e) {
+      return false;
+    }
   }
 
   /*
