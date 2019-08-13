@@ -220,6 +220,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
           ResponseUtil.ERROR_PROCEZZ_TYPE_INCOMPATIBLE_COMP, new Exception());
     }
 
+
     return p2.getOsExecutionCommand().contains(EXPLORVIZ_MODEL_ID_FLAG + p1.getId());
 
   }
