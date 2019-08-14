@@ -241,9 +241,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
   }
 
   /**
-   * If you run a java process via cmd, "java" will be replaced with with the path to the executable
-   * of java. We remove the path to the executable, and put back "java", so we dont have to differ
-   * between paths.
+   * If you run a java process via cli, windows replaces in some cases "java" with the path to the
+   * executable of java in a string. THe risk is to have spaces in the path. So if we split the path
+   * between the first occurring whitespace, its not guaranteed, that we have the java launcher on
+   * the left and the rest of the launch on the right. Therefore, we try to detect the first
+   * occuring of a java executable.
+   *
    *
    * We also did that for javaw. Would also be possible for javaws, if needed.
    *
@@ -251,16 +254,30 @@ public class WinJavaManagementType implements ProcezzManagementType {
    * @return
    */
   public String[] splitter(final String splitCmd) {
-    // First two possibilities are for true java processes.
-    if (splitCmd.contains("javaw.exe")) {
+
+    if (splitCmd.startsWith("java") || splitCmd.startsWith("javaw")) {
+      final String[] execPathFragments = splitCmd.split(REGEX, 2);
+      execPathFragments[0] = execPathFragments[0] + SPACE_SYMBOL;
+      return execPathFragments;
+    } else if (splitCmd.contains("javaw.exe\"")) {
       final String[] execPathFragments = splitCmd.split("javaw.exe\"", 2);
+      execPathFragments[0] = execPathFragments[0] + "javaw.exe\"";
+      // execPathFragments[0] = "javaw";
+      return execPathFragments;
+    } else if (splitCmd.contains("java.exe\"")) {
+      final String[] execPathFragments = splitCmd.split("java.exe\"", 2);
+      execPathFragments[0] = execPathFragments[0] + "java.exe\"";
+      // execPathFragments[0] = "java";
+      return execPathFragments;
+    } else if (splitCmd.contains("javaw\"")) {
+      final String[] execPathFragments = splitCmd.split("javaw\"", 2);
       execPathFragments[0] = execPathFragments[0] + "javaw\"";
       // execPathFragments[0] = "javaw";
       return execPathFragments;
-    } else if (splitCmd.contains("java.exe")) {
-      final String[] execPathFragments = splitCmd.split("java.exe\"", 2);
+    } else if (splitCmd.contains("java\"")) {
+      final String[] execPathFragments = splitCmd.split("java\"", 2);
       execPathFragments[0] = execPathFragments[0] + "java\"";
-      // execPathFragments[0] = "javaw";
+      // execPathFragments[0] = "java";
       return execPathFragments;
     } else {
       final String[] execPathFragments = splitCmd.split(REGEX, 2);

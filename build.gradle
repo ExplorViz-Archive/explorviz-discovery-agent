@@ -59,7 +59,7 @@ dependencies {
   implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-sse', version: '2.27'
 
   // https://mvnrepository.com/artifact/org.jprocesses/jProcesses
-  compile group: 'org.jprocesses', name: 'jProcesses', version: '1.6.5'
+ // compile group: 'org.jprocesses', name: 'jProcesses', version: '1.6.5'
   
  
   // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
