@@ -21,8 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class WinJavaManagementTypeTest {
   private static final String CORRECT_CMD =
-      "C:\\Program Files\\java.exe -cp . -jar sampleApplication.jar";
-
+      "\"C:\\Program Files\\java.exe\" -cp . -jar sampleApplication.jar";
+  private static final String CORRECT_CMD_SEC = "java -cp . -jar sampleApplication.jar";
 
   private static final String KIEKER_PROPS_FILENAME = "kieker.monitoring.properties";
   private static final String AOP_PROPS_FILENAME = "aop.xml";
@@ -40,6 +40,8 @@ public class WinJavaManagementTypeTest {
 
 
   Procezz procezz = new Procezz(1, CORRECT_CMD);
+
+  Procezz procezzSec = new Procezz(2, CORRECT_CMD_SEC);
 
   WinJavaManagementType type;
 
@@ -71,12 +73,12 @@ public class WinJavaManagementTypeTest {
    * map.put((long) 1, CORRECT_CMD); map.put((long) 2, "TestCMD"); try {
    * Mockito.when(WinAbstraction.findProzzeses()).thenReturn(map); } catch (final IOException e) {
    * fail("Failed to mock"); }
-   * 
+   *
    * final ArrayList<Procezz> testList = (ArrayList<Procezz>)
    * type.getProcezzListFromOsAndSetAgent(agent); testList.forEach( proc ->
    * assertTrue((proc.getPid() == 1 && proc.getOsExecutionCommand().equals(CORRECT_CMD)) ||
    * (proc.getPid() == 2 && proc.getOsExecutionCommand().equals("TestCMD")))); }
-   * 
+   *
    */
   @Test
   public void testIdentInject() {
@@ -87,7 +89,7 @@ public class WinJavaManagementTypeTest {
         fail("Cant be a correct java-process");
       }
       assertEquals(
-          "C:\\Program Files\\java.exe -Dexplorviz.agent.model.id=1 -cp . -jar sampleApplication.jar",
+          "\"C:\\Program Files\\java.exe\" -Dexplorviz.agent.model.id=1 -cp . -jar sampleApplication.jar",
           procezz.getAgentExecutionCommand());
     }
   }
@@ -97,7 +99,7 @@ public class WinJavaManagementTypeTest {
     if (checkOs("windows")) {
       final String[] splitted = type.splitter(CORRECT_CMD);
       final String[] expected =
-          {"C:\\Program Files\\java.exe", " -cp . -jar sampleApplication.jar"};
+          {"\"C:\\Program Files\\java.exe\"", "-cp . -jar sampleApplication.jar"};
       assertArrayEquals(splitted, expected);
     }
   }
@@ -108,10 +110,10 @@ public class WinJavaManagementTypeTest {
       try {
         type.injectProcezzIdentificationProperty(procezz);
         type.removeMonitoringAgentInProcezz(procezz);
-        assertEquals("C:\\Program Files\\java.exe -cp . -jar sampleApplication.jar",
+        assertEquals("\"C:\\Program Files\\java.exe\" -cp . -jar sampleApplication.jar",
             procezz.getAgentExecutionCommand());
       } catch (final ProcezzStartException e) {
-        fail("Cant be a correct java-process");
+        fail("Cant be a correct java-proces.s");
       }
     }
   }
@@ -129,7 +131,7 @@ public class WinJavaManagementTypeTest {
       try {
         type.injectMonitoringAgentInProcezz(procezz);
         assertEquals(procezz.getAgentExecutionCommand(),
-            "C:\\Program Files\\java.exe -javaagent:tmp\\test\\kieker-1.14-SNAPSHOT-aspectj.jar -Dkieker.monitoring.configuration=tmp\\test\\1\\kieker.monitoring.properties -Dorg.aspectj.weaver.loadtime.configuration=file://tmp\\test\\1\\aop.xml -Dkieker.monitoring.skipDefaultAOPConfiguration=true -Dexplorviz.agent.model.id=1 -cp . -jar sampleApplication.jar");
+            "\"C:\\Program Files\\java.exe\" -javaagent:tmp\\test\\kieker-1.14-SNAPSHOT-aspectj.jar -Dkieker.monitoring.configuration=tmp\\test\\1\\kieker.monitoring.properties -Dorg.aspectj.weaver.loadtime.configuration=file://tmp\\test\\1\\aop.xml -Dkieker.monitoring.skipDefaultAOPConfiguration=true -Dexplorviz.agent.model.id=1 -cp . -jar sampleApplication.jar");
       } catch (final ProcezzStartException e) {
         fail("Failed to create injected CMD for kieker.");
       }

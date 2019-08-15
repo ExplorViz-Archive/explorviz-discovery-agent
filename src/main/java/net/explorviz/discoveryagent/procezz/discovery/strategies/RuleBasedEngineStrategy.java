@@ -29,7 +29,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   // private final RulesListenerExtend ruleListener = new RulesListenerExtend();
 
   // Parts of the rule based Engine
-  private Rules rules;
+  private Rules rules = new Rules();
 
   @Config("updateIP")
   private String ip;
@@ -115,11 +115,20 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   }
 
-  public void updateRuleList(final Rules rules) {
+  public void updateRuleList(final Rules ruleList) {
     synchronized (rules) {
-      this.rules = rules;
+      rules = ruleList;
     }
 
+  }
+
+  /**
+   * Method for test purposes
+   * 
+   * @param ruleList
+   */
+  public void updateRuleListTest(final Rules ruleList) {
+    rules = ruleList;
   }
 
 }

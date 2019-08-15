@@ -34,7 +34,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
   private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
   private static final String REGEX = "\\s+";
-  private static final String EXEC = ".exe";
+  // private static final String EXEC = ".exe";
+  private static final String REGEX_QUOTE = "\"";
   public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
 
   private final MonitoringFilesystemService monitoringFsService;
@@ -255,35 +256,37 @@ public class WinJavaManagementType implements ProcezzManagementType {
    */
   public String[] splitter(final String splitCmd) {
 
-    if (splitCmd.startsWith("java") || splitCmd.startsWith("javaw")) {
-      final String[] execPathFragments = splitCmd.split(REGEX, 2);
-      execPathFragments[0] = execPathFragments[0] + SPACE_SYMBOL;
-      return execPathFragments;
-    } else if (splitCmd.contains("javaw.exe\"")) {
-      final String[] execPathFragments = splitCmd.split("javaw.exe\"", 2);
-      execPathFragments[0] = execPathFragments[0] + "javaw.exe\"";
-      // execPathFragments[0] = "javaw";
-      return execPathFragments;
-    } else if (splitCmd.contains("java.exe\"")) {
-      final String[] execPathFragments = splitCmd.split("java.exe\"", 2);
-      execPathFragments[0] = execPathFragments[0] + "java.exe\"";
-      // execPathFragments[0] = "java";
-      return execPathFragments;
-    } else if (splitCmd.contains("javaw\"")) {
-      final String[] execPathFragments = splitCmd.split("javaw\"", 2);
-      execPathFragments[0] = execPathFragments[0] + "javaw\"";
-      // execPathFragments[0] = "javaw";
-      return execPathFragments;
-    } else if (splitCmd.contains("java\"")) {
-      final String[] execPathFragments = splitCmd.split("java\"", 2);
-      execPathFragments[0] = execPathFragments[0] + "java\"";
-      // execPathFragments[0] = "java";
-      return execPathFragments;
+
+
+    if (splitCmd.startsWith("\"")) {
+      final String[] execPathFragments = splitCmd.split(REGEX_QUOTE, 3);
+      final String[] execPathFragmentsRes = new String[2];
+      execPathFragmentsRes[0] = REGEX_QUOTE + execPathFragments[1] + REGEX_QUOTE;
+      System.out.println("+" + execPathFragmentsRes[0] + "+");
+      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst("\\s+", "");
+
+      System.out.println("+" + execPathFragmentsRes[1] + "+");
+      return execPathFragmentsRes;
     } else {
-      final String[] execPathFragments = splitCmd.split(REGEX, 2);
-      execPathFragments[0] = execPathFragments[0] + SPACE_SYMBOL;
-      return execPathFragments;
+      return splitCmd.split(REGEX, 2);
     }
+    /*
+     * if (splitCmd.startsWith("java") || splitCmd.startsWith("javaw")) { final String[]
+     * execPathFragments = splitCmd.split(REGEX, 2); execPathFragments[0] = execPathFragments[0] +
+     * SPACE_SYMBOL; return execPathFragments; } else if (splitCmd.contains("javaw.exe\"")) { final
+     * String[] execPathFragments = splitCmd.split("javaw.exe\"", 2); execPathFragments[0] =
+     * execPathFragments[0] + "javaw.exe\""; // execPathFragments[0] = "javaw"; return
+     * execPathFragments; } else if (splitCmd.contains("java.exe\"")) { final String[]
+     * execPathFragments = splitCmd.split("java.exe\"", 2); execPathFragments[0] =
+     * execPathFragments[0] + "java.exe\""; // execPathFragments[0] = "java"; return
+     * execPathFragments; } else if (splitCmd.contains("javaw\"")) { final String[]
+     * execPathFragments = splitCmd.split("javaw\"", 2); execPathFragments[0] = execPathFragments[0]
+     * + "javaw\""; // execPathFragments[0] = "javaw"; return execPathFragments; } else if
+     * (splitCmd.contains("java\"")) { final String[] execPathFragments = splitCmd.split("java\"",
+     * 2); execPathFragments[0] = execPathFragments[0] + "java\""; // execPathFragments[0] = "java";
+     * return execPathFragments; } else { final String[] execPathFragments = splitCmd.split(REGEX,
+     * 2); execPathFragments[0] = execPathFragments[0] + SPACE_SYMBOL; return execPathFragments; }
+     */
   }
   /*
    * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);

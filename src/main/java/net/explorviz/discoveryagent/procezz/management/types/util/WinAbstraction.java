@@ -111,8 +111,8 @@ public class WinAbstraction {
         // System.out.println(output);
         proccList.forEach((a, b) -> {
 
-          System.out.println("pd ++" + a + "++");
-          System.out.println("cmd ++" + b + "++");
+          // System.out.println("pd ++" + a + "++");
+          // System.out.println("cmd ++" + b + "++");
 
         });
 

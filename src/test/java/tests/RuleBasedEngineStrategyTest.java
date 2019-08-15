@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class RuleBasedEngineStrategyTest {
   private static final String CORRECT_CMD =
-      "C:\\Program Files\\java.exe -cp . -jar sampleApplication.jar";
+      "\"C:\\Program Files\\java.exe\" -cp . -jar sampleApplication.jar";
 
   RuleBasedEngineStrategy strat;
 
@@ -34,7 +34,7 @@ public class RuleBasedEngineStrategyTest {
     procezz = new Procezz(1, CORRECT_CMD);
     procezz.setId("1");
     procezz.setAgentExecutionCommand(null);
-
+    strat.updateRuleListTest(null);
   }
 
   @Test
@@ -46,7 +46,7 @@ public class RuleBasedEngineStrategyTest {
         .then(facts -> procezz.setProposedExecutionCommand("Prop"))
         .then(facts -> procezz.setAopContent("newAOP")).build();
     rules.register(rule);
-    strat.updateRuleList(rules);
+    strat.updateRuleListTest(rules);
     assertTrue(strat.applyEntireStrategy(procezz));
 
     assertEquals("Prop", procezz.getProposedExecutionCommand());
@@ -55,7 +55,7 @@ public class RuleBasedEngineStrategyTest {
 
   @Test
   public void emptyRule() {
-    strat.updateRuleList(null);
+    strat.updateRuleListTest(null);
     assertFalse(strat.applyEntireStrategy(procezz));
   }
 
@@ -68,7 +68,7 @@ public class RuleBasedEngineStrategyTest {
         .then(facts -> procezz.setProposedExecutionCommand("Prop"))
         .then(facts -> procezz.setAopContent("newAOP")).build();
     rules.register(rule);
-    strat.updateRuleList(rules);
+    strat.updateRuleListTest(rules);
     assertFalse(strat.applyEntireStrategy(procezz));
 
   }
