@@ -85,6 +85,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void setWorkingDirectory(final Procezz procezz) {
     if (procezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("sample")) {
       procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop");
+    } else if (procezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("tomcat")) {
+      procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop\\Discovery-Agent\\jpetstore-6");
     } else {
       procezz.setWorkingDirectory("");
     }
