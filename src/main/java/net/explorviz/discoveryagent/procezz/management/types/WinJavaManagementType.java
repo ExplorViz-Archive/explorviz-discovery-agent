@@ -147,10 +147,11 @@ public class WinJavaManagementType implements ProcezzManagementType {
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
 
-    final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
+
     // execPathFragments[0] = execPathFragments[0] + EXEC;
 
     try {
+      final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
 
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + completeKiekerCommand
@@ -176,9 +177,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
     //
-    final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
+
     // execPathFragments[0] = execPathFragments[0] + EXEC;
     try {
+      final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
           + procezz.getId() + SPACE_SYMBOL + execPathFragments[1];
 
@@ -256,18 +258,15 @@ public class WinJavaManagementType implements ProcezzManagementType {
    * @param splitCmd
    * @return
    */
-  public String[] splitter(final String splitCmd) {
-
+  public String[] splitter(final String splitCmd) throws IndexOutOfBoundsException {
 
 
     if (splitCmd.startsWith("\"")) {
       final String[] execPathFragments = splitCmd.split(REGEX_QUOTE, 3);
       final String[] execPathFragmentsRes = new String[2];
       execPathFragmentsRes[0] = REGEX_QUOTE + execPathFragments[1] + REGEX_QUOTE;
-      System.out.println("+" + execPathFragmentsRes[0] + "+");
       execPathFragmentsRes[1] = execPathFragments[2].replaceFirst("\\s+", "");
 
-      System.out.println("+" + execPathFragmentsRes[1] + "+");
       return execPathFragmentsRes;
     } else {
       return splitCmd.split(REGEX, 2);

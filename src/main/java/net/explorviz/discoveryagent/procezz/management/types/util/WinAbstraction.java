@@ -51,13 +51,13 @@ public class WinAbstraction {
   }
 
 
-  public static HashMap<Long, String> getProcecces() {
+  public static HashMap<Long, String> getProcezzes() {
 
     // final String userName =
     // "Get-WmiObject Win32_Process -filter \"CommandLine LIKE '%java%'\" | Select
     // ProcessId,Commandline | ft -wrap -autosize";
     final ProcessBuilder processBuilder = new ProcessBuilder("powershell.exe", "-Command",
-        " Get-WmiObject Win32_Process | Select ProcessId,Commandline | ft  -wrap -HideTableHeaders");
+        "\"Get-WmiObject Win32_Process -Filter \\\"CommandLine like '%java%'\\\" | Select ProcessId,Commandline | ft  -wrap -HideTableHeaders\"");
 
     processBuilder.command();
 
@@ -66,7 +66,7 @@ public class WinAbstraction {
 
       final Process process = processBuilder.start();
 
-      final StringBuilder output = new StringBuilder();
+      // final StringBuilder output = new StringBuilder();
       final InputStream rawInputDataStream = process.getInputStream();
       final InputStreamReader inpReader = new InputStreamReader(rawInputDataStream, "CP850");
       final BufferedReader reader = new BufferedReader(inpReader);
@@ -79,10 +79,9 @@ public class WinAbstraction {
 
         if (line.length() >= 10) {
 
-          final String testi = line.substring(0, 10).trim();
-          if (!testi.equals("")) {
-            if (cmd.toLowerCase(Locale.ENGLISH).contains("java") && testUser(pid)
-                && !cmd.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
+          final String testPid = line.substring(0, 10).trim();
+          if (!testPid.equals("")) {
+            if (testUser(pid) && !cmd.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
                 && !cmd.toLowerCase(Locale.ENGLISH).contains("tasklist")
                 && !cmd.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
 
@@ -96,7 +95,7 @@ public class WinAbstraction {
               // .replaceFirst("\"", "").replaceFirst("\"", ""));
 
             }
-            pid = testi;
+            pid = testPid;
             cmd = "";
             cmd += line.substring(10);
           } else {
@@ -109,12 +108,12 @@ public class WinAbstraction {
       final int exitVal = process.waitFor();
       if (exitVal == 0) {
         // System.out.println(output);
-        proccList.forEach((a, b) -> {
+        // proccList.forEach((a, b) -> {
 
-          // System.out.println("pd ++" + a + "++");
-          // System.out.println("cmd ++" + b + "++");
+        // System.out.println("pd ++" + a + "++");
+        // System.out.println("cmd ++" + b + "++");
 
-        });
+        // });
 
         rawInputDataStream.close();
         inpReader.close();
@@ -122,7 +121,9 @@ public class WinAbstraction {
 
       } else {
         LOGGER.error("Problems in generating a Procezzlist, maybe wrong os?");
-
+        rawInputDataStream.close();
+        inpReader.close();
+        reader.close();
         return new HashMap<>();
       }
 
@@ -148,7 +149,6 @@ public class WinAbstraction {
    * @throws IOException by invalid method usage.
    */
   public static Map<Long, String> findProzzeses() throws IOException {
-    LOGGER.info("EXECUTED!!!+++++");
     /*
      * final List<ProcessInfo> inf = JProcesses.getProcessList();
      *
@@ -177,10 +177,13 @@ public class WinAbstraction {
 
     // inf.forEach(proc -> pidAndProcessPairs.put(Long.valueOf(proc.getPid()),
     // proc.getCommand().replaceAll("\"", "")));
-    return getProcecces();
+    return getProcezzes();
   }
 
   public static boolean testUser(final String iD) {
+    if (iD.equals("")) {
+      return false;
+    }
     final ProcessBuilder processBuilder = new ProcessBuilder();
 
     processBuilder.command("cmd.exe", "/c", "tasklist", "/v", "/fi",

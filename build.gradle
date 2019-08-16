@@ -18,9 +18,6 @@ buildscript {
   	
   }
 }
-dependencies {
-   runtime files(org.gradle.internal.jvm.Jvm.current().toolsJar)
-}
 repositories {
   jcenter()
   maven { url 'https://jitpack.io' }
@@ -63,7 +60,7 @@ dependencies {
   
  
   // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+ // compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
   
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.4.0'
 	testImplementation 'org.junit.platform:junit-platform-runner:1.4.0'
