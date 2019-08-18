@@ -75,6 +75,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
       });
     } catch (final IOException e) {
       LOGGER.error("Error when finding procezzes: {}", e);
+
+      procezzList.forEach(a -> System.out.println(a.getAgentExecutionCommand()));
       return new ArrayList<Procezz>();
     }
 
@@ -99,7 +101,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
     try {
+      System.out.println(procezz.getAgentExecutionCommand().contains("AAAAAAAAAAAAAAAAAAAA"));
+
       WinAbstraction.startProcessCmd(procezz.getAgentExecutionCommand());
+
     } catch (final IOException e) {
       LOGGER.error("Error during procezz start. Exception: {}", e);
       throw new ProcezzStartException(ResponseUtil.ERROR_PROCEZZ_START, e, procezz);
@@ -196,9 +201,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useUserExec =
-        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
-            : false;
+    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
 
     final String execPath =
         useUserExec ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
