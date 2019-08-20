@@ -78,7 +78,8 @@ public class WinAbstraction {
 
 
     } catch (final IOException e) {
-      System.out.println("cmd fail++");
+      LOGGER.error("Procezz command not found: {}. Maybe not available in this Distro?: {}",
+          String.join(" ", cmdInput), e.toString());
       return new ArrayList<String>();
 
 
@@ -92,14 +93,13 @@ public class WinAbstraction {
       inpReader = new InputStreamReader(rawInputDataStream, "CP850");
     } catch (final UnsupportedEncodingException e) {
       rawInputDataStream.close();
-
+      LOGGER.error("Problem reading the input. Did Windows change Encoding?",
+          String.join(" ", cmdInput), e.toString());
 
       return cliLines;
     }
     final BufferedReader reader = new BufferedReader(inpReader);
     String line;
-    final String pid = "";
-    final String cmd = "";
 
     while ((line = reader.readLine()) != null) {
       cliLines.add(line);
@@ -109,6 +109,7 @@ public class WinAbstraction {
     try {
       exitVal = process.waitFor();
       if (exitVal != 0) {
+        System.out.println("HIER");
         rawInputDataStream.close();
         inpReader.close();
         reader.close();
@@ -144,11 +145,18 @@ public class WinAbstraction {
 
                 return;
               }
-              if (!process.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
-                  && !process.toLowerCase(Locale.ENGLISH).contains("tasklist")
-                  && !process.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
-                proccList.put(pid, process);
+              try {
 
+                if (testUser(parts[0].trim())
+                    && !process.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
+                    && !process.toLowerCase(Locale.ENGLISH).contains("tasklist")
+                    && !process.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
+                  proccList.put(pid, process);
+
+                }
+              } catch (final IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
               }
             });
 
@@ -183,14 +191,15 @@ public class WinAbstraction {
   }
 
   public static boolean testUser(final String iD) throws IOException {
-    if (iD.equals("")) {
+
+    if (!iD.equals("")) {
+
       final List<String> rawList =
-          executeAndReadShellCommand("powershell.exe -Command \"tasklist /v /fi \\\"USERNAME eq "
-              + userName + "\\\" /fi \\\"PID eq " + iD + "\\\"".split("\\s+"));
+          executeAndReadShellCommand(("powershell.exe -Command \"tasklist /v /fi \\\"USERNAME eq "
+              + userName + "\\\" " + "/fi \\\"PID eq " + iD + "\\\"\"").split("\\s+"));
       for (int i = 0; i < rawList.size(); i++) {
 
-
-        if (rawList.get(i).contains("Enes")) {
+        if (rawList.get(i).contains(userName)) {
           return true;
         }
       }
