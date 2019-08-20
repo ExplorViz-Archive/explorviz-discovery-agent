@@ -124,40 +124,53 @@ public class WinAbstraction {
 
   public static HashMap<Long, String> findProzzeses() throws IOException {
     final HashMap<Long, String> proccList = new HashMap<Long, String>();
-    String pid = "";
-    String cmd = "";
-    final List<String> rawList = executeAndReadShellCommand(
-        "powershell.exe -Command \"Get-WmiObject Win32_Process -Filter \\\"CommandLine like '%java%'\\\" | Select ProcessId,Commandline | ft  -wrap -HideTableHeaders\""
-            .split("\\s+"));
+    // final String pid = "";
+    // final String cmd = "";
+    executeAndReadShellCommand(
+        "powershell.exe -Command \"Get-WmiObject Win32_Process -Filter \\\"CommandLine like '%java%'\\\" | Select ProcessId,Commandline | ft  -HideTableHeaders | Out-String -Width 4096\""
+            .split("\\s+")).forEach(cmd -> {
+              if (cmd.trim().equals("")) {
+                return;
+              }
+              cmd = cmd.trim();
+              final String[] parts = cmd.split("\\s+", 2);
 
-    for (int i = 0; i < rawList.size(); i++) {
-      final String line = rawList.get(i);
-      if (line.length() >= 10) {
+              final String process = parts[1].trim();
+              Long pid;
 
-        final String testPid = line.substring(0, 10).trim();
-        if (!testPid.equals("")) {
-          if (!cmd.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
-              && !cmd.toLowerCase(Locale.ENGLISH).contains("tasklist")
-              && !cmd.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
+              try {
+                pid = Long.valueOf(parts[0]);
+              } catch (final NumberFormatException e) {
 
-            try {
-              proccList.put(Long.valueOf(pid), cmd.replaceAll("\\s+", " ").trim());
-            } catch (final NumberFormatException e) {
+                return;
+              }
+              if (!process.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
+                  && !process.toLowerCase(Locale.ENGLISH).contains("tasklist")
+                  && !process.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
+                proccList.put(pid, process);
 
-            }
-            // .replaceFirst("\"", "").replaceFirst("\"", ""));
+              }
+            });
 
-          }
-          pid = testPid;
-          cmd = "";
-          cmd += line.substring(10);
-        } else {
-          cmd += line.substring(10);
-        }
-      }
 
-    }
-
+    /*
+     * for (int i = 0; i < rawList.size(); i++) { final String line = rawList.get(i); if
+     * (line.length() >= 10) {
+     *
+     * final String testPid = line.substring(0, 10).trim(); if (!testPid.equals("")) { if
+     * (!cmd.toLowerCase(Locale.ENGLISH).contains("Win32_Process") &&
+     * !cmd.toLowerCase(Locale.ENGLISH).contains("tasklist") &&
+     * !cmd.toLowerCase(Locale.ENGLISH).contains("zookeeper")) {
+     *
+     * try { proccList.put(Long.valueOf(pid), cmd.replaceAll("\\s+", " ").trim()); } catch (final
+     * NumberFormatException e) {
+     *
+     * } // .replaceFirst("\"", "").replaceFirst("\"", ""));
+     *
+     * } pid = testPid; cmd = ""; cmd += line.substring(10); } else { cmd += line.substring(10); } }
+     *
+     * }
+     */
     // proccList.forEach((a, b) -> {
     //
     // System.out.println("pd ++" + a + "++");
