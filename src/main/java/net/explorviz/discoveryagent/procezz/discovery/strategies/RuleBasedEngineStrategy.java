@@ -46,6 +46,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   private final MonitoringFilesystemService fileSystem;
 
+
   @Inject
   public RuleBasedEngineStrategy(final MonitoringFilesystemService fileSystem) {
 
@@ -124,7 +125,7 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   /**
    * Method for test purposes
-   * 
+   *
    * @param ruleList
    */
   public void updateRuleListTest(final Rules ruleList) {

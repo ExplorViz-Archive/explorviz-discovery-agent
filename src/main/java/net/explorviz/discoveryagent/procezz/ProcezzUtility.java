@@ -145,7 +145,6 @@ public final class ProcezzUtility {
           LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
               e.getMessage());
         }
-        applyStrategiesOnProcezz(newProcezz);
 
         newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
@@ -164,7 +163,7 @@ public final class ProcezzUtility {
   }
 
 
-  public void applyStrategiesOnProcezz(final Procezz newProcezz) {
+  public boolean applyStrategiesOnProcezz(final Procezz newProcezz) {
     final List<DiscoveryStrategy> strategies = stratFactory.giveAllStrategies();
 
     for (final DiscoveryStrategy strategy : strategies) {
@@ -172,9 +171,10 @@ public final class ProcezzUtility {
 
       if (isDesiredApp) {
         // found strategy, no need to apply remaining strategies
-        break;
+        return true;
       }
     }
+    return false;
   }
 
   public void copyAgentAccessibleProcezzAttributeValues(final Procezz sourceProcezz,
@@ -206,6 +206,7 @@ public final class ProcezzUtility {
 
     targetProcezz.setMonitoredFlag(sourceProcezz.isMonitoredFlag());
     targetProcezz.setUserExecutionCommand(sourceProcezz.getUserExecutionCommand());
+    // applyStrategiesOnProcezz(targetProcezz);
 
   }
 

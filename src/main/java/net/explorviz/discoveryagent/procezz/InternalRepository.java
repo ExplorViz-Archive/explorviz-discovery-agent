@@ -140,10 +140,17 @@ public final class InternalRepository {
       // finally, add new-found (= remaining) procezzes to the internal storage
       procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(), newProcezzListNoDuplicates,
           internalProcezzList);
+      boolean ruleApplied = false;
+      // apply strategies...
+      for (final Procezz procezz : internalProcezzList) {
+        if (!ruleApplied) {
+          ruleApplied = procezzUtility.applyStrategiesOnProcezz(procezz);
+        }
+      }
 
       agentObject.setProcezzes(internalProcezzList);
 
-      if (broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
+      if (ruleApplied || broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
           || !newProcezzListNoDuplicates.isEmpty()) {
         broadcastService.setNewRegistrationFlag(false);
         broadcastService.broadcastMessage(agentObject);
@@ -274,6 +281,7 @@ public final class InternalRepository {
       ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
       ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
     synchronized (internalProcezzList) {
+      System.out.println("Get used");
 
       final Procezz procezzInCache = findProcezzByID(procezz.getId());
 
@@ -281,7 +289,9 @@ public final class InternalRepository {
 
       final boolean oldStoppedState = procezzInCache.isStopped();
 
+      // procezzUtility.applyStrategiesOnProcezz(procezz);
       procezzUtility.copyUserAccessibleProcezzAttributeValues(procezz, procezzInCache, agentObject);
+
 
       if (!oldStoppedState && procezzInCache.isStopped()) {
         procezzUtility.handleStop(procezzInCache);
