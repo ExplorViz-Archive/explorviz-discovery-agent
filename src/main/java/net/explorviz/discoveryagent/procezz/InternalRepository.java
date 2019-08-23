@@ -141,11 +141,14 @@ public final class InternalRepository {
       procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(), newProcezzListNoDuplicates,
           internalProcezzList);
       boolean ruleApplied = false;
-      // apply strategies...
+
       for (final Procezz procezz : internalProcezzList) {
-        if (!ruleApplied) {
-          ruleApplied = procezzUtility.applyStrategiesOnProcezz(procezz);
+
+        final boolean ruleAppliedtest = procezzUtility.applyStrategiesOnProcezz(procezz);
+        if (!ruleApplied && ruleAppliedtest) {
+          ruleApplied = true;
         }
+
       }
 
       agentObject.setProcezzes(internalProcezzList);

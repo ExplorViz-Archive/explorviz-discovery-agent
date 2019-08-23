@@ -146,6 +146,8 @@ public final class ProcezzUtility {
               e.getMessage());
         }
 
+        // applyStrategiesOnProcezz(newProcezz);
+
         newProcezz.setLastDiscoveryTime(System.currentTimeMillis());
 
 
