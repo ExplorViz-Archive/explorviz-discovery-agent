@@ -34,6 +34,10 @@ ext {
 }
 
 dependencies {  
+
+  // https://mvnrepository.com/artifact/org.jprocesses/jProcesses
+  compile group: 'org.jprocesses', name: 'jProcesses', version: '1.6.5'
+
   // https://mvnrepository.com/artifact/org.json/json
   compile group: 'org.json', name: 'json', version: '20180813'
 

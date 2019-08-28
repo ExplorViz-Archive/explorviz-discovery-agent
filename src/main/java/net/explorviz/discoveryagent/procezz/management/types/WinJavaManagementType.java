@@ -36,6 +36,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   private static final String REGEX = "\\s+";
   // private static final String EXEC = ".exe";
   private static final String REGEX_QUOTE = "\"";
+  private static final String REGEX_CHAR = "\'";
   public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
 
   private final MonitoringFilesystemService monitoringFsService;
@@ -43,7 +44,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public WinJavaManagementType(final MonitoringFilesystemService monitoringFsService) {
     this.monitoringFsService = monitoringFsService;
   }
-
 
 
   @Override
@@ -55,7 +55,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     try {
       WinAbstraction.findProzzeses().forEach((pid, execCmd) -> {
-        // Remove potentiell relativ path-start.
+
         final Procezz p = new Procezz(pid, execCmd);
 
         p.setId(String.valueOf(placeholderId.incrementAndGet()));
@@ -76,7 +76,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
     } catch (final IOException e) {
       LOGGER.error("Error when finding procezzes: {}", e);
 
-      procezzList.forEach(a -> System.out.println(a.getAgentExecutionCommand()));
       return new ArrayList<Procezz>();
     }
 
@@ -101,7 +100,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
     LOGGER.info("Restarting procezz with ID:{}", procezz.getId());
     try {
-      System.out.println(procezz.getAgentExecutionCommand().contains("AAAAAAAAAAAAAAAAAAAA"));
 
       WinAbstraction.startProcessCmd(procezz.getAgentExecutionCommand());
 
@@ -116,6 +114,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void killProcezz(final Procezz procezz) throws ProcezzStopException {
 
     WinAbstraction.killProcessPid(procezz.getPid());
+
   }
 
   @Override
@@ -144,17 +143,12 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-
     final boolean useUserExec =
         userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
             : false;
 
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-
-
-    // execPathFragments[0] = execPathFragments[0] + EXEC;
-
     try {
       final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
       final String completeKiekerCommand = prepareMonitoringJvmarguments(procezz.getId());
@@ -173,17 +167,13 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void injectProcezzIdentificationProperty(final Procezz procezz)
       throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
-
     final boolean useuserExecCmd =
         userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
             : false;
-
     final String execPath =
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
-    //
 
-    // execPathFragments[0] = execPathFragments[0] + EXEC;
     try {
       final String[] execPathFragments = splitter(execPathWithoutAgentFlag);
       final String newExecCommand = execPathFragments[0] + SPACE_SYMBOL + EXPLORVIZ_MODEL_ID_FLAG
@@ -249,69 +239,37 @@ public class WinJavaManagementType implements ProcezzManagementType {
   }
 
   /**
-   * If you run a java process via cli, windows replaces in some cases "java" with the path to the
+   * If you run a java process via CLI, windows replaces in some cases "java" with the path to the
    * executable of java in a string. THe risk is to have spaces in the path. So if we split the path
    * between the first occurring whitespace, its not guaranteed, that we have the java launcher on
-   * the left and the rest of the launch on the right. Therefore, we try to detect the first
-   * occuring of a java executable.
+   * the left and the rest of the launch on the right. Therefore, we try to detect if the first part
+   * of the exec cmd is a string a or not.
    *
    *
-   * We also did that for javaw. Would also be possible for javaws, if needed.
    *
    * @param splitCmd
    * @return
    */
   public String[] splitter(final String splitCmd) throws IndexOutOfBoundsException {
 
-
-    if (splitCmd.startsWith("\"")) {
+    if (splitCmd.startsWith(REGEX_QUOTE)) {
       final String[] execPathFragments = splitCmd.split(REGEX_QUOTE, 3);
       final String[] execPathFragmentsRes = new String[2];
       execPathFragmentsRes[0] = REGEX_QUOTE + execPathFragments[1] + REGEX_QUOTE;
-      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst("\\s+", "");
-
+      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst(REGEX, "");
       return execPathFragmentsRes;
+
+    } else if (splitCmd.startsWith(REGEX_CHAR)) {
+      final String[] execPathFragments = splitCmd.split(REGEX_CHAR, 3);
+      final String[] execPathFragmentsRes = new String[2];
+      execPathFragmentsRes[0] = REGEX_CHAR + execPathFragments[1] + REGEX_CHAR;
+      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst("\\s+", "");
+      return execPathFragmentsRes;
+
     } else {
       return splitCmd.split(REGEX, 2);
     }
-    /*
-     * if (splitCmd.startsWith("java") || splitCmd.startsWith("javaw")) { final String[]
-     * execPathFragments = splitCmd.split(REGEX, 2); execPathFragments[0] = execPathFragments[0] +
-     * SPACE_SYMBOL; return execPathFragments; } else if (splitCmd.contains("javaw.exe\"")) { final
-     * String[] execPathFragments = splitCmd.split("javaw.exe\"", 2); execPathFragments[0] =
-     * execPathFragments[0] + "javaw.exe\""; // execPathFragments[0] = "javaw"; return
-     * execPathFragments; } else if (splitCmd.contains("java.exe\"")) { final String[]
-     * execPathFragments = splitCmd.split("java.exe\"", 2); execPathFragments[0] =
-     * execPathFragments[0] + "java.exe\""; // execPathFragments[0] = "java"; return
-     * execPathFragments; } else if (splitCmd.contains("javaw\"")) { final String[]
-     * execPathFragments = splitCmd.split("javaw\"", 2); execPathFragments[0] = execPathFragments[0]
-     * + "javaw\""; // execPathFragments[0] = "javaw"; return execPathFragments; } else if
-     * (splitCmd.contains("java\"")) { final String[] execPathFragments = splitCmd.split("java\"",
-     * 2); execPathFragments[0] = execPathFragments[0] + "java\""; // execPathFragments[0] = "java";
-     * return execPathFragments; } else { final String[] execPathFragments = splitCmd.split(REGEX,
-     * 2); execPathFragments[0] = execPathFragments[0] + SPACE_SYMBOL; return execPathFragments; }
-     */
-  }
-  /*
-   * String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2);
-   *
-   * if (!execPathFragments[0].contains(".exe")) { final String[] splittedCmd =
-   * execPathWithoutAgentFlag.split(REGEX); final String[] newSplit = new String[splittedCmd.length
-   * - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
-   *
-   * execPathFragments = newSplit; }
-   */
 
-  /*
-   * final String[] execPathFragments = execPathWithoutAgentFlag.split(REGEX, 2); if
-   * (!execPathFragments[0].contains("java.exe") && !execPathFragments[0].contains("javaw.exe")) {
-   * final String[] splittedCmd = execPathWithoutAgentFlag.split(REGEX); final String[] newSplit =
-   * new String[splittedCmd.length - 1]; newSplit[0] = splittedCmd[0] + " " + splittedCmd[1];
-   *
-   * for (int i = 2; i < splittedCmd.length; i++) { newSplit[i - 1] = splittedCmd[i]; }
-   *
-   * execPathFragments = newSplit; }
-   */
+  }
+
 }

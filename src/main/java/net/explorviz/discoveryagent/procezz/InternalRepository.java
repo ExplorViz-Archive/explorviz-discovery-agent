@@ -140,6 +140,7 @@ public final class InternalRepository {
       // finally, add new-found (= remaining) procezzes to the internal storage
       procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(), newProcezzListNoDuplicates,
           internalProcezzList);
+
       boolean ruleApplied = false;
 
       for (final Procezz procezz : internalProcezzList) {
@@ -284,7 +285,7 @@ public final class InternalRepository {
       ProcezzMonitoringSettingsException, ProcezzManagementTypeNotFoundException,
       ProcezzStopException, ProcezzStartException, ProcezzManagementTypeIncompatibleException {
     synchronized (internalProcezzList) {
-      System.out.println("Get used");
+
 
       final Procezz procezzInCache = findProcezzByID(procezz.getId());
 

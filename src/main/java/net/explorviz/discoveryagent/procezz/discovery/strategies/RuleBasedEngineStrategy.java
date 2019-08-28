@@ -85,7 +85,6 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     if (rules == null || rules.isEmpty()) {
       return false;
     }
-    rules.forEach(a -> System.out.println(a.getName()));
     // Create Facts
     final Facts facts = new Facts();
     facts.put("processInfo", newProcezz);
