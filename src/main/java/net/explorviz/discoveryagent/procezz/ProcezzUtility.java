@@ -145,6 +145,7 @@ public final class ProcezzUtility {
           LOGGER.error("Error when creating Subfolder for ID: {}. Error: {}", newProcezz.getId(),
               e.getMessage());
         }
+        // applyStrategiesOnProcezz(newProcezz);
 
         // applyStrategiesOnProcezz(newProcezz);
 

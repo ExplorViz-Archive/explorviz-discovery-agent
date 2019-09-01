@@ -124,9 +124,9 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   /**
-   * Method for test purposes
+   * Method for test purposes.
    *
-   * @param ruleList
+   * @param ruleList Got set.
    */
   public void updateRuleListTest(final Rules ruleList) {
     rules = ruleList;

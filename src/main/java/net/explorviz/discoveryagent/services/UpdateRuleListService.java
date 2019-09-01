@@ -26,6 +26,7 @@ public class UpdateRuleListService extends TimerTask {
   private final String url;
   private final RuleBasedEngineStrategy strat;
 
+
   /**
    * Creates a Updater for the rules.
    *

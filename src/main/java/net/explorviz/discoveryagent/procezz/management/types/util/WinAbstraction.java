@@ -67,8 +67,6 @@ public class WinAbstraction {
 
       process = new ProcessBuilder(cmdInput).start();
 
-      // final StringBuilder output = new StringBuilder();
-
 
 
     } catch (final IOException e) {
@@ -90,7 +88,7 @@ public class WinAbstraction {
         inpReader.close();
       }
       rawInputDataStream.close();
-      LOGGER.error("Problem reading the input. Did Windows change Encoding?",
+      LOGGER.error("Problem reading the input. Did Windows or Powershell changed the Encoding?",
           String.join(" ", cmdInput), e.toString());
 
       return cliLines;

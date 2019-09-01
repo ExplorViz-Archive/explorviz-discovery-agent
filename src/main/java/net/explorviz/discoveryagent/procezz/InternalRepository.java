@@ -142,11 +142,16 @@ public final class InternalRepository {
           internalProcezzList);
 
       boolean ruleApplied = false;
-
       for (final Procezz procezz : internalProcezzList) {
 
-        final boolean ruleAppliedtest = procezzUtility.applyStrategiesOnProcezz(procezz);
-        if (!ruleApplied && ruleAppliedtest) {
+        final String cmd = procezz.getProposedExecutionCommand();
+        final String aop = procezz.getAopContent();
+        final String name = procezz.getName();
+        final boolean hidden = procezz.isHidden();
+        procezzUtility.applyStrategiesOnProcezz(procezz);
+        final boolean change = compareProcezzChange(cmd, aop, name, hidden, procezz);
+
+        if (!ruleApplied && change) {
           ruleApplied = true;
         }
 
@@ -161,6 +166,20 @@ public final class InternalRepository {
       }
 
     }
+
+  }
+
+  public boolean compareProcezzChange(final String cmd, final String aop, final String name,
+      final boolean hidden, final Procezz p2) {
+
+    return (cmd != null ^ p2.getProposedExecutionCommand() != null)
+        && (aop != null ^ p2.getAopContent() != null) && (name != null ^ p2.getName() != null)
+        && (cmd != null && p2.getProposedExecutionCommand() != null
+            && !cmd.equals(p2.getProposedExecutionCommand()))
+        || (hidden != p2.isHidden())
+        || (aop != null && p2.getAopContent() != null && !aop.equals(p2.getAopContent()))
+        || (name != null && p2.getName() != null && !name.equals(p2.getName()));
+
 
   }
 

@@ -247,8 +247,8 @@ public class WinJavaManagementType implements ProcezzManagementType {
    *
    *
    *
-   * @param splitCmd
-   * @return
+   * @param splitCmd the cmd to be splitted.
+   * @return the splitted cmd.
    */
   public String[] splitter(final String splitCmd) throws IndexOutOfBoundsException {
 
