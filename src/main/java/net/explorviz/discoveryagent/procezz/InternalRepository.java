@@ -152,13 +152,14 @@ public final class InternalRepository {
         final boolean change = compareProcezzChange(cmd, aop, name, hidden, procezz);
 
         if (!ruleApplied && change) {
+
           ruleApplied = true;
         }
 
       }
 
       agentObject.setProcezzes(internalProcezzList);
-
+      LOGGER.info("Sending change? :" + ruleApplied);
       if (ruleApplied || broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
           || !newProcezzListNoDuplicates.isEmpty()) {
         broadcastService.setNewRegistrationFlag(false);

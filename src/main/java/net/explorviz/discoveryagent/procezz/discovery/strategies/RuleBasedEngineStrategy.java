@@ -87,8 +87,9 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
     }
     // Create Facts
     final Facts facts = new Facts();
-    facts.put("processInfo", newProcezz);
-    facts.put("updateExec", new ExecObject(fileSystem));
+    final ExecObject one = new ExecObject(fileSystem, newProcezz);
+    // facts.put("processInfo", one);
+    facts.put("updateExec", one);
     final DefaultRulesEngine rulesEngine = new DefaultRulesEngine(parameters);
     // rulesEngine.registerRuleListener(ruleListener);
     boolean check = false;
@@ -117,7 +118,8 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
   }
 
   public void updateRuleList(final Rules ruleList) {
-    synchronized (rules) {
+    // ruleList.forEach(a -> System.out.println("in base" + a.getName()));
+    synchronized (ruleList) {
       rules = ruleList;
     }
 

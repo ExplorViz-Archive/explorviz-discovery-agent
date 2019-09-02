@@ -13,6 +13,7 @@ public class ExecObject {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExecObject.class);
   private final MonitoringFilesystemService fileSystem;
+  Procezz procezz;
 
   /**
    * Contains objects, to execute specific commands on Processes in work with the
@@ -20,16 +21,60 @@ public class ExecObject {
    *
    * @param fileSystem reference to update Files.
    */
-  public ExecObject(final MonitoringFilesystemService fileSystem) {
+  public ExecObject(final MonitoringFilesystemService fileSystem, final Procezz procezz) {
     this.fileSystem = fileSystem;
+    this.procezz = procezz;
+
+  }
+
+
+  public boolean isHidden() {
+    return procezz.isHidden();
+  }
+
+  public void setHidden(final boolean hidden) {
+    procezz.setHidden(hidden);
+  }
+
+  public String getOsExecutionCommand() {
+    return procezz.getOsExecutionCommand();
+  }
+
+  public void setOsExecutionCommand(final String osExecutionCommand) {
+    procezz.setOsExecutionCommand(osExecutionCommand);
+  }
+
+  public String getProposedExecutionCommand() {
+    return procezz.getProposedExecutionCommand();
+  }
+
+  public void setProposedExecutionCommand(final String proposedExecutionCommand) {
+    procezz.setProposedExecutionCommand(proposedExecutionCommand);
+  }
+
+  public void setName(final String name) {
+    procezz.setName(name);
+  }
+
+  public String getName() {
+    return procezz.getName();
+  }
+
+  public String getWorkingDirectory() {
+    return procezz.getWorkingDirectory();
+  }
+
+  public void setWorkingDirecetory(final String workingDirectory) {
+    procezz.setWorkingDirectory(workingDirectory);
   }
 
   /**
    * Updates the aop.xml of a process.
    */
-  public void updateAop(final Procezz proc) {
+  public void updateAop(final String update) {
+    procezz.setAopContent(update);
     try {
-      fileSystem.updateAopFileContentForProcezz(proc);
+      fileSystem.updateAopFileContentForProcezz(procezz);
     } catch (final ProcezzMonitoringSettingsException e) {
       LOGGER.error(
           "Could not find aop.xml for procezz with ID: " + e.getFaultyProcezz().getId() + " .");
