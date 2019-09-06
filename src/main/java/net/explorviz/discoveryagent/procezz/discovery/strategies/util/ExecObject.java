@@ -13,7 +13,7 @@ public class ExecObject {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExecObject.class);
   private final MonitoringFilesystemService fileSystem;
-  Procezz procezz;
+  private final Procezz procezz;
 
   /**
    * Contains objects, to execute specific commands on Processes in work with the

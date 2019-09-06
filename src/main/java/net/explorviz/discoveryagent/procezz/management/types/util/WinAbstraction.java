@@ -17,10 +17,11 @@ import org.slf4j.LoggerFactory;
  * Class for the communication with the Windows.
  *
  */
-public class WinAbstraction {
+public final class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static final int SINGLE_COMMAND_LENGTH = 1;
   private static String userName = System.getProperty("user.name");
+  private static final String REGEX = "\\s+";
 
   private WinAbstraction() {
 
@@ -33,10 +34,15 @@ public class WinAbstraction {
    * @throws IOException by String mistakes.
    */
   public static void startProcessCmd(final String fullCmd) throws IOException {
-    final String[] cmd = fullCmd.split("\\s+");
+    final String[] cmd = fullCmd.split(REGEX);
     executeShellCommand(cmd);
   }
 
+  /**
+   * Executes a given cmd and does not read the output.
+   *
+   * @param cmd the command.
+   */
   public static void executeShellCommand(final String... cmd) {
     // for (int i = 0; i < cmd.length; i++) {
     // System.out.println(cmd[i]);
@@ -53,7 +59,11 @@ public class WinAbstraction {
     }
   }
 
-
+  /**
+   * Executes a given cmd and reads the output.
+   *
+   * @param cmdInput the command.
+   */
   public static List<String> executeAndReadShellCommand(final String... cmdInput)
       throws IOException {
 
@@ -108,8 +118,7 @@ public class WinAbstraction {
         rawInputDataStream.close();
         inpReader.close();
         reader.close();
-        LOGGER.error("Problem reading the input. Did something interrupt the process?",
-            String.join(" ", cmdInput));
+        LOGGER.error("The process did not terminated properly.", String.join(" ", cmdInput));
         return new ArrayList<String>();
       }
     } catch (final InterruptedException e) {
@@ -127,19 +136,25 @@ public class WinAbstraction {
 
   }
 
+  /**
+   * Returns a HashMap, representening the the java-processes on the os.
+   *
+   * @return the HashMap.
+   * @throws IOException by invalid execution.
+   */
   public static HashMap<Long, String> findProzzeses() throws IOException {
-    final HashMap<Long, String> proccList = new HashMap<Long, String>();
-    // The out-String length can get bigger!
+    final HashMap<Long, String> proccList = new HashMap<>();
+    // The out-String length can get bigger, if needed
     executeAndReadShellCommand(
         "powershell.exe -Command \"Get-WmiObject Win32_Process -Filter \\\"CommandLine like '%java%'\\\" | Select ProcessId,Commandline | ft  -HideTableHeaders | Out-String -Width 4096\""
-            .split("\\s+")).forEach(cmd -> {
+            .split(REGEX)).forEach(cmd -> {
               if (cmd.trim().equals("")) {
                 return;
               }
               cmd = cmd.trim();
-              final String[] parts = cmd.split("\\s+", 2);
+              final String[] parts = cmd.split(REGEX, 2);
 
-              final String process = parts[1].trim();
+
               Long pid;
 
               try {
@@ -151,6 +166,7 @@ public class WinAbstraction {
 
 
               try {
+                final String process = parts[1].trim();
                 if (testUser(parts[0].trim())
                     && !process.toLowerCase(Locale.ENGLISH).contains("Win32_Process")
                     && !process.toLowerCase(Locale.ENGLISH).contains("tasklist")
@@ -168,13 +184,22 @@ public class WinAbstraction {
     return proccList;
   }
 
-  public static boolean testUser(final String iD) throws IOException {
+  /**
+   * Check User for ID.
+   *
+   * @param id of Process
+   * @return bool presenting check.
+   * @throws IOException calling cmd failed.
+   */
+  public static boolean testUser(final String id) throws IOException {
 
-    if (!iD.equals("")) {
+    if (!id.equals("")) {
 
       final List<String> rawList =
           executeAndReadShellCommand(("powershell.exe -Command \"tasklist /v /fi \\\"USERNAME eq "
-              + userName + "\\\" " + "/fi \\\"PID eq " + iD + "\\\"\"").split("\\s+"));
+              + userName + "\\\" " + "/fi \\\"PID eq " + id + "\\\"\"").split(REGEX));
+
+
       for (int i = 0; i < rawList.size(); i++) {
 
         if (rawList.get(i).contains(userName)) {
@@ -189,11 +214,15 @@ public class WinAbstraction {
     return false;
   }
 
-
+  /**
+   * Kills process for given pid.
+   *
+   * @param pid the pid.
+   */
   public static void killProcessPid(final long pid) {
 
     final String cmd = "powershell.exe -Command  \"taskkill /F /PID " + pid + "\"";
-    executeShellCommand(cmd.split("\\s+"));
+    executeShellCommand(cmd.split(REGEX));
   }
 
 }

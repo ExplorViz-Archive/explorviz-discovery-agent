@@ -20,11 +20,11 @@ public class RuleBasedEngineStrategyTest {
   private static final String CORRECT_CMD =
       "\"C:\\Program Files\\java.exe\" -cp . -jar sampleApplication.jar";
 
-  RuleBasedEngineStrategy strat;
+  private RuleBasedEngineStrategy strat;
 
-  Procezz procezz;
+  private Procezz procezz;
   @Mock
-  MonitoringFilesystemService service;
+  private MonitoringFilesystemService service;
 
   @BeforeEach
   public void setUp() {

@@ -12,15 +12,12 @@ import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.core.RulesEngineParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Strategy based on rule based engine.
  */
 public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RuleBasedEngineStrategy.class);
   private static final String HTTPBASE = "http://";
   // Configuration of RuleEngine
   private final RulesEngineParameters parameters =
@@ -117,8 +114,13 @@ public final class RuleBasedEngineStrategy implements DiscoveryStrategy {
 
   }
 
+  /**
+   * Sets rules for rule based engine.
+   *
+   * @param ruleList the rulelist.
+   */
   public void updateRuleList(final Rules ruleList) {
-    // ruleList.forEach(a -> System.out.println("in base" + a.getName()));
+
     synchronized (ruleList) {
       rules = ruleList;
     }

@@ -18,6 +18,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Fetchs in x seconds the rules from the UpdateService.
+ *
+ */
 public class UpdateRuleListService extends TimerTask {
 
   private static final MVELRuleFactory RULEFACTORY =
@@ -68,12 +72,13 @@ public class UpdateRuleListService extends TimerTask {
    * @return returns a List of rules in Rules-Objects. Returns @null by faulty String.
    */
   public Rules stringToRules(final String ruleString) {
-    JSONObject jObj;
+    JSONObject stringObj;
     JSONArray dataObj = new JSONArray();
     StringReader reader = null;
     try {
-      jObj = new JSONObject(ruleString);
-      dataObj = jObj.getJSONObject("data").getJSONObject("attributes").getJSONArray("ruleList");
+      stringObj = new JSONObject(ruleString);
+      dataObj =
+          stringObj.getJSONObject("data").getJSONObject("attributes").getJSONArray("ruleList");
       reader = new StringReader(dataObj.toString());
       return RULEFACTORY.createRules(reader);
     } catch (final JSONException e) {

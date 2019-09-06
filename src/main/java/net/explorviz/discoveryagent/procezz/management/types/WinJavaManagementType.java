@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class WinJavaManagementType implements ProcezzManagementType {
-
+  public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
   private static final Logger LOGGER = LoggerFactory.getLogger(WinJavaManagementType.class);
   private static final String EXPLORVIZ_MODEL_ID_FLAG = "-Dexplorviz.agent.model.id=";
 
@@ -35,9 +35,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
   private static final String REGEX = "\\s+";
   // private static final String EXEC = ".exe";
-  private static final String REGEX_QUOTE = "\"";
   private static final String REGEX_CHAR = "\'";
-  public static final String USE_OS_FLAG = "Use-OS-Exec-CMD";
+  private static final String REGEX_QUOTE = "\"";
+
 
   private final MonitoringFilesystemService monitoringFsService;
 
@@ -259,7 +259,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
       final String[] execPathFragments = splitCmd.split(REGEX_CHAR, 3);
       final String[] execPathFragmentsRes = new String[2];
       execPathFragmentsRes[0] = REGEX_CHAR + execPathFragments[1] + REGEX_CHAR;
-      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst("\\s+", "");
+      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst(REGEX, "");
       return execPathFragmentsRes;
 
     } else {
