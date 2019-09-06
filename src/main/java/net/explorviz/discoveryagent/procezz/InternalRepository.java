@@ -159,7 +159,6 @@ public final class InternalRepository {
       }
 
       agentObject.setProcezzes(internalProcezzList);
-      LOGGER.info("Sending change? :" + ruleApplied);
       if (ruleApplied || broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
           || !newProcezzListNoDuplicates.isEmpty()) {
         broadcastService.setNewRegistrationFlag(false);

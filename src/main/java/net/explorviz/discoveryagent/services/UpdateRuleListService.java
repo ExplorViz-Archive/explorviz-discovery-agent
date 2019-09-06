@@ -70,15 +70,26 @@ public class UpdateRuleListService extends TimerTask {
   public Rules stringToRules(final String ruleString) {
     JSONObject jObj;
     JSONArray dataObj = new JSONArray();
+    StringReader reader = null;
     try {
       jObj = new JSONObject(ruleString);
       dataObj = jObj.getJSONObject("data").getJSONObject("attributes").getJSONArray("ruleList");
-      return RULEFACTORY.createRules(new StringReader(dataObj.toString()));
+      reader = new StringReader(dataObj.toString());
+      return RULEFACTORY.createRules(reader);
     } catch (final JSONException e) {
+      if (reader != null) {
+        reader.close();
+      }
       LOGGER.info("Received faulty JSON-File from Update-Service.");
     } catch (final Exception e) {
+      if (reader != null) {
+        reader.close();
+      }
       LOGGER.info("Received faulty rulelist from Updater.");
       return null;
+    }
+    if (reader != null) {
+      reader.close();
     }
     return null;
   }

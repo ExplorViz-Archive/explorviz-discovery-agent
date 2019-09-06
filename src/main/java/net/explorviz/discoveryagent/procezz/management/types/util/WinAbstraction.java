@@ -108,7 +108,8 @@ public class WinAbstraction {
         rawInputDataStream.close();
         inpReader.close();
         reader.close();
-        System.out.println("Was willst du!!!");
+        LOGGER.error("Problem reading the input. Did something interrupt the process?",
+            String.join(" ", cmdInput));
         return new ArrayList<String>();
       }
     } catch (final InterruptedException e) {

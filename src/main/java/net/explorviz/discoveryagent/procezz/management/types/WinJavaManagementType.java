@@ -143,9 +143,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
 
-    final boolean useUserExec =
-        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
-            : false;
+    final boolean useUserExec = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
 
     final String execPath = useUserExec ? userExecCmd : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");
@@ -167,9 +165,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
   public void injectProcezzIdentificationProperty(final Procezz procezz)
       throws ProcezzStartException {
     final String userExecCmd = procezz.getUserExecutionCommand();
-    final boolean useuserExecCmd =
-        userExecCmd != null && userExecCmd.length() > 0 && !userExecCmd.equals(USE_OS_FLAG) ? true
-            : false;
+    final boolean useuserExecCmd = userExecCmd != null && userExecCmd.length() > 0 ? true : false;
     final String execPath =
         useuserExecCmd ? procezz.getUserExecutionCommand() : procezz.getOsExecutionCommand();
     final String execPathWithoutAgentFlag = execPath.replaceFirst(EXPORVIZ_MODEL_ID_FLAG_REGEX, "");

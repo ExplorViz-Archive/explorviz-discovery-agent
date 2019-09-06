@@ -27,6 +27,9 @@ public class ExecObject {
 
   }
 
+  public long getPid() {
+    return procezz.getPid();
+  }
 
   public boolean isHidden() {
     return procezz.isHidden();
