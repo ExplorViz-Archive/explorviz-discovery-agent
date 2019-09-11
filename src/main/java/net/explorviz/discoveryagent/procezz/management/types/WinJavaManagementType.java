@@ -33,8 +33,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
   private static final String EXPORVIZ_MODEL_ID_FLAG_REGEX =
       "\\s" + EXPLORVIZ_MODEL_ID_FLAG + "([^\\s]+)";
   private static final String REGEX = "\\s+";
-  // private static final String EXEC = ".exe";
-  private static final String REGEX_CHAR = "\'";
   private static final String REGEX_QUOTE = "\"";
 
 

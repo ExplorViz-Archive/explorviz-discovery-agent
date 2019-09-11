@@ -143,7 +143,7 @@ public final class InternalRepository {
 
       boolean ruleApplied = false;
       for (final Procezz procezz : internalProcezzList) {
-        final String wd = procezz.getProcezzManagementType();
+        final String wd = procezz.getWorkingDirectory();
         final String cmd = procezz.getProposedExecutionCommand();
         final String aop = procezz.getAopContent();
         final String name = procezz.getName();
@@ -159,7 +159,7 @@ public final class InternalRepository {
       }
 
       agentObject.setProcezzes(internalProcezzList);
-      if (broadcastService.getNewRegistration().get() || stoppedProcezzes.size() > 0
+      if (ruleApplied || broadcastService.getNewRegistration().get() || stoppedProcezzes.size() > 0
           || newProcezzListNoDuplicates.size() > 0) {
         broadcastService.setNewRegistrationFlag(false);
         broadcastService.broadcastMessage(agentObject);

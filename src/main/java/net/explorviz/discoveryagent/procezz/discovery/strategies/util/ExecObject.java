@@ -67,7 +67,7 @@ public class ExecObject {
     return procezz.getWorkingDirectory();
   }
 
-  public void setWorkingDirecetory(final String workingDirectory) {
+  public void setWorkingDirectory(final String workingDirectory) {
     procezz.setWorkingDirectory(workingDirectory);
   }
 
