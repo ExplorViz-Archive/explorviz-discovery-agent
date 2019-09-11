@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import net.explorviz.discoveryagent.procezz.management.ProcezzManagementType;
 import net.explorviz.discoveryagent.procezz.management.types.util.WinAbstraction;
@@ -84,13 +83,9 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   @Override
   public void setWorkingDirectory(final Procezz procezz) {
-    if (procezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("sample")) {
-      procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop");
-    } else if (procezz.getOsExecutionCommand().toLowerCase(Locale.ENGLISH).contains("tomcat")) {
-      procezz.setWorkingDirectory("C:\\Users\\enes\\Desktop\\Discovery-Agent\\jpetstore-6");
-    } else {
-      procezz.setWorkingDirectory("");
-    }
+
+    procezz.setWorkingDirectory("");
+
 
   }
 
@@ -255,12 +250,6 @@ public class WinJavaManagementType implements ProcezzManagementType {
       execPathFragmentsRes[1] = execPathFragments[2].replaceFirst(REGEX, "");
       return execPathFragmentsRes;
 
-    } else if (splitCmd.startsWith(REGEX_CHAR)) {
-      final String[] execPathFragments = splitCmd.split(REGEX_CHAR, 3);
-      final String[] execPathFragmentsRes = new String[2];
-      execPathFragmentsRes[0] = REGEX_CHAR + execPathFragments[1] + REGEX_CHAR;
-      execPathFragmentsRes[1] = execPathFragments[2].replaceFirst(REGEX, "");
-      return execPathFragmentsRes;
 
     } else {
       return splitCmd.split(REGEX, 2);

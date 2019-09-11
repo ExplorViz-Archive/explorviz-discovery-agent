@@ -3,7 +3,9 @@ package net.explorviz.discoveryagent.procezz.discovery;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import net.explorviz.discoveryagent.procezz.discovery.strategies.KiekerSampleAppStrategy;
 import net.explorviz.discoveryagent.procezz.discovery.strategies.RuleBasedEngineStrategy;
+import net.explorviz.discoveryagent.procezz.discovery.strategies.TomcatStrategy;
 
 
 public final class DiscoveryStrategyFactory {
@@ -19,7 +21,7 @@ public final class DiscoveryStrategyFactory {
   @Inject
   public DiscoveryStrategyFactory(final RuleBasedEngineStrategy ruleStrat) {
     this.ruleStrat = ruleStrat;
-    ruleStrat.startRuleFetch();
+    // ruleStrat.startRuleFetch();
   }
 
   /**
@@ -32,9 +34,9 @@ public final class DiscoveryStrategyFactory {
     synchronized (strategies) {
 
       if (strategies.isEmpty()) {
-        // strategies.add(new KiekerSampleAppStrategy());
-        // strategies.add(new TomcatStrategy());
-        strategies.add(ruleStrat);
+        strategies.add(new KiekerSampleAppStrategy());
+        strategies.add(new TomcatStrategy());
+        // strategies.add(ruleStrat);
       }
 
     }
