@@ -251,6 +251,7 @@ public class WinJavaManagementType implements ProcezzManagementType {
       return execPathFragmentsRes;
 
 
+
     } else {
       return splitCmd.split(REGEX, 2);
     }

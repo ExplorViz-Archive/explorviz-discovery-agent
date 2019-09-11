@@ -159,8 +159,8 @@ public final class InternalRepository {
       }
 
       agentObject.setProcezzes(internalProcezzList);
-      if (ruleApplied || broadcastService.getNewRegistration().get() || !stoppedProcezzes.isEmpty()
-          || !newProcezzListNoDuplicates.isEmpty()) {
+      if (broadcastService.getNewRegistration().get() || stoppedProcezzes.size() > 0
+          || newProcezzListNoDuplicates.size() > 0) {
         broadcastService.setNewRegistrationFlag(false);
         broadcastService.broadcastMessage(agentObject);
       }

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Class for the communication with the Windows.
  *
  */
-public final class WinAbstraction {
+public class WinAbstraction {
   private static final Logger LOGGER = LoggerFactory.getLogger(WinAbstraction.class);
   private static final int SINGLE_COMMAND_LENGTH = 1;
   private static String userName = System.getProperty("user.name");

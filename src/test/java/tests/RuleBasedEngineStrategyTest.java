@@ -42,7 +42,7 @@ public class RuleBasedEngineStrategyTest {
     final Rules rules = new Rules();
 
     final Rule rule = new RuleBuilder().name("test").description("checks cmd")
-        .when(facts -> facts.get("processInfo").equals(procezz))
+        .when(facts -> facts.get("updateExec") != null)
         .then(facts -> procezz.setProposedExecutionCommand("Prop"))
         .then(facts -> procezz.setAopContent("newAOP")).build();
     rules.register(rule);
@@ -64,7 +64,7 @@ public class RuleBasedEngineStrategyTest {
     final Rules rules = new Rules();
 
     final Rule rule = new RuleBuilder().name("test").description("checks cmd")
-        .when(facts -> facts.get("processInfo").equals(service))
+        .when(facts -> facts.get("updateExec") == null)
         .then(facts -> procezz.setProposedExecutionCommand("Prop"))
         .then(facts -> procezz.setAopContent("newAOP")).build();
     rules.register(rule);
