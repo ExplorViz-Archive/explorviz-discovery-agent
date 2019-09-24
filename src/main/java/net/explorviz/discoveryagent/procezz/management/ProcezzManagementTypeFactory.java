@@ -81,9 +81,11 @@ public final class ProcezzManagementTypeFactory {
   }
 
   public boolean checkOs(final String os) {
-
-    return os.toLowerCase(Locale.ENGLISH)
-        .contains(System.getProperty("os.name").toLowerCase(Locale.ENGLISH).trim());
+    String check = System.getProperty("os.name");
+    if (check.length() >= 7) {
+      check = check.substring(0, 7).trim();
+    }
+    return os.toLowerCase(Locale.ENGLISH).contains(check.toLowerCase(Locale.ENGLISH));
   }
 
 }
