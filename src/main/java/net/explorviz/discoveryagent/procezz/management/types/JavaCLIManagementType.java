@@ -228,7 +228,7 @@ public class JavaCLIManagementType implements ProcezzManagementType {
   @Override
   public String getOsType() {
 
-    return "linux";
+    return "linux & mac";
   }
 
 }
