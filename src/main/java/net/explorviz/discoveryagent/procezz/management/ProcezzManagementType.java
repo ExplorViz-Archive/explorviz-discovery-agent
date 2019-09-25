@@ -31,7 +31,7 @@ public interface ProcezzManagementType {
 
   String getProgrammingLanguage();
 
-  String getOsType();
+  String[] getOsType();
 
   void injectMonitoringAgentInProcezz(final Procezz procezz) throws ProcezzStartException;
 

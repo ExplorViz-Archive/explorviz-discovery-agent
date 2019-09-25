@@ -127,8 +127,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
   }
 
   @Override
-  public String getOsType() {
-    return "windows";
+  public String[] getOsType() {
+    final String[] os = {"windows"};
+
+    return os;
   }
 
 
