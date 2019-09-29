@@ -12,15 +12,18 @@ Therefore, users do not need to manually start applications with monitoring para
 files.
 
 ## Requirements
-- Linux-based operating system
+- Linux- or Windows-based operating system
 - Java 8
 - Accessible (network) [ExplorViz Backend](https://github.com/ExplorViz/explorviz-backend)
 
 ## Setup
 1. Download the `explorviz-discovery-agent.jar` from the [release page](https://github.com/ExplorViz/explorviz-discovery-agent/releases) 
-2. Modify `backendIP` and `server.ip` in the contained `explorviz.properties` file
+2. Modify `backendIP`, `updateIP` and`server.ip` in the contained `explorviz.properties` file.
 
 ## Usage
 If agent and backend are connected, data will be continuously exchanged in the modifiable time interval of 30 seconds.
 The visualized configuration dialogs of the overall discovery and monitoring management mechanic are 
 accessible via the `Discovery` button in the [ExplorViz Frontend](https://github.com/ExplorViz/explorviz-frontend). 
+
+## Attention
+The [sampleApplication](https://github.com/ExplorViz/sampleApplication) will be used for the tests. Therefore its important, to check that this application does not run, when you start the tests. 

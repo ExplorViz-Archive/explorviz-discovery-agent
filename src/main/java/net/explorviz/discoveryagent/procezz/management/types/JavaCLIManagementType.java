@@ -225,9 +225,12 @@ public class JavaCLIManagementType implements ProcezzManagementType {
 
   }
 
+  /**
+   * Sets the OS for the PMT.
+   */
   @Override
   public String[] getOsType() {
-    final String[] os = {"linux", "mac"};
+    final String[] os = {"aix", "nix", "nux", "mac"};
     return os;
   }
 

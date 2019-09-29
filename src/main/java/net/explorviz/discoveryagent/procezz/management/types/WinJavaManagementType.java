@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * PMT implementation for compabilitiy with windows.
+ * PMT implementation for compatibility with windows.
  *
  */
 public class WinJavaManagementType implements ProcezzManagementType {
@@ -231,10 +231,10 @@ public class WinJavaManagementType implements ProcezzManagementType {
 
   /**
    * If you run a java process via CLI, windows replaces in some cases "java" with the path to the
-   * executable of java in a string. THe risk is to have spaces in the path. So if we split the path
-   * between the first occurring whitespace, its not guaranteed, that we have the java launcher on
-   * the left and the rest of the launch on the right. Therefore, we try to detect if the first part
-   * of the exec cmd is a string a or not.
+   * executable of java, represented as a string. THe risk is to have spaces in the path. So if we
+   * split the path between the first occurring whitespace its not guaranteed that we have the java
+   * launcher on the left and the rest of the launch on the right side. Therefore, we try to detect
+   * if the first part of the exec cmd is a string or not.
    *
    *
    *
