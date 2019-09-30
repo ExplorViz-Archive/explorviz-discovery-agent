@@ -83,8 +83,23 @@ jar {
   }
 }
 
+//https://github.com/johnrengelman/shadow/issues/111
+
+task shadowBugWorkaround(type: Jar) {
+  dependsOn jar
+  dependsOn files("$buildDir/resources/main/kieker-1.14-SNAPSHOT-aspectj.jar")
+  destinationDir file('build/shadow-bug-workaround')
+  baseName = 'nested-content'
+  from jar
+  from files("$buildDir/resources/main/kieker-1.14-SNAPSHOT-aspectj.jar")
+}
+
 shadowJar {
+  dependsOn shadowBugWorkaround
   archiveName = "${project.name}.${extension}"
+  from(shadowBugWorkaround) {
+    	into "kieker/"
+   }
 }
 
 spotbugs {

@@ -2,7 +2,7 @@ package net.explorviz.discoveryagent.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,47 +52,37 @@ public class MonitoringFilesystemService {
     updateDefaultKiekerProperties();
 
     tempDir.deleteOnExit();
+
+    LOGGER.debug("Monitoring Config Folder initialized.");
   }
 
   private void copyDefaultKiekerProperties() throws IOException {
 
     final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
     final URL urlToDefaultKiekerProps =
         classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_PROPS_FILENAME);
-
 
     final URL urlToDefaultAopProps =
         classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + AOP_PROPS_FILENAME);
 
-    final URL urlToDefaultKiekerJar =
-        classLoader.getResource(MONITORING_DEFAULT_CONF_PATH + "/" + KIEKER_JAR_FILENAME);
+    final URL urlToDefaultKiekerJar = classLoader.getResource(KIEKER_JAR_FILENAME);
 
-    /*
-     * System.out.println("From classloader: " + urlToDefaultKiekerProps); System.out.println(
-     * "Paths with uri + to file: " + Paths.get(urlToDefaultKiekerProps.toURI()).toFile());
-     * System.out.println("getURI output: " + urlToDefaultKiekerProps.toURI());
-     * System.out.println("getFile output: " + urlToDefaultKiekerProps.getFile()); System.out
-     * .println(Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
-     */
+    final InputStream kiekerDefaultConfigPath =
+        new URL(urlToDefaultKiekerProps.toString()).openStream();
+    Files.copy(kiekerDefaultConfigPath,
+        Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+    kiekerDefaultConfigPath.close();
 
-    Path kiekerDefaultAopPath;
-    Path kiekerDefaultJarPath;
-    Path kiekerDefaultConfigPath;
-    try {
-      kiekerDefaultConfigPath = Paths.get(urlToDefaultKiekerProps.toURI());
-      Files.copy(kiekerDefaultConfigPath,
-          Paths.get(configsPath.toString() + File.separator + KIEKER_PROPS_FILENAME));
+    final InputStream kiekerDefaultAopPath = new URL(urlToDefaultAopProps.toString()).openStream();
+    Files.copy(kiekerDefaultAopPath,
+        Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
+    kiekerDefaultAopPath.close();
 
-      kiekerDefaultAopPath = Paths.get(urlToDefaultAopProps.toURI());
-      Files.copy(kiekerDefaultAopPath,
-          Paths.get(configsPath.toString() + File.separator + AOP_PROPS_FILENAME));
-
-      kiekerDefaultJarPath = Paths.get(urlToDefaultKiekerJar.toURI());
-      Files.copy(kiekerDefaultJarPath,
-          Paths.get(configsPath.toString() + File.separator + KIEKER_JAR_FILENAME));
-    } catch (final URISyntaxException e) {
-      LOGGER.error("Path-String to a file, could not be changed to URI.");
-    }
+    final InputStream kiekerDefaultJarPath = new URL(urlToDefaultKiekerJar.toString()).openStream();
+    Files.copy(kiekerDefaultJarPath,
+        Paths.get(configsPath.toString() + File.separator + KIEKER_JAR_FILENAME));
+    kiekerDefaultJarPath.close();
   }
 
   private void updateDefaultKiekerProperties() throws IOException {
