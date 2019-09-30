@@ -140,7 +140,7 @@ public final class InternalRepository {
       // finally, add new-found (= remaining) procezzes to the internal storage
       procezzUtility.initializeAndAddNewProcezzes(agentObject.getId(), newProcezzListNoDuplicates,
           internalProcezzList);
-
+      // Use discovery strategies
       boolean ruleApplied = false;
       for (final Procezz procezz : internalProcezzList) {
         final String wd = procezz.getWorkingDirectory();
@@ -169,6 +169,19 @@ public final class InternalRepository {
 
   }
 
+  /**
+   * Compares old attributes of a procezz-object with attributes, that got set after using the
+   * discovery-strategies.
+   * 
+   * @param wd working directory.
+   * @param cmd proposedCMD.
+   * @param aop aop.xml-file.
+   * @param name of the process.
+   * @param hidden flag.
+   * @param p2 the process-object.
+   * @return boolean determine if changes happend in the attributes of a procezz-object, after
+   *         discovery-strategies got used.
+   */
   public boolean compareProcezzChange(final String wd, final String cmd, final String aop,
       final String name, final boolean hidden, final Procezz p2) {
 

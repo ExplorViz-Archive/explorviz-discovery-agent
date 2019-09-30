@@ -30,7 +30,7 @@ configurations.all {
 ext {
   // Version tag for the Explorviz-Backend-Shared project dependency
   // https://github.com/ExplorViz/explorviz-backend-shared
-  explorvizSharedVersion = 'v1.3.1'
+  explorvizSharedVersion = 'v1.4.0.3'
 }
 
 dependencies {  
